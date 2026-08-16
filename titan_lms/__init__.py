@@ -244,23 +244,24 @@ def create_app():
             pass
             
         # Auto-create Super Admin if not exists
-        superadmin = User.query.filter_by(email='superadmin@gmail.com').first()
-        if not superadmin:
-            superadmin = User(
-                name='Super Admin',
-                email='superadmin@gmail.com',
-                role='superadmin',
-                verified=True,
-                bio='Platform Super Administrator'
-            )
-            superadmin.set_password('adminsuper123')
-            db.session.add(superadmin)
-            db.session.commit()
-            print('✅ Super Admin created: superadmin@gmail.com / adminsuper123')
-        elif superadmin.role != 'superadmin':
-            superadmin.role = 'superadmin'
-            db.session.commit()
-            print('✅ Super Admin role updated to superadmin')
+        try:
+            superadmin = User.query.filter_by(email='superadmin@gmail.com').first()
+            if not superadmin:
+                superadmin = User(
+                    name='Super Admin',
+                    email='superadmin@gmail.com',
+                    role='superadmin',
+                    verified=True,
+                    bio='Platform Super Administrator'
+                )
+                superadmin.set_password('adminsuper123')
+                db.session.add(superadmin)
+                db.session.commit()
+            elif superadmin.role != 'superadmin':
+                superadmin.role = 'superadmin'
+                db.session.commit()
+        except Exception:
+            db.session.rollback()
 
 
         try:
