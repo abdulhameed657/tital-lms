@@ -44,6 +44,11 @@ def create_app():
     
     with app.app_context():
         try:
+            db.create_all()
+        except Exception:
+            pass
+
+        try:
             db.session.execute(db.text("ALTER TABLE users ADD COLUMN phone VARCHAR(50)"))
             db.session.commit()
         except Exception:
