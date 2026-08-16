@@ -7,39 +7,7 @@ from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
 
-# Auto-copy generated mascot image to static folder and convert white background to transparent PNG
 import os
-from PIL import Image
-_src = r'C:\Users\Abdul Hameed\.gemini\antigravity-ide\brain\64b84358-802e-4688-9dbe-6d27fab68abb\titan_mascot_sneaky_spy_1785923842479.png'
-_dst = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'titan_mascot.png')
-if os.path.exists(_src):
-    try:
-        _img = Image.open(_src).convert("RGBA")
-        _data = _img.getdata()
-        _new_data = []
-        for _item in _data:
-            if _item[0] < 15 and _item[1] < 15 and _item[2] < 15:
-                _new_data.append((0, 0, 0, 0))
-            else:
-                _new_data.append(_item)
-        _img.putdata(_new_data)
-        _img.save(_dst, "PNG")
-    except Exception:
-        import shutil
-        try:
-            shutil.copy(_src, _dst)
-        except Exception:
-            pass
-
-_src4 = r'C:\Users\Abdul Hameed\.gemini\antigravity-ide\brain\af8ef4ed-1c7f-456a-95b3-e6c61b7eee93\titan_login_vector_grad_cap_1786180934095.png'
-_dst4 = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'login_vector_grad_cap.png')
-if os.path.exists(_src4):
-    import shutil
-    try:
-        shutil.copy(_src4, _dst4)
-    except Exception:
-        pass
-
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
