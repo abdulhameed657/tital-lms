@@ -1,0 +1,226 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Instructor Overview | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    .modern-card {
+        background: #ffffff;
+        box-shadow: 0px 4px 20px rgba(10, 17, 40, 0.05);
+        transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .modern-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 12px 30px rgba(10, 17, 40, 0.08);
+        border-color: rgba(0, 84, 203, 0.15);
+    }
+    .chart-path {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: dash 3s linear forwards;
+    }
+    @keyframes dash {
+        to { stroke-dashoffset: 0; }
+    }
+</style>
+{% endblock %}
+
+{% block instructor_content %}
+<div class="max-w-container-max mx-auto px-4 sm:px-gutter py-6 sm:py-xl space-y-6 sm:space-y-xl">
+    <!-- Header & Quick Action (Design from code.html) -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md slide-from-top">
+        <div>
+            <h1 class="text-2xl sm:text-headline-lg font-headline-lg text-on-surface font-bold">Instructor Overview</h1>
+            <p class="text-xs sm:text-body-md text-on-surface-variant">Welcome back, <span class="text-primary font-bold">{{ current_user.name }}</span>. You have <span class="text-primary font-bold">12 new submissions</span> today.</p>
+        </div>
+        <a href="{{ url_for('instructor.create_course') }}" class="w-full sm:w-auto bg-primary text-white px-xl py-3 rounded-xl font-label-lg font-bold flex items-center justify-center gap-sm shadow-xl hover:shadow-primary/30 hover:scale-105 transition-all active:scale-95 touch-target">
+            <span class="material-symbols-outlined">add_circle</span> Quick Create Course
+        </a>
+    </div>
+
+    <!-- Dashboard Grid Layout (12 Columns from code.html) -->
+    <div class="grid grid-cols-12 gap-6 lg:gap-lg">
+        <!-- Left Main Column (8 Columns) -->
+        <div class="col-span-12 lg:col-span-8 space-y-lg slide-from-left">
+            <!-- Top Performer Course Cards Row (Design from code.html) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <!-- Card 1: Top Performer (Blue Hover Accent) -->
+                <div class="bg-white p-lg rounded-2xl border-2 border-primary/20 shadow-lg hover:-translate-y-2 hover:scale-[1.02] hover:border-primary hover:shadow-[0_20px_40px_rgba(0,84,203,0.2)] transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+                    <div class="flex justify-between items-start">
+                        <div class="p-2.5 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-primary text-2xl">data_check</span>
+                        </div>
+                        <span class="bg-tertiary/10 text-tertiary px-3 py-1 rounded-full text-label-sm font-bold uppercase tracking-wider">Top Performer</span>
+                    </div>
+                    <div class="mt-md">
+                        <h4 class="text-headline-sm font-headline-md font-bold text-on-surface leading-tight group-hover:text-primary transition-colors">
+                            {{ courses[0].title if courses else 'Advanced Quantum Computing 401' }}
+                        </h4>
+                        <div class="flex gap-xl mt-lg">
+                            <div>
+                                <p class="text-label-sm text-on-surface-variant font-bold uppercase">Students</p>
+                                <p class="text-headline-sm font-bold text-on-surface">{{ courses[0].enrollments|length if courses else '1,284' }}</p>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="mt-lg">
+                        <div class="flex justify-between items-center mb-1 text-label-sm font-bold">
+                            <span class="text-on-surface-variant">Course Progress</span>
+                            <span class="text-primary">88%</span>
+                        </div>
+                        <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                            <div class="h-full bg-primary rounded-full" style="width: 88%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Mid-Term (Gold Hover Accent) -->
+                <div class="bg-white p-lg rounded-2xl border-2 border-tertiary/30 shadow-lg hover:-translate-y-2 hover:scale-[1.02] hover:border-tertiary hover:shadow-[0_20px_40px_rgba(212,175,55,0.25)] transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-tertiary"></div>
+                    <div class="flex justify-between items-start">
+                        <div class="p-2.5 bg-tertiary/10 rounded-xl group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-tertiary text-2xl">architecture</span>
+                        </div>
+                        <span class="bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-full text-label-sm font-bold uppercase tracking-wider">Active Track</span>
+                    </div>
+                    <div class="mt-md">
+                        <h4 class="text-headline-sm font-headline-md font-bold text-on-surface leading-tight group-hover:text-tertiary transition-colors">
+                            {{ courses[1].title if courses|length > 1 else 'Neural Network Architecture' }}
+                        </h4>
+                        <div class="flex gap-xl mt-lg">
+                            <div>
+                                <p class="text-label-sm text-on-surface-variant font-bold uppercase">Students</p>
+                                <p class="text-headline-sm font-bold text-on-surface">{{ courses[1].enrollments|length if courses|length > 1 else '856' }}</p>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="mt-lg">
+                        <div class="flex justify-between items-center mb-1 text-label-sm font-bold">
+                            <span class="text-on-surface-variant">Course Progress</span>
+                            <span class="text-secondary">42%</span>
+                        </div>
+                        <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                            <div class="h-full bg-secondary rounded-full" style="width: 42%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Large Analytics Chart Card (Design from code.html) -->
+            <div class="modern-card p-xl rounded-2xl border border-outline-variant/20">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-sm mb-lg">
+                    <div>
+                        <h4 class="text-headline-sm font-headline-md font-bold text-on-surface">Course Performance Analytics</h4>
+                        <p class="text-body-sm text-on-surface-variant">Student engagement and completion velocity over the last 30 days</p>
+                    </div>
+                    <div class="flex gap-md text-label-sm font-bold">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-primary"></span> Engagement</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-tertiary"></span> Completions</span>
+                    </div>
+                </div>
+
+                <div class="relative h-64 w-full pt-4">
+                    <svg class="w-full h-full" viewBox="0 0 800 200">
+                        <line stroke="#E5E2DA" stroke-width="1" x1="0" x2="800" y1="50" y2="50"></line>
+                        <line stroke="#E5E2DA" stroke-width="1" x1="0" x2="800" y1="100" y2="100"></line>
+                        <line stroke="#E5E2DA" stroke-width="1" x1="0" x2="800" y1="150" y2="150"></line>
+
+                        <path class="chart-path" d="M0,160 Q100,80 200,120 T400,60 T600,100 T800,40" fill="none" stroke="#0054cb" stroke-width="3.5"></path>
+                        <path class="chart-path" d="M0,180 Q150,140 300,160 T450,110 T600,140 T800,90" fill="none" stroke="#735c00" stroke-width="3.5" style="animation-delay: 0.5s;"></path>
+                        <circle class="animate-pulse" cx="400" cy="60" fill="#0054cb" r="6"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex justify-between items-end px-4 pointer-events-none text-label-sm font-bold text-on-surface-variant">
+                        <span>Week 1</span>
+                        <span>Week 2</span>
+                        <span>Week 3</span>
+                        <span>Week 4</span>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Right Sidebar Column (4 Columns from code.html) -->
+        <div class="col-span-12 lg:col-span-4 space-y-lg slide-from-right">
+            <!-- Needs Attention Panel -->
+            <div class="modern-card rounded-2xl overflow-hidden border border-outline-variant/20 flex flex-col justify-between">
+                <div class="bg-surface-container-highest p-lg border-b border-outline-variant/20 flex justify-between items-center">
+                    <h4 class="text-label-lg font-bold flex items-center gap-sm text-on-surface">
+                        <span class="material-symbols-outlined text-primary text-xl">priority_high</span>
+                        Needs Attention
+                    </h4>
+                    <span class="bg-primary text-white text-label-sm px-2.5 py-0.5 rounded-full font-bold">12</span>
+                </div>
+                <div class="p-lg space-y-md">
+                    <a href="{{ url_for('instructor.grading') }}" class="flex items-center justify-between p-md bg-surface-container-low rounded-xl hover:bg-surface-container hover:border-primary/30 border border-outline-variant/10 transition-all group">
+                        <div class="flex items-center gap-md">
+                            <div class="w-2 h-10 bg-primary rounded-full"></div>
+                            <div>
+                                <p class="text-label-md font-bold text-on-surface group-hover:text-primary transition-colors">Ungraded Quiz #4</p>
+                                <p class="text-label-sm text-on-surface-variant">Quantum Basics • 8 Submissions</p>
+                                <div class="flex items-center gap-xs mt-1 text-primary">
+                                    <span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider">AI Rubric Generated</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">chevron_right</span>
+                    </a>
+
+                    <a href="{{ url_for('instructor.grading') }}" class="flex items-center justify-between p-md bg-surface-container-low rounded-xl hover:bg-surface-container hover:border-primary/30 border border-outline-variant/10 transition-all group">
+                        <div class="flex items-center gap-md">
+                            <div class="w-2 h-10 bg-tertiary rounded-full"></div>
+                            <div>
+                                <p class="text-label-md font-bold text-on-surface group-hover:text-primary transition-colors">Final Assignment Review</p>
+                                <p class="text-label-sm text-on-surface-variant">Neural Nets • 4 Submissions</p>
+                                <div class="flex items-center gap-xs mt-1 text-tertiary">
+                                    <span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider">AI Rubric Generated</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">chevron_right</span>
+                    </a>
+                </div>
+                <div class="p-md border-t border-outline-variant/20 text-center bg-surface-container-low">
+                    <a href="{{ url_for('instructor.grading') }}" class="text-label-md text-primary font-bold hover:underline flex items-center justify-center gap-1">
+                        View All Submissions <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+
+
+
+            <!-- At-Risk Students Alerts Card (Design from code.html) -->
+            <div class="modern-card rounded-2xl p-xl bg-error-container/20 border border-error/20 space-y-md">
+                <h4 class="text-label-lg font-bold text-error flex items-center gap-sm">
+                    <span class="material-symbols-outlined">warning</span> At-Risk Students
+                </h4>
+                <div class="space-y-md">
+                    {% for student in at_risk_students %}
+                    <div class="flex items-center gap-md">
+                        <img class="w-10 h-10 rounded-full border border-error/30 bg-white" src="{{ student.avatar_url }}" alt="Student Avatar">
+                        <div class="flex-1">
+                            <p class="text-label-md font-bold text-on-surface">{{ student.name }}</p>
+                            <p class="text-label-sm text-error font-medium">{{ student.reason }}</p>
+                        </div>
+                        <a href="{{ url_for('student.messages') }}" class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors" title="Message {{ student.name }}">
+                            <span class="material-symbols-outlined">mail</span>
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-sm">
+                        <span class="material-symbols-outlined text-green-500 text-lg">check_circle</span>
+                        <p class="text-xs text-on-surface-variant mt-1 font-medium">All students are performing well!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

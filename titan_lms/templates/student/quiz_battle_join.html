@@ -1,0 +1,56 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}TITAN Live Quiz Arena | Titan LMS{% endblock %}
+
+{% block student_content %}
+<div class="p-4 sm:p-6 md:p-8 max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-fade-in">
+    <!-- Hero Header -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 p-6 sm:p-8 rounded-3xl border-2 border-blue-500/30 shadow-2xl text-white text-center space-y-4">
+        <div class="w-16 h-16 rounded-2xl bg-blue-500/20 border border-blue-400/30 text-blue-400 flex items-center justify-center font-bold mx-auto shadow-lg shadow-blue-500/20">
+            <span class="material-symbols-outlined text-4xl animate-pulse">bolt</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">TITAN Live Quiz Arena</h1>
+        <p class="text-xs sm:text-sm text-blue-200/80 max-w-md mx-auto">Compete in real-time against your classmates! Fast answers earn higher combo points and place you at the top of the live podium.</p>
+    </div>
+
+    <!-- Enter Game PIN Form Card -->
+    <div class="bg-white p-6 sm:p-10 rounded-3xl border-2 border-outline-variant/20 shadow-xl max-w-lg mx-auto space-y-6 text-center">
+        <div class="space-y-1">
+            <span class="text-xs font-extrabold text-outline uppercase">Join Live Session</span>
+            <h3 class="text-xl font-bold text-on-surface">Enter 6-Digit Game PIN</h3>
+        </div>
+
+        <form method="POST" action="{{ url_for('student.quiz_battle') }}" class="space-y-4">
+            <div>
+                <input type="text" name="battle_pin" placeholder="e.g. 849201" maxlength="6" class="w-full bg-slate-50 border-2 border-blue-300 rounded-2xl p-4 text-center text-3xl font-mono font-extrabold text-blue-600 tracking-widest focus:outline-none focus:border-blue-500 shadow-inner" required>
+            </div>
+            <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold py-4 rounded-2xl shadow-lg shadow-blue-500/30 active:scale-95 transition-all text-base flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-xl">sports_esports</span> Enter Battle Arena
+            </button>
+        </form>
+    </div>
+
+    <!-- Active Open Game Lobbies -->
+    {% if active_sessions %}
+    <div class="bg-white p-6 sm:p-8 rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-4">
+        <h3 class="text-lg font-bold text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-600">sensors</span> Active Open Battles Right Now
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {% for s in active_sessions %}
+            <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 flex items-center justify-between">
+                <div>
+                    <span class="px-2.5 py-1 bg-blue-600 text-white text-xs font-mono font-bold rounded-lg">{{ s.battle_pin }}</span>
+                    <p class="font-extrabold text-sm text-blue-900 mt-1">{{ s.title }}</p>
+                </div>
+                <form method="POST" action="{{ url_for('student.quiz_battle') }}">
+                    <input type="hidden" name="battle_pin" value="{{ s.battle_pin }}">
+                    <button type="submit" class="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-blue-700">Join</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

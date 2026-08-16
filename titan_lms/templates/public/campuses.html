@@ -1,0 +1,346 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}Campuses Across Pakistan | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+
+  .campuses-page {
+    background: #fcf9f1;
+    color: #1c1c17;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Pakistan SVG Map Container */
+  .pakistan-map-wrapper {
+    background: #ffffff;
+    border-radius: 2rem;
+    padding: 1.5rem 0.5rem;
+    position: relative;
+    box-shadow: 0 10px 40px -10px rgba(0, 84, 203, 0.05);
+    border: 1px solid rgba(0, 84, 203, 0.12);
+    overflow-x: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pakistan-svg-container {
+    position: relative;
+    width: 100%;
+    max-width: 846px;
+    margin: 0 auto;
+  }
+
+  .pakistan-svg-container img.pk-map-img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Map Markers Overlay */
+  .map-pin {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    cursor: pointer;
+    z-index: 20;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .map-pin:hover {
+    transform: translate(-50%, -115%) scale(1.08);
+    z-index: 30;
+  }
+
+  .pin-badge {
+    background: #ffffff;
+    border: 1.5px solid #0054cb;
+    border-radius: 999px;
+    padding: 4px 12px;
+    box-shadow: 0 4px 14px rgba(0, 84, 203, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  .pin-badge .pin-icon {
+    width: 14px;
+    height: 14px;
+    color: #0054cb;
+  }
+
+  .city-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 84, 203, 0.12);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+
+  .city-card:hover, .city-card.active-city {
+    border-color: #0054cb;
+    box-shadow: 0 12px 30px -8px rgba(0, 84, 203, 0.18);
+    transform: translateY(-4px);
+  }
+
+  /* Modal Video Animation */
+  .modal-blur-bg {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+</style>
+{% endblock %}
+
+{% block public_content %}
+<div class="campuses-page py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto space-y-12">
+    
+    <!-- Hero Header -->
+    <div class="text-center max-w-3xl mx-auto space-y-4">
+      <span class="inline-flex items-center gap-2 bg-[#0054cb]/10 text-[#0054cb] text-xs font-extrabold uppercase tracking-widest px-4 py-2 rounded-full border border-[#0054cb]/20">
+        <span class="material-symbols-outlined text-sm">distance</span> Nationwide Educational Network
+      </span>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-[#1c1c17] tracking-tight" style="font-family:'Montserrat',sans-serif;">
+        Titan LMS <span class="text-[#0054cb]">Campuses in Pakistan</span>
+      </h1>
+      <p class="text-slate-600 text-base sm:text-lg font-medium leading-relaxed">
+        Explore our physical learning centers and affiliated campus hubs across major cities in Pakistan. Click on any city card to view detailed campus info and launch virtual tour.
+      </p>
+    </div>
+
+    <!-- Official SVG Map Container (Using /static/pk_map.svg) -->
+    <div class="pakistan-map-wrapper">
+      <div class="pakistan-svg-container">
+        
+        <!-- Official Pakistan Map SVG File -->
+        <img src="/static/pk_map.svg" alt="Pakistan Campus Map" class="pk-map-img">
+
+        <!-- Map City Pins Overlay -->
+        {% for name, count, left, top, region, students, img in pins %}
+        <div class="map-pin" style="left: {{ left }}; top: {{ top }};" onclick="openCampusModal('{{ name }}', '{{ count }}', '{{ region }}', '{{ students }}', '{{ img }}')">
+          <div class="pin-badge">
+            <svg class="pin-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+            <span>{{ name }} ({{ count }})</span>
+          </div>
+        </div>
+        {% endfor %}
+
+      </div>
+    </div>
+
+    <!-- Filter & Counters Bar -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200">
+      <div>
+        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Select a City to View Campuses</label>
+        <div class="relative w-full sm:w-72">
+          <select id="citySelect" onchange="filterCitySelection(this.value)" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-[#0054cb] focus:border-[#0054cb] appearance-none">
+            <option value="all">Choose a city...</option>
+            {% for name, count, left, top, region, students, img in pins %}
+            <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+          </select>
+          <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="px-5 py-2.5 rounded-full bg-[#0054cb]/10 text-[#0054cb] font-bold text-xs border border-[#0054cb]/20 flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">location_city</span> {{ num_cities }} City{% if num_cities != 1 %}ies{% endif %}
+        </div>
+        <div class="px-5 py-2.5 rounded-full bg-slate-900 text-white font-bold text-xs shadow-sm flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm text-amber-400">domain</span> {{ num_campuses }} Campus{% if num_campuses != 1 %}es{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Cities Grid Below Map -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="citiesGrid">
+      {% for name, count, left, top, region, students, img in pins %}
+      <a href="{{ url_for('public.city_campuses', city_name=name|lower|replace(' ', '-')) }}" class="city-card group" id="card-{{ name|replace(' ', '-') }}">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#0054cb] text-lg group-hover:scale-110 transition-transform">location_on</span>
+            <h3 class="font-extrabold text-slate-900 text-base" style="font-family:'Montserrat',sans-serif;">{{ name }}</h3>
+          </div>
+          <span class="material-symbols-outlined text-slate-400 text-sm group-hover:text-[#0054cb] transition-colors">arrow_forward</span>
+        </div>
+        <div class="space-y-1">
+          <p class="text-3xl font-black text-[#0054cb]">{{ city_counts.get(name, count) }}</p>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Campus{% if count != '1' %}es{% endif %} List & Locations</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal: Campus Details & Virtual Tour -->
+<div id="campusDetailModal" class="fixed inset-0 z-50 bg-slate-950/70 modal-blur-bg flex items-center justify-center p-4 hidden">
+  <div class="bg-white max-w-md w-full rounded-3xl overflow-hidden shadow-2xl border border-slate-200 relative animate-fade-in-up">
+    
+    <!-- Close Button -->
+    <button onclick="closeCampusModal()" class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-slate-900/60 hover:bg-slate-900 text-white flex items-center justify-center transition-all backdrop-blur-md">
+      <span class="material-symbols-outlined text-lg">close</span>
+    </button>
+
+    <!-- Top Campus Cover Image & Badge -->
+    <div class="relative w-full h-56 bg-slate-900 overflow-hidden">
+      <img id="modalImg" src="" alt="Campus Photo" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+      <span id="modalRegion" class="absolute bottom-4 left-4 bg-[#0054cb] text-white text-xs font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
+        TITAN HQ NODE
+      </span>
+    </div>
+
+    <!-- Modal Content Details -->
+    <div class="p-6 space-y-6">
+      <div>
+        <h2 id="modalCityName" class="text-2xl sm:text-3xl font-black text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">
+          Karachi
+        </h2>
+        <p id="modalRegionSub" class="text-sm font-bold text-[#0054cb] mt-1">South Asia Region</p>
+      </div>
+
+      <!-- Feature Bullet Points -->
+      <div class="space-y-3 pt-2">
+        <div class="flex items-center gap-3 text-slate-700 font-semibold text-sm">
+          <span class="material-symbols-outlined text-[#0054cb] text-xl">science</span>
+          <span>AI & Robotics Labs</span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-700 font-semibold text-sm">
+          <span class="material-symbols-outlined text-[#0054cb] text-xl">groups</span>
+          <span><strong id="modalStudents">12,400</strong> Active Students</span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-700 font-semibold text-sm">
+          <span class="material-symbols-outlined text-[#0054cb] text-xl">domain</span>
+          <span><strong id="modalCampusCount">24</strong> High-Tech Smart Classrooms</span>
+        </div>
+      </div>
+
+      <!-- Virtual Tour Container (Shown when Tour button clicked) -->
+      <div id="virtualTourVideoBox" class="hidden rounded-2xl overflow-hidden border border-slate-200 bg-black aspect-video relative shadow-inner">
+        <video id="virtualTourPlayer" class="w-full h-full object-cover" controls autoplay loop muted>
+          <source src="https://assets.mixkit.co/videos/preview/mixkit-modern-office-space-with-employees-42861-large.mp4" type="video/mp4">
+          Your browser does not support HTML5 video.
+        </video>
+      </div>
+
+      <!-- Action CTA Button -->
+      <button id="tourCtaBtn" onclick="playVirtualTour()" class="w-full py-4 bg-[#0054cb] hover:bg-[#0040a0] active:scale-[0.98] text-white font-extrabold rounded-2xl shadow-lg shadow-[#0054cb]/25 transition-all flex items-center justify-center gap-2 text-base">
+        <span>Explore Virtual Tour</span>
+        <span class="material-symbols-outlined text-xl">videocam</span>
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function openCampusModal(name, count, region, students, img) {
+    document.getElementById('modalCityName').innerText = name;
+    document.getElementById('modalRegion').innerText = region || "TITAN CAMPUS NODE";
+    document.getElementById('modalRegionSub').innerText = (region || "Pakistan Region") + " • " + count + " Active Hub" + (count > 1 ? "s" : "");
+    document.getElementById('modalStudents').innerText = students || "2,500+";
+    document.getElementById('modalCampusCount').innerText = count;
+    document.getElementById('modalImg').src = img || "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600";
+
+    // Reset video box
+    document.getElementById('virtualTourVideoBox').classList.add('hidden');
+    const player = document.getElementById('virtualTourPlayer');
+    if (player) player.pause();
+    document.getElementById('tourCtaBtn').style.display = "flex";
+
+    // Show modal
+    document.getElementById('campusDetailModal').classList.remove('hidden');
+
+    // Highlight card
+    highlightCityCard(name);
+  }
+
+  function closeCampusModal() {
+    document.getElementById('campusDetailModal').classList.add('hidden');
+    const player = document.getElementById('virtualTourPlayer');
+    if (player) player.pause();
+  }
+
+  function playVirtualTour() {
+    const videoBox = document.getElementById('virtualTourVideoBox');
+    videoBox.classList.remove('hidden');
+    const player = document.getElementById('virtualTourPlayer');
+    if (player) {
+      player.play();
+    }
+    document.getElementById('tourCtaBtn').style.display = "none";
+  }
+
+  function filterCitySelection(cityName) {
+    if (cityName && cityName !== 'all') {
+      highlightCityCard(cityName);
+    }
+  }
+
+  function highlightCityCard(cityName) {
+    document.querySelectorAll('.city-card').forEach(c => c.classList.remove('active-city'));
+    const targetCard = document.getElementById('card-' + cityName.replace(/\s+/g, '-'));
+    if (targetCard) {
+      targetCard.classList.add('active-city');
+    }
+  }
+
+  // GSAP Entrance Animations (Framer Motion style)
+  document.addEventListener("DOMContentLoaded", () => {
+    if (typeof gsap !== 'undefined') {
+      const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+
+      // 1. Hero Header entry
+      tl.fromTo(".campuses-page .text-center > span", 
+        { y: -20, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 0.6 }
+      );
+
+      tl.fromTo(".campuses-page .text-center > h1", 
+        { y: 30, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 0.7 }, 
+        "-=0.4"
+      );
+
+      tl.fromTo(".campuses-page .text-center > p", 
+        { y: 20, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 0.7 }, 
+        "-=0.5"
+      );
+
+      // 2. Map Wrapper Reveal
+      tl.fromTo(".pakistan-map-wrapper", 
+        { scale: 0.98, opacity: 0, y: 40 }, 
+        { scale: 1, opacity: 1, y: 0, duration: 1.1, ease: "power3.out" }, 
+        "-=0.5"
+      );
+
+      // 3. Map Pins pop-in with bounce ease
+      tl.fromTo(".map-pin", 
+        { scale: 0, opacity: 0 }, 
+        { scale: 1, opacity: 1, duration: 0.6, stagger: 0.05, ease: "back.out(2)" }, 
+        "-=0.6"
+      );
+
+      // 4. City Cards staggered reveal (appended to timeline for bulletproof rendering)
+      tl.fromTo(".city-card", 
+        { y: 30, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 0.7, stagger: 0.05, ease: "power2.out" }, 
+        "-=0.4"
+      );
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,283 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Course Management | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    @keyframes flyLeft {
+        from { opacity: 0; transform: translateX(-60px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes flyRight {
+        from { opacity: 0; transform: translateX(60px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes flyUp {
+        from { opacity: 0; transform: translateY(50px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes flyDown {
+        from { opacity: 0; transform: translateY(-40px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .fly-left  { animation: flyLeft  0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-right { animation: flyRight 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-up    { animation: flyUp    0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-down  { animation: flyDown  0.7s cubic-bezier(0.22,1,0.36,1) both; }
+
+    .metric-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 12px 30px rgba(0, 84, 203, 0.12);
+    }
+</style>
+{% endblock %}
+
+{% block instructor_content %}
+{% set total_enrollments = 0 %}
+{% set total_published = 0 %}
+{% set total_drafts = 0 %}
+
+{% for course in courses %}
+    {% if course.status == 'published' %}
+        {% set total_published = total_published + 1 %}
+    {% else %}
+        {% set total_drafts = total_drafts + 1 %}
+    {% endif %}
+{% endfor %}
+
+<!-- Canvas -->
+<div class="px-gutter py-xl max-w-container-max mx-auto space-y-xl" x-data="{ activeFilter: 'all' }">
+    <!-- Page Header -->
+    <section class="flex flex-col md:flex-row md:items-end justify-between gap-md fly-down">
+        <div>
+            <nav class="flex items-center gap-xs text-label-md text-secondary mb-sm">
+                <a href="{{ url_for('instructor.dashboard') }}" class="hover:text-primary">Management</a>
+                <span class="material-symbols-outlined text-body-sm">chevron_right</span>
+                <span class="text-primary font-bold">Course Catalog</span>
+            </nav>
+            <h1 class="text-display-lg-mobile md:text-display-lg font-display-lg text-on-surface tracking-tight">Course Inventory</h1>
+            <p class="text-body-lg text-secondary max-w-2xl mt-sm">Orchestrate your academic curriculum. Monitor performance, manage lifecycle stages, and deploy new learning modules.</p>
+        </div>
+        <a href="{{ url_for('instructor.create_course') }}" class="flex items-center justify-center gap-sm bg-primary text-white px-lg py-md rounded-lg font-label-lg shadow-lg hover:shadow-[0_8px_30px_rgb(0,84,203,0.3)] hover:-translate-y-1 transition-all active:scale-95">
+            <span class="material-symbols-outlined">add_circle</span>
+            Create New Course
+        </a>
+    </section>
+
+    <!-- Metrics Overview Bento -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+        <div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant/30 metric-card group fly-left" style="animation-delay: 0.1s;">
+            <div class="flex justify-between items-start mb-md">
+                <div class="p-3 bg-primary/10 rounded-lg text-primary">
+                    <span class="material-symbols-outlined">group</span>
+                </div>
+            </div>
+            <p class="text-label-md text-secondary uppercase tracking-wider mb-xs">Total Managed Courses</p>
+            <p class="text-headline-lg font-headline-lg text-on-surface">{{ courses|length }}</p>
+        </div>
+        <div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant/30 metric-card group fly-up" style="animation-delay: 0.2s;">
+            <div class="flex justify-between items-start mb-md">
+                <div class="p-3 bg-tertiary/10 rounded-lg text-tertiary">
+                    <span class="material-symbols-outlined">star</span>
+                </div>
+            </div>
+            <p class="text-label-md text-secondary uppercase tracking-wider mb-xs">Published Tracks</p>
+            <p class="text-headline-lg font-headline-lg text-on-surface">{{ total_published }} <span class="text-body-md font-body-md text-secondary">Live</span></p>
+        </div>
+        <div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant/30 metric-card group fly-right" style="animation-delay: 0.3s;">
+            <div class="flex justify-between items-start mb-md">
+                <div class="p-3 bg-outline/10 text-outline rounded-lg">
+                    <span class="material-symbols-outlined">school</span>
+                </div>
+            </div>
+            <p class="text-label-md text-secondary uppercase tracking-wider mb-xs">Draft Curriculums</p>
+            <p class="text-headline-lg font-headline-lg text-on-surface">{{ total_drafts }} <span class="text-body-md font-body-md text-secondary">Pending</span></p>
+        </div>
+    </section>
+
+    <!-- Table Filters & Search -->
+    <section class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl shadow-sm overflow-hidden fly-up" style="animation-delay: 0.2s;">
+        <div class="p-lg border-b border-outline-variant/10 flex flex-col lg:flex-row lg:items-center justify-between gap-md bg-surface-container-low/50">
+            <div class="flex flex-wrap items-center gap-sm">
+                <button @click="activeFilter = 'all'; filterCourses('all')" :class="activeFilter === 'all' ? 'bg-primary text-white' : 'text-secondary hover:bg-surface-container-high'" class="px-md py-2 rounded-full text-label-lg transition-all">All Courses</button>
+                <button @click="activeFilter = 'published'; filterCourses('published')" :class="activeFilter === 'published' ? 'bg-primary text-white' : 'text-secondary hover:bg-surface-container-high'" class="px-md py-2 rounded-full text-label-lg transition-all">Published</button>
+                <button @click="activeFilter = 'draft'; filterCourses('draft')" :class="activeFilter === 'draft' ? 'bg-primary text-white' : 'text-secondary hover:bg-surface-container-high'" class="px-md py-2 rounded-full text-label-lg transition-all">Drafts</button>
+            </div>
+            <div class="flex items-center gap-md">
+                <div class="relative flex-1 lg:w-64">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">filter_list</span>
+                    <input id="courses-search" class="bg-surface border border-outline-variant/50 rounded-lg pl-10 pr-md py-2 w-full focus:ring-primary text-body-sm transition-all" placeholder="Search by name or category..." type="text" onkeyup="filterCourses()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Table -->
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[1000px]">
+                <thead>
+                    <tr class="bg-surface-container-low/30 border-b border-outline-variant/10">
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider">Course Name</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider">Syllabus Details</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider">Status</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider">Enrollments</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider">Course Level</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10" id="courses-tbody">
+                    {% for course in courses %}
+                    <tr class="course-row hover:bg-surface transition-colors group" data-status="{{ course.status }}" data-title="{{ course.title }}" data-category="{{ course.category }}">
+                        <!-- Thumbnail & Title -->
+                        <td class="px-lg py-lg">
+                            <div class="flex items-center gap-md">
+                                <div class="w-12 h-12 rounded-lg bg-primary-container overflow-hidden shrink-0">
+                                    <img class="w-full h-full object-cover" src="{{ course.thumbnail or 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=150' }}" alt="Course Thumbnail">
+                                </div>
+                                <div>
+                                    <a href="{{ url_for('instructor.curriculum', course_id=course.id) }}" class="font-headline-sm text-on-surface group-hover:text-primary transition-colors font-bold">{{ course.title }}</a>
+                                    <p class="text-body-sm text-secondary">{{ course.category }} • Track #{{ course.id }}</p>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Syllabus Details -->
+                        <td class="px-lg py-lg">
+                            <div class="flex items-center gap-sm">
+                                <span class="material-symbols-outlined text-outline text-[18px]">list_alt</span>
+                                <span class="text-label-lg">{{ course.lessons|length }} Lessons / Modules</span>
+                            </div>
+                        </td>
+
+                        <!-- Status badge -->
+                        <td class="px-lg py-lg">
+                            {% if course.status == 'published' %}
+                            <span class="inline-flex items-center gap-xs px-3 py-1 rounded-full text-label-md font-bold bg-primary/10 text-primary">
+                                <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span> PUBLISHED
+                            </span>
+                            {% elif course.status == 'delete_requested' %}
+                            <span class="inline-flex items-center gap-xs px-3 py-1 rounded-full text-label-md font-bold bg-red-100 text-red-700 border border-red-300">
+                                <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span> PENDING DELETE APPROVAL
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-xs px-3 py-1 rounded-full text-label-md font-bold bg-surface-container-high text-secondary">
+                                <span class="w-2 h-2 rounded-full bg-secondary"></span> DRAFT
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Enrolled students -->
+                        <td class="px-lg py-lg">
+                            <p class="text-label-lg text-on-surface font-bold">{{ course.enrollments|length }}</p>
+                        </td>
+
+                        <!-- Level -->
+                        <td class="px-lg py-lg text-label-lg font-medium text-secondary">
+                            {{ course.level }}
+                        </td>
+
+
+                        <!-- Action buttons with clean icons -->
+                        <td class="px-lg py-lg text-right space-x-1.5 shrink-0">
+                            <!-- Edit Course & Modules Icon Button -->
+                            <a href="{{ url_for('instructor.edit_course', course_id=course.id) }}" class="p-2 bg-primary/10 text-primary border border-primary/20 rounded-xl hover:bg-primary hover:text-white transition-all inline-flex items-center justify-center shadow-sm" title="Edit Course & Modules">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                            </a>
+
+                            {% if course.status == 'draft' %}
+                            <form action="{{ url_for('instructor.publish_course', course_id=course.id) }}" method="POST" class="inline-block">
+                                <button type="submit" class="p-2 bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-xl hover:bg-emerald-600 hover:text-white transition-all inline-flex items-center justify-center shadow-sm" title="Publish Course Live">
+                                    <span class="material-symbols-outlined text-sm">rocket_launch</span>
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            {% if course.status != 'delete_requested' %}
+                            <!-- Delete Course Request Icon Button -->
+                            <button onclick="openDeleteRequestModal({{ course.id }}, '{{ course.title }}')" class="p-2 bg-red-50 text-red-600 border border-red-200 rounded-xl hover:bg-red-600 hover:text-white transition-all inline-flex items-center justify-center shadow-sm" title="Request Admin Approval for Deletion">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="px-lg py-lg text-center text-body-md text-on-surface-variant">
+                            No courses managed by you yet. Create a course above to get started!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Delete Request Modal -->
+<div id="delete-request-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-md">
+    <div class="bg-white rounded-3xl p-xl max-w-md w-full border-2 border-outline-variant/20 shadow-2xl space-y-md relative">
+        <div class="flex justify-between items-center border-b border-outline-variant/10 pb-md">
+            <h3 class="text-headline-sm font-bold text-red-600 flex items-center gap-2">
+                <span class="material-symbols-outlined">warning</span> Request Course Deletion
+            </h3>
+            <button onclick="closeDeleteRequestModal()" class="text-outline hover:text-on-surface">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="delete-request-form" method="POST" class="space-y-md">
+            <p class="text-body-sm text-on-surface-variant">
+                Course <strong id="delete-course-title" class="text-on-surface"></strong> cannot be deleted directly. Submitting this form will send a deletion request to the <strong>Platform Administrator</strong> for review and approval.
+            </p>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Reason for Deletion</label>
+                <textarea name="reason" rows="3" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-medium focus:outline-none focus:border-red-500" placeholder="Please state why this course is being requested for deletion..." required></textarea>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-md border-t border-outline-variant/10">
+                <button type="button" onclick="closeDeleteRequestModal()" class="px-4 py-2 bg-surface-container text-on-surface font-bold text-xs rounded-xl">Cancel</button>
+                <button type="submit" class="px-5 py-2 bg-red-600 text-white font-bold text-xs rounded-xl shadow hover:bg-red-700">Submit Admin Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openDeleteRequestModal(courseId, courseTitle) {
+    document.getElementById('delete-course-title').innerText = `"${courseTitle}"`;
+    document.getElementById('delete-request-form').action = `/instructor/courses/${courseId}/request_delete`;
+    document.getElementById('delete-request-modal').classList.remove('hidden');
+}
+
+function closeDeleteRequestModal() {
+    document.getElementById('delete-request-modal').classList.add('hidden');
+}
+
+let currentActiveFilter = 'all';
+
+function filterCourses(filterState) {
+    if (filterState !== undefined) {
+        currentActiveFilter = filterState;
+    }
+    const query = document.getElementById('courses-search').value.toLowerCase();
+    const rows = document.querySelectorAll('.course-row');
+    
+    rows.forEach(row => {
+        const title = row.getAttribute('data-title').toLowerCase();
+        const category = row.getAttribute('data-category').toLowerCase();
+        const status = row.getAttribute('data-status');
+        
+        const matchesQuery = title.includes(query) || category.includes(query);
+        const matchesFilter = currentActiveFilter === 'all' || status === currentActiveFilter;
+        
+        if (matchesQuery && matchesFilter) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

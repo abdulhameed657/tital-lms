@@ -1,0 +1,372 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}{{ quiz.title }} | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    .glass-header { backdrop-filter: blur(12px); background: rgba(252,249,241,0.88); }
+    .modern-card { box-shadow: 0 4px 20px rgba(10,17,40,0.06); transition: all 0.3s ease; }
+    .modern-card:hover { box-shadow: 0 8px 30px rgba(10,17,40,0.1); transform: translateY(-2px); }
+    .timer-ring { transform: rotate(-90deg); transform-origin: 50% 50%; }
+    .option-card { transition: border-color 0.2s, background 0.2s; }
+    .option-card:has(input:checked) { border-color: #0054cb; background: rgba(0,84,203,0.05); }
+    .option-card:hover { border-color: rgba(0,84,203,0.35); }
+    .radio-dot { width:10px;height:10px;border-radius:50%;background:#fff;opacity:0;transition:opacity .2s; }
+    input[type=radio]:checked ~ .radio-visual .radio-dot { opacity:1; }
+    input[type=radio]:checked ~ .radio-visual { border-color:#0054cb; background:#0054cb; }
+    .q-nav-btn { width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;transition:all .2s;cursor:pointer;border:2px solid transparent; }
+    .q-nav-btn.answered { background:#e5e2da;border-color:rgba(0,84,203,0.2);color:#424654; }
+    .q-nav-btn.current  { background:#0054cb;color:#fff;transform:scale(1.12);box-shadow:0 4px 10px rgba(0,84,203,0.3); }
+    .q-nav-btn.unanswered{ background:#fff;border-color:#c2c6d7;color:#737786; }
+
+    @keyframes fadeSlideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    .anim-q { animation: fadeSlideUp 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+</style>
+{% endblock %}
+
+{% block student_content %}
+<div id="quiz-app" data-total="{{ quiz.questions|length }}" data-time="{{ quiz.time_limit or 600 }}">
+
+    <!-- Sticky Glass Top Bar -->
+    <div class="glass-header sticky top-0 z-40 border-b border-outline-variant/30 py-3 px-4 sm:px-gutter mb-0">
+        <div class="max-w-container-max mx-auto flex justify-between items-center gap-md sm:gap-lg">
+            <!-- Quiz title -->
+            <div class="min-w-0">
+                <h1 class="font-headline-sm text-base sm:text-headline-sm text-on-surface leading-tight truncate">{{ quiz.title }}</h1>
+                <p class="text-xs sm:text-label-sm text-on-surface-variant line-clamp-1">{{ quiz.questions|length }} Questions &bull; {{ quiz.course.title }}</p>
+            </div>
+            <!-- Timer ring -->
+            <div class="flex items-center gap-2 sm:gap-md shrink-0">
+                <div class="relative w-14 h-14 sm:w-16 sm:h-16">
+                    <svg class="w-14 h-14 sm:w-16 sm:h-16 timer-ring" viewBox="0 0 64 64">
+                        <circle cx="32" cy="32" r="26" fill="none" stroke="#c2c6d7" stroke-width="5"/>
+                        <circle id="timer-circle" cx="32" cy="32" r="26" fill="none" stroke="#0054cb"
+                                stroke-width="5" stroke-linecap="round"
+                                stroke-dasharray="163.4" stroke-dashoffset="0"/>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="timer-display" class="text-xs sm:text-label-lg font-bold text-primary leading-none">
+                            {% set m = quiz.time_limit // 60 %}{% set s = quiz.time_limit % 60 %}{{ '%02d'|format(m) }}:{{ '%02d'|format(s) }}
+                        </span>
+                        <span class="text-[8px] text-on-surface-variant uppercase tracking-wider">left</span>
+                    </div>
+                </div>
+                <div class="hidden sm:flex flex-col items-end">
+                    <span class="text-label-sm text-on-surface-variant uppercase tracking-widest">Candidate</span>
+                    <span class="text-label-lg font-bold text-primary">{{ current_user.name.split()[0] }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main 3-column grid -->
+    <form id="quiz-submit-form"
+          action="{{ url_for('student.submit_quiz', quiz_id=quiz.id, attempt_id=attempt.id) }}"
+          method="POST">
+    <div class="max-w-container-max mx-auto px-4 sm:px-gutter py-4 sm:py-lg grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+
+        <!-- LEFT: Question Navigator -->
+        <aside class="lg:col-span-3 order-2 lg:order-1 space-y-lg">
+            <div class="bg-surface-container-low rounded-xl p-lg border border-outline-variant/30 modern-card">
+                <h3 class="text-label-lg font-bold text-on-surface mb-md flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-primary text-[20px]">grid_view</span>
+                    Question Navigator
+                </h3>
+                <div id="q-nav-grid" class="grid grid-cols-5 gap-sm">
+                    {% for q in quiz.questions %}
+                    <button type="button" onclick="goToQuestion({{ loop.index0 }})"
+                            class="q-nav-btn unanswered" id="qbtn-{{ loop.index0 }}">
+                        {{ '%02d'|format(loop.index) }}
+                    </button>
+                    {% endfor %}
+                </div>
+                <!-- Legend -->
+                <div class="mt-lg space-y-sm pt-md border-t border-outline-variant/20">
+                    <div class="flex items-center justify-between text-label-sm text-on-surface-variant">
+                        <div class="flex items-center gap-sm"><div class="w-3 h-3 bg-primary rounded-sm"></div><span>Current</span></div>
+                        <span id="stat-current" class="font-bold text-on-surface">1</span>
+                    </div>
+                    <div class="flex items-center justify-between text-label-sm text-on-surface-variant">
+                        <div class="flex items-center gap-sm"><div class="w-3 h-3 bg-surface-container-highest rounded-sm border border-primary/20"></div><span>Answered</span></div>
+                        <span id="stat-answered" class="font-bold text-on-surface">0</span>
+                    </div>
+                    <div class="flex items-center justify-between text-label-sm text-on-surface-variant">
+                        <div class="flex items-center gap-sm"><div class="w-3 h-3 bg-white rounded-sm border border-outline-variant"></div><span>Remaining</span></div>
+                        <span id="stat-remaining" class="font-bold text-on-surface">{{ quiz.questions|length }}</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Shield Badge -->
+            <div class="bg-surface-container-highest/60 rounded-xl px-md py-sm border border-outline-variant/30 flex items-center justify-between">
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-[18px]">verified_user</span>
+                    <span class="text-label-sm text-on-surface-variant">Titan Shield Active</span>
+                </div>
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            </div>
+        </aside>
+
+        <!-- CENTER: Current Question -->
+        <section class="lg:col-span-6 order-1 lg:order-2">
+            <!-- Question cards rendered one at a time via JS -->
+            {% for question in quiz.questions %}
+            <div id="q-panel-{{ loop.index0 }}"
+                 class="anim-q bg-white rounded-xl border border-outline-variant/20 relative overflow-hidden modern-card {% if not loop.first %}hidden{% endif %}">
+                <!-- Blue left accent bar -->
+                <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+
+                <div class="p-xl">
+                    <!-- Question header -->
+                    <div class="flex justify-between items-start mb-lg">
+                        <div>
+                            <span class="text-label-lg font-bold text-primary tracking-widest uppercase">
+                                Question {{ loop.index }} of {{ quiz.questions|length }}
+                            </span>
+                            <div class="flex items-center gap-xs mt-1">
+                                <span class="material-symbols-outlined text-tertiary text-sm" style="font-variation-settings:'FILL' 1;">star</span>
+                                <span class="text-label-sm text-on-surface-variant">
+                                    {% if question.question_type == 'multiple_choice' %}Multiple Choice{% else %}Open Answer{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <span class="text-label-sm font-bold text-primary bg-primary/10 px-md py-xs rounded-full">
+                            Q{{ loop.index }}
+                        </span>
+                    </div>
+
+                    <!-- Question text -->
+                    <h2 class="font-headline-sm text-body-lg text-on-surface leading-relaxed mb-xl">
+                        {{ question.question_text }}
+                    </h2>
+
+                    <!-- Choices / Open answer -->
+                    {% if question.question_type == 'multiple_choice' %}
+                    <div class="space-y-md" id="choices-{{ loop.index0 }}">
+                        {% for choice in question.get_choices() %}
+                        <label class="group relative flex items-center gap-md p-lg bg-surface-container-low rounded-xl border-2 border-transparent cursor-pointer option-card"
+                               onclick="markAnswered({{ loop.index0 - 1 if not loop.first else 0 }})">
+                            <input type="radio" name="question_{{ question.id }}" value="{{ choice }}"
+                                   class="hidden peer"
+                                   onchange="markAnswered({{ loop.index0 }})">
+                            <div class="radio-visual w-6 h-6 rounded-full border-2 border-outline flex items-center justify-center transition-all shrink-0">
+                                <div class="radio-dot"></div>
+                            </div>
+                            <span class="flex-1 text-body-md text-on-surface leading-snug">{{ choice }}</span>
+                            <span class="absolute right-md opacity-0 group-hover:opacity-100 transition-opacity text-label-sm font-bold text-primary bg-primary/10 px-sm py-xs rounded">
+                                {{ ['A','B','C','D','E','F'][loop.index0] if loop.index0 < 6 else loop.index }}
+                            </span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <textarea name="question_{{ question.id }}" rows="6"
+                              placeholder="Enter your detailed response here..."
+                              onchange="markAnswered({{ loop.index0 }})"
+                              oninput="markAnswered({{ loop.index0 }})"
+                              class="w-full rounded-xl border-2 border-outline-variant/30 bg-surface-container-low focus:border-primary focus:ring-0 text-body-md p-lg font-mono transition-colors resize-y"></textarea>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Progress bar -->
+            <div class="mt-lg bg-primary/5 rounded-xl p-md border border-primary/10">
+                <div class="flex justify-between items-end mb-sm">
+                    <span class="text-label-md font-bold text-primary">Progress</span>
+                    <span id="progress-pct" class="text-label-sm text-primary">0%</span>
+                </div>
+                <div class="w-full h-2 bg-white rounded-full overflow-hidden">
+                    <div id="progress-fill" class="h-full bg-primary transition-all duration-500 rounded-full" style="width:0%"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT: Stats & Tools -->
+        <aside class="lg:col-span-3 order-3 space-y-lg">
+            <!-- AI Tools -->
+            <div class="bg-white rounded-xl p-lg border border-outline-variant/20 modern-card relative overflow-hidden group">
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform">
+                    <span class="material-symbols-outlined text-9xl text-primary">psychology</span>
+                </div>
+                <div class="flex items-center gap-sm mb-md">
+                    <span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings:'FILL' 1;">auto_awesome</span>
+                    <h3 class="text-label-lg font-bold">Study Mode Tools</h3>
+                </div>
+                <p class="text-body-sm text-on-surface-variant mb-lg">Need conceptual help? Use the AI Assistant for a hint on this question.</p>
+                <a href="{{ url_for('student.ai_hub') }}" target="_blank"
+                   class="w-full flex items-center justify-center gap-md bg-secondary-container text-on-secondary-container py-md rounded-lg font-bold hover:bg-primary hover:text-white transition-all duration-300 text-label-lg">
+                    <span class="material-symbols-outlined">lightbulb</span>AI Assistant
+                </a>
+            </div>
+
+            <!-- Question stats -->
+            <div class="bg-surface-container-low rounded-xl p-lg border border-outline-variant/30 modern-card space-y-md">
+                <h3 class="text-label-lg font-bold text-on-surface">Evaluation Stats</h3>
+                <div class="grid grid-cols-2 gap-sm">
+                    <div class="bg-white p-sm rounded-lg border border-outline-variant text-center">
+                        <span class="text-label-sm text-secondary block">Total Qs</span>
+                        <span class="text-body-md font-bold">{{ quiz.questions|length }}</span>
+                    </div>
+                    <div class="bg-white p-sm rounded-lg border border-outline-variant text-center">
+                        <span class="text-label-sm text-secondary block">Pass Score</span>
+                        <span class="text-body-md font-bold text-green-600">70%</span>
+                    </div>
+                    <div class="bg-white p-sm rounded-lg border border-outline-variant text-center">
+                        <span class="text-label-sm text-secondary block">XP Reward</span>
+                        <span class="text-body-md font-bold text-primary">+50</span>
+                    </div>
+                    <div class="bg-white p-sm rounded-lg border border-outline-variant text-center">
+                        <span class="text-label-sm text-secondary block">Limit</span>
+                        <span class="text-body-md font-bold">{{ quiz.time_limit // 60 }}m</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+    </form>
+
+    <!-- Sticky Bottom Nav Bar -->
+    <div class="glass-header sticky bottom-0 z-40 border-t border-outline-variant/30 py-md px-gutter">
+        <div class="max-w-container-max mx-auto flex justify-between items-center">
+            <button type="button" onclick="prevQuestion()"
+                    class="flex items-center gap-md px-xl py-md rounded-lg text-secondary border border-secondary hover:bg-secondary/5 transition-all font-bold">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Previous
+            </button>
+            <div class="flex items-center gap-lg">
+                <button type="button" onclick="nextQuestion()"
+                        class="flex items-center gap-md px-xl py-md rounded-lg bg-primary text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all font-bold">
+                    Next Question
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+                <div class="h-10 w-px bg-outline-variant mx-md hidden md:block"></div>
+                <button type="button" onclick="confirmSubmit()"
+                        class="hidden md:flex items-center gap-md px-xl py-md rounded-lg bg-tertiary text-on-tertiary shadow-lg hover:bg-tertiary/90 transition-all font-bold">
+                    <span class="material-symbols-outlined">done_all</span>
+                    Submit Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Confirm Submit Modal -->
+<div id="submit-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl p-xl max-w-sm w-full shadow-2xl mx-4">
+        <div class="flex flex-col items-center text-center gap-md">
+            <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings:'FILL' 1;">done_all</span>
+            </div>
+            <h3 class="font-headline-sm text-on-surface">Submit Evaluation?</h3>
+            <p class="text-body-sm text-on-surface-variant" id="modal-summary">
+                You've answered all questions. Submit now to receive AI evaluation and your score.
+            </p>
+            <div class="flex gap-md w-full mt-md">
+                <button onclick="closeModal()" class="flex-1 border border-outline-variant text-on-surface py-md rounded-lg font-bold hover:bg-surface-container transition-all">Cancel</button>
+                <button onclick="document.getElementById('quiz-submit-form').submit()"
+                        class="flex-1 bg-primary text-white py-md rounded-lg font-bold hover:opacity-90 active:scale-95 transition-all">
+                    Submit Now
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL = {{ quiz.questions|length }};
+    let currentQ = 0;
+    const answered = new Set();
+    const totalTime = {{ quiz.time_limit or 600 }};
+    let timeLeft = totalTime;
+
+    // Timer
+    const timerDisplay = document.getElementById('timer-display');
+    const timerCircle = document.getElementById('timer-circle');
+    const circumference = 163.4;
+
+    const timerInterval = setInterval(() => {
+        if (timeLeft > 0) {
+            timeLeft--;
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            timerDisplay.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+            // Update ring
+            const progress = timeLeft / totalTime;
+            timerCircle.style.strokeDashoffset = circumference * (1 - progress);
+            if (timeLeft < 60) timerCircle.style.stroke = '#ba1a1a';
+            if (timeLeft === 0) document.getElementById('quiz-submit-form').submit();
+        }
+    }, 1000);
+
+    function showQuestion(idx) {
+        document.querySelectorAll('[id^="q-panel-"]').forEach(el => el.classList.add('hidden'));
+        const panel = document.getElementById('q-panel-' + idx);
+        if (panel) { panel.classList.remove('hidden'); panel.classList.add('anim-q'); }
+
+        document.querySelectorAll('.q-nav-btn').forEach((btn, i) => {
+            btn.classList.remove('current', 'answered', 'unanswered');
+            if (i === idx) btn.classList.add('current');
+            else if (answered.has(i)) btn.classList.add('answered');
+            else btn.classList.add('unanswered');
+        });
+
+        document.getElementById('stat-current').textContent = idx + 1;
+        document.getElementById('stat-answered').textContent = answered.size;
+        document.getElementById('stat-remaining').textContent = TOTAL - answered.size;
+        const pct = Math.round((answered.size / TOTAL) * 100);
+        document.getElementById('progress-pct').textContent = pct + '%';
+        document.getElementById('progress-fill').style.width = pct + '%';
+    }
+
+    function goToQuestion(idx) { currentQ = idx; showQuestion(idx); }
+    function nextQuestion() { if (currentQ < TOTAL - 1) { currentQ++; showQuestion(currentQ); } }
+    function prevQuestion() { if (currentQ > 0) { currentQ--; showQuestion(currentQ); } }
+
+    function markAnswered(qIdx) {
+        answered.add(qIdx);
+        showQuestion(currentQ);
+    }
+
+    function confirmSubmit() {
+        const unanswered = TOTAL - answered.size;
+        const summary = unanswered > 0
+            ? `You have ${unanswered} unanswered question(s). You can still submit — unanswered questions will be marked incorrect.`
+            : 'You\'ve answered all ' + TOTAL + ' questions. Submit now to receive your AI evaluation and score.';
+        document.getElementById('modal-summary').textContent = summary;
+        document.getElementById('submit-modal').classList.remove('hidden');
+    }
+    function closeModal() { document.getElementById('submit-modal').classList.add('hidden'); }
+
+    // Radio visual binding
+    document.querySelectorAll('input[type=radio]').forEach(input => {
+        input.addEventListener('change', function() {
+            const panel = this.closest('[id^="q-panel-"]');
+            if (!panel) return;
+            const idx = parseInt(panel.id.replace('q-panel-', ''));
+            markAnswered(idx);
+            // Update visual
+            panel.querySelectorAll('.option-card').forEach(card => {
+                card.style.borderColor = '';
+                card.style.backgroundColor = '';
+                const dot = card.querySelector('.radio-visual');
+                if (dot) { dot.style.borderColor = ''; dot.style.background = ''; }
+                const dotInner = card.querySelector('.radio-dot');
+                if (dotInner) dotInner.style.opacity = '0';
+            });
+            const label = this.closest('.option-card');
+            if (label) {
+                label.style.borderColor = '#0054cb';
+                label.style.backgroundColor = 'rgba(0,84,203,0.05)';
+                const dot = label.querySelector('.radio-visual');
+                if (dot) { dot.style.borderColor = '#0054cb'; dot.style.background = '#0054cb'; }
+                const dotInner = label.querySelector('.radio-dot');
+                if (dotInner) dotInner.style.opacity = '1';
+            }
+        });
+    });
+
+    showQuestion(0);
+</script>
+{% endblock %}

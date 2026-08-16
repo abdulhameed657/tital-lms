@@ -1,0 +1,188 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}AI Quiz & Evaluation Generator | Instructor Portal{% endblock %}
+
+{% block head %}
+<style>
+    .ai-shimmer {
+        background: linear-gradient(90deg, transparent, rgba(0, 84, 203, 0.1), transparent);
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite linear;
+    }
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+</style>
+{% endblock %}
+
+{% block instructor_content %}
+<div class="max-w-container-max mx-auto px-gutter py-xl space-y-xl">
+    <!-- Header -->
+    <div class="flex justify-between items-end slide-from-top">
+        <div>
+            <span class="inline-flex items-center gap-xs px-3 py-1 rounded-full bg-primary/10 text-primary text-label-sm font-bold uppercase tracking-widest mb-2">
+                <svg class="w-5 h-5 shrink-0" viewBox="0 0 200 200" fill="none">
+                    <path d="M100 10C50.3 10 10 50.3 10 100C10 121.2 17.4 140.7 29.8 156.1L15 185C13.2 188.5 16.5 191.8 20 190L48.9 175.2C64.3 187.6 83.8 195 105 195C154.7 195 195 154.7 195 105C195 55.3 154.7 10 100 10Z" fill="#2563EB"/>
+                    <rect x="45" y="65" width="110" height="70" rx="30" fill="white"/>
+                    <rect x="42" y="55" width="6" height="15" rx="3" fill="white"/>
+                    <rect x="152" y="55" width="6" height="15" rx="3" fill="white"/>
+                    <circle cx="72" cy="98" r="10" fill="#2563EB"/>
+                    <circle cx="128" cy="98" r="10" fill="#2563EB"/>
+                    <path d="M85 110Q100 120 115 110" stroke="#2563EB" stroke-width="6" stroke-linecap="round" fill="none"/>
+                </svg>
+                AI Powered Curriculum Builder
+            </span>
+            <h1 class="text-display-lg-mobile md:text-headline-lg font-headline-lg text-on-surface">AI Quiz & Evaluation Generator</h1>
+            <p class="text-body-md text-on-surface-variant">Instantly generate high-quality multiple choice quizzes, edit choices, and publish to course modules.</p>
+        </div>
+    </div>
+
+    <!-- Generator Panel & Preview Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+        <!-- Input Panel -->
+        <div class="lg:col-span-5 bg-white p-xl rounded-3xl border border-outline-variant/20 shadow-xl space-y-lg slide-from-left h-fit">
+            <h3 class="font-headline-sm text-headline-sm text-primary font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">psychology</span>
+                Generator Settings
+            </h3>
+
+            <form action="{{ url_for('instructor.ai_quiz_generator') }}" method="POST" class="space-y-md">
+                <div>
+                    <label class="block text-label-lg font-bold text-on-surface mb-2">Select Target Course</label>
+                    <select name="course_id" required class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant/30 rounded-xl font-body-md focus:border-primary focus:outline-none">
+                        {% for course in courses %}
+                        <option value="{{ course.id }}" {% if target_course_id and target_course_id|int == course.id %}selected{% endif %}>{{ course.title }}</option>
+                        {% else %}
+                        <option value="">No courses available</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-label-lg font-bold text-on-surface mb-2">Topic or Learning Objective</label>
+                    <input type="text" name="topic" value="{{ topic }}" placeholder="e.g. Docker Containers & Microservices Architecture" required class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant/30 rounded-xl font-body-md focus:border-primary focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-md">
+                    <div>
+                        <label class="block text-label-lg font-bold text-on-surface mb-2">Num Questions</label>
+                        <select name="num_questions" class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant/30 rounded-xl font-body-md focus:border-primary focus:outline-none">
+                            <option value="3">3 Questions</option>
+                            <option value="5" selected>5 Questions</option>
+                            <option value="10">10 Questions</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-label-lg font-bold text-on-surface mb-2">Difficulty</label>
+                        <select name="difficulty" class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant/30 rounded-xl font-body-md focus:border-primary focus:outline-none">
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate" selected>Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-primary text-white py-3.5 rounded-xl font-label-lg font-bold hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.01] transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                    Generate AI Quiz
+                </button>
+            </form>
+        </div>
+
+        <!-- Generated Questions Preview & Edit Form -->
+        <div class="lg:col-span-7 space-y-md slide-from-right">
+            <div class="bg-white p-lg rounded-2xl border border-outline-variant/20 shadow-xl flex justify-between items-center">
+                <div>
+                    <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Generated Questions Preview</h3>
+                    <p class="text-body-sm text-on-surface-variant">Review, edit questions/choices, and publish directly to course curriculum.</p>
+                </div>
+                <span class="px-3 py-1 bg-tertiary/10 text-tertiary rounded-full text-label-sm font-bold uppercase">Gemini AI Active</span>
+            </div>
+
+            {% if generated_quiz %}
+            <form action="{{ url_for('instructor.save_ai_quiz') }}" method="POST" class="space-y-md">
+                <input type="hidden" name="course_id" value="{{ target_course_id }}">
+                <div class="bg-white p-lg rounded-2xl border border-outline-variant/20 shadow-md space-y-sm">
+                    <label class="block text-xs font-bold text-on-surface">Quiz Title</label>
+                    <input type="text" name="quiz_title" value="AI Assessment - {{ topic if topic else 'General' }}" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-sm font-bold focus:border-primary focus:outline-none" required>
+                </div>
+
+                <div id="questions-preview-list" class="space-y-md">
+                    {% for q in generated_quiz %}
+                    {% set choices = q.choices %}
+                    <div class="bg-white p-xl rounded-2xl border border-outline-variant/20 shadow-lg space-y-md relative group/qcard" id="qcard-{{ loop.index0 }}">
+                        <div class="flex justify-between items-center border-b border-outline-variant/10 pb-sm">
+                            <span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">Question {{ loop.index }}</span>
+                            <button type="button" onclick="document.getElementById('qcard-{{ loop.index0 }}').remove()" class="text-red-600 hover:text-red-800 text-xs font-bold flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">delete</span> Delete Question
+                            </button>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface mb-1">Question Text</label>
+                            <input type="text" name="question_text" value="{{ q.question_text }}" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-xs font-bold focus:outline-none focus:border-primary" required>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                            <div>
+                                <label class="block text-[11px] font-bold text-outline mb-1">Option A</label>
+                                <input type="text" name="choice_a" value="{{ choices[0] if choices|length > 0 else '' }}" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-outline mb-1">Option B</label>
+                                <input type="text" name="choice_b" value="{{ choices[1] if choices|length > 1 else '' }}" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-outline mb-1">Option C</label>
+                                <input type="text" name="choice_c" value="{{ choices[2] if choices|length > 2 else '' }}" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-outline mb-1">Option D</label>
+                                <input type="text" name="choice_d" value="{{ choices[3] if choices|length > 3 else '' }}" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-primary mb-1">Correct Choice</label>
+                            <select name="correct_choice_index" class="w-full bg-blue-50 border border-blue-200 rounded-xl p-sm text-xs font-bold text-primary focus:outline-none">
+                                <option value="0" {% if q.correct_answer == choices[0] %}selected{% endif %}>Option A</option>
+                                <option value="1" {% if choices|length > 1 and q.correct_answer == choices[1] %}selected{% endif %}>Option B</option>
+                                <option value="2" {% if choices|length > 2 and q.correct_answer == choices[2] %}selected{% endif %}>Option C</option>
+                                <option value="3" {% if choices|length > 3 and q.correct_answer == choices[3] %}selected{% endif %}>Option D</option>
+                            </select>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="pt-md">
+                    <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-xl flex items-center justify-center gap-2 text-sm">
+                        <span class="material-symbols-outlined">publish</span> 🚀 Save & Publish Quiz to Course Curriculum
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <!-- Default Mock Preview when no POST request yet -->
+            <div class="space-y-md">
+                <div class="bg-white p-lg rounded-2xl border border-outline-variant/20 shadow-sm space-y-sm">
+                    <div class="flex justify-between items-start gap-md">
+                        <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">Q1: Which command builds a Docker container from a local Dockerfile?</h4>
+                        <span class="px-2.5 py-1 bg-primary/10 text-primary text-label-sm font-bold rounded-full">Score 10 XP</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-xs pt-2">
+                        <div class="p-3 rounded-lg text-body-sm font-medium bg-tertiary/15 border border-tertiary text-tertiary font-bold">A. docker build -t myapp .</div>
+                        <div class="p-3 rounded-lg text-body-sm font-medium bg-surface-container-low border border-outline-variant/10 text-on-surface">B. docker run myapp</div>
+                        <div class="p-3 rounded-lg text-body-sm font-medium bg-surface-container-low border border-outline-variant/10 text-on-surface">C. docker compile myapp</div>
+                        <div class="p-3 rounded-lg text-body-sm font-medium bg-surface-container-low border border-outline-variant/10 text-on-surface">D. docker push myapp</div>
+                    </div>
+                </div>
+                <div class="p-md bg-blue-50 rounded-2xl border border-blue-200 text-center text-xs font-bold text-primary">
+                    👈 Select a Target Course and enter a Topic on the left, then click "Generate AI Quiz" to preview and edit questions!
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

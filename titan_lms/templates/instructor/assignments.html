@@ -1,0 +1,183 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Assignments Management | Titan LMS{% endblock %}
+
+{% block instructor_content %}
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up {
+        animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+</style>
+
+<div class="p-lg md:p-xl max-w-container-max mx-auto space-y-lg animate-fade-in-up">
+    <!-- Header banner -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-950 p-xl rounded-3xl border-2 border-blue-400/40 shadow-2xl shadow-blue-900/30 text-white flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div class="flex items-center gap-md">
+            <div class="w-14 h-14 rounded-2xl bg-white/15 border border-white/30 text-white flex items-center justify-center font-bold shrink-0 shadow-lg backdrop-blur-md">
+                <span class="material-symbols-outlined text-3xl">assignment</span>
+            </div>
+            <div>
+                <h1 class="text-headline-md font-extrabold tracking-tight">Manage Course Assignments</h1>
+                <p class="text-body-sm text-blue-100 mt-1">Create interactive programming labs, coding challenges, or written exercises across all your courses.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+        <!-- Creation Form -->
+        <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-md h-fit hover:border-blue-500/40 transition-all duration-300">
+            <h3 class="text-headline-sm font-bold text-on-surface">Create New Assignment</h3>
+            <form method="POST" class="space-y-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Select Course</label>
+                    <select name="course_id" required class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary font-bold">
+                        <option value="">Choose Course...</option>
+                        {% for course in courses %}
+                            <option value="{{ course.id }}">{{ course.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Assignment Title</label>
+                    <input type="text" name="title" placeholder="e.g. Lab 1: Python Basics & Arrays" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary font-bold" required>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Submission Type</label>
+                    <select name="content_type" required class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary font-bold">
+                        <option value="lab">Interactive Lab (File Submission / Code Sandbox)</option>
+                        <option value="text">Written Exercise / Essay Prompt</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-md">
+                    <div>
+                        <label class="block text-label-md font-bold text-on-surface mb-1">Duration (Min)</label>
+                        <input type="number" name="duration" value="30" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary" required>
+                    </div>
+                    <div>
+                        <label class="block text-label-md font-bold text-on-surface mb-1">Due Date / Deadline</label>
+                        <input type="datetime-local" name="due_date" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Instructions / Description</label>
+                    <textarea name="content" rows="4" placeholder="Enter assignment instructions, guidelines, or questions for students..." class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary" required></textarea>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl hover:shadow-xl hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">add_task</span> Create Assignment
+                </button>
+            </form>
+        </div>
+
+        <!-- Assignments List -->
+        <div class="lg:col-span-2 bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-md hover:border-blue-500/40 transition-all duration-300">
+            <div class="flex justify-between items-center border-b border-outline-variant/10 pb-md">
+                <h3 class="text-headline-sm font-bold text-on-surface">Existing Course Assignments</h3>
+                <span class="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold rounded-full uppercase">{{ assignments|length }} Assignments</span>
+            </div>
+            
+            <div class="space-y-md">
+                {% for assignment in assignments %}
+                <div class="p-lg bg-surface-container-low rounded-2xl border border-outline-variant/20 flex flex-col sm:flex-row sm:items-center justify-between gap-md shadow-sm hover:shadow-lg transition-all duration-300">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 {% if assignment.content_type == 'lab' %}bg-purple-100 text-purple-700 border-purple-200{% else %}bg-blue-100 text-blue-700 border-blue-200{% endif %} border text-[10px] font-extrabold uppercase rounded-full">
+                                {{ 'Interactive Lab' if assignment.content_type == 'lab' else 'Written Exercise' }}
+                            </span>
+                            <span class="text-xs text-outline font-semibold">Course: {{ assignment.course.title }}</span>
+                        </div>
+                        <h4 class="text-label-lg font-extrabold text-on-surface">{{ assignment.title }}</h4>
+                        <div class="flex flex-wrap items-center gap-md text-body-sm text-outline font-medium">
+                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> {{ assignment.duration }} Mins</span>
+                            {% if assignment.due_date %}
+                            <span class="flex items-center gap-1 text-amber-600 font-bold"><span class="material-symbols-outlined text-sm">event</span> Due: {{ assignment.due_date.strftime('%b %d, %Y at %I:%M %p') }}</span>
+                            {% else %}
+                            <span class="flex items-center gap-1 text-outline-variant"><span class="material-symbols-outlined text-sm">event_busy</span> No Deadline</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-body-xs text-outline-variant line-clamp-2 mt-1">{{ assignment.content }}</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-sm shrink-0">
+                        <button type="button" 
+                                onclick="openEditModal('{{ assignment.id }}', '{{ assignment.title|replace('\'', '\\\'') }}', '{{ assignment.content|replace('\r', '')|replace('\n', '\\n')|replace('\'', '\\\'') }}', '{{ assignment.duration }}', '{{ assignment.due_date.strftime('%Y-%m-%dT%H:%M') if assignment.due_date else '' }}')"
+                                class="p-2.5 bg-primary/10 text-primary hover:bg-primary/20 rounded-xl transition-all shadow-sm" title="Edit Assignment">
+                            <span class="material-symbols-outlined text-md">edit</span>
+                        </button>
+                        <form action="{{ url_for('instructor.delete_assignment', lesson_id=assignment.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this assignment?');">
+                            <button type="submit" class="p-2.5 bg-error-container/20 text-error hover:bg-error-container/40 rounded-xl transition-all shadow-sm" title="Delete Assignment">
+                                <span class="material-symbols-outlined text-md">delete</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="flex flex-col items-center justify-center py-2xl text-center gap-md">
+                    <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-3xl">assignment</span>
+                    </div>
+                    <div>
+                        <h4 class="text-label-lg font-bold text-on-surface">No Assignments Yet</h4>
+                        <p class="text-body-sm text-outline mt-0.5">Use the form on the left to create your first assignment.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modern Edit Modal Overlay -->
+<div id="edit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl border-2 border-outline-variant/30 w-full max-w-lg shadow-2xl p-xl space-y-md animate-fade-in-up">
+        <div class="flex justify-between items-center border-b border-outline-variant/10 pb-sm">
+            <h3 class="text-headline-sm font-bold text-on-surface">Edit Assignment</h3>
+            <button type="button" onclick="closeEditModal()" class="text-outline hover:text-on-surface">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="edit-form" method="POST" class="space-y-md">
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Assignment Title</label>
+                <input type="text" name="title" id="edit-title" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary font-bold" required>
+            </div>
+            <div class="grid grid-cols-2 gap-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Duration (Min)</label>
+                    <input type="number" name="duration" id="edit-duration" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary" required>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Due Date / Deadline</label>
+                    <input type="datetime-local" name="due_date" id="edit-due-date" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+                </div>
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Instructions / Description</label>
+                <textarea name="content" id="edit-content" rows="5" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary" required></textarea>
+            </div>
+            <div class="flex justify-end gap-sm pt-sm border-t border-outline-variant/10">
+                <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-on-surface-variant font-bold rounded-xl active:scale-95 transition-all">Cancel</button>
+                <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg active:scale-95 transition-all">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditModal(id, title, content, duration, dueDate) {
+    document.getElementById('edit-form').action = '/instructor/assignments/' + id + '/edit';
+    document.getElementById('edit-title').value = title;
+    document.getElementById('edit-content').value = content;
+    document.getElementById('edit-duration').value = duration;
+    document.getElementById('edit-due-date').value = dueDate || '';
+    document.getElementById('edit-modal').classList.remove('hidden');
+}
+function closeEditModal() {
+    document.getElementById('edit-modal').classList.add('hidden');
+}
+</script>
+{% endblock %}

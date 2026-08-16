@@ -1,0 +1,159 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Course Curriculum | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    @keyframes flyLeft {
+        from { opacity: 0; transform: translateX(-60px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes flyRight {
+        from { opacity: 0; transform: translateX(60px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes flyUp {
+        from { opacity: 0; transform: translateY(50px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes flyDown {
+        from { opacity: 0; transform: translateY(-40px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .fly-left  { animation: flyLeft  0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-right { animation: flyRight 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-up    { animation: flyUp    0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-down  { animation: flyDown  0.7s cubic-bezier(0.22,1,0.36,1) both; }
+
+    .lesson-item-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .lesson-item-card:hover {
+        transform: translateX(4px);
+        box-shadow: 0px 8px 20px rgba(0, 84, 203, 0.08);
+    }
+</style>
+{% endblock %}
+
+{% block instructor_content %}
+<main class="max-w-container-max mx-auto px-gutter py-xl flex flex-col lg:flex-row gap-lg">
+    <!-- Main Content: Curriculum Builder -->
+    <div class="flex-grow space-y-lg fly-left">
+        <header class="mb-xxl fly-down">
+            <a href="{{ url_for('instructor.course_management') }}" class="flex items-center gap-sm text-primary mb-xs hover:underline">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                <span class="text-label-lg font-label-lg">BACK TO COURSE INVENTORY</span>
+            </a>
+            <h1 class="text-display-lg font-display-lg text-on-background mb-base">{{ course.title }}</h1>
+            <p class="text-body-lg font-body-lg text-on-surface-variant max-w-2xl">{{ course.description }}</p>
+        </header>
+
+        <!-- Current Lessons Timeline -->
+        <section class="space-y-md">
+            <h2 class="text-headline-md font-headline-md mb-md">Course Curriculum Timeline</h2>
+            
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-lg space-y-md">
+                {% for lesson in course.lessons %}
+                <!-- Lesson Item Row -->
+                <div class="flex items-center justify-between p-md hover:bg-surface-container-low rounded-lg transition-colors border-l-4 border-primary bg-white shadow-sm">
+                    <div class="flex items-center gap-md">
+                        <span class="w-8 h-8 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center font-bold">
+                            {{ lesson.order }}
+                        </span>
+                        <span class="material-symbols-outlined text-on-surface-variant">
+                            {% if lesson.content_type == 'video' %}play_circle{% elif lesson.content_type == 'quiz' %}quiz{% elif lesson.content_type == 'lab' %}science{% else %}description{% endif %}
+                        </span>
+                        <div>
+                            <span class="text-body-md font-bold text-on-surface block">{{ lesson.title }}</span>
+                            <span class="text-label-sm text-secondary font-mono">Type: {{ lesson.content_type|upper }} • Est. {{ lesson.duration }} mins</span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-body-md text-on-surface-variant text-center py-md">No lessons have been added to this curriculum yet. Use the wizard below to add the first module!</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Add Lesson Module Form -->
+        <section class="bg-white border border-outline-variant/20 rounded-xl p-lg shadow-sm">
+            <h3 class="text-headline-sm font-headline-sm text-on-surface mb-lg flex items-center gap-sm">
+                <span class="material-symbols-outlined text-primary">add_circle</span>
+                Add Curriculum Module
+            </h3>
+            
+            <form action="{{ url_for('instructor.curriculum', course_id=course.id) }}" method="POST" class="space-y-md">
+                <div>
+                    <label class="block text-label-lg font-label-lg text-on-surface mb-xs">Module Title</label>
+                    <input name="title" required class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-md text-body-md" placeholder="e.g. Setting up Virtual Private Clouds" type="text">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                    <div>
+                        <label class="block text-label-lg font-label-lg text-on-surface mb-xs">Content Format</label>
+                        <select name="content_type" class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-md text-body-md cursor-pointer">
+                            <option value="video">Video Lecture (MP4/Link)</option>
+                            <option value="text">Reading Materials & Documents</option>
+                            <option value="quiz">Interactive AI Evaluation Quiz</option>
+                            <option value="lab">Virtual Sandbox Interactive Lab</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-label-lg font-label-lg text-on-surface mb-xs">Estimated Duration (minutes)</label>
+                        <input name="duration" value="15" required class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-md text-body-md" type="number">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-label-lg font-label-lg text-on-surface mb-xs">Video URL / Youtube Link / Material Content</label>
+                    <input name="content" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-lg p-md text-body-md font-mono focus:border-primary focus:outline-none" placeholder="Paste YouTube link (e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ) or lesson notes...">
+                    <p class="text-xs text-outline mt-1">💡 For Video modules, paste any YouTube video URL or embed link.</p>
+                </div>
+
+                <div class="pt-md flex justify-end">
+                    <button type="submit" class="bg-primary text-white px-lg py-md rounded-lg font-label-lg shadow-lg hover:brightness-110 active:scale-95 transition-all">
+                        Insert Module
+                    </button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <!-- Sidebar: Course Overview & Actions -->
+    <aside class="w-full lg:w-80 flex-shrink-0 fly-right" style="animation-delay: 0.15s;">
+        <div class="space-y-lg sticky top-24">
+            <div class="bento-card p-lg rounded-xl border border-outline-variant/20 bg-white space-y-md">
+                <h4 class="text-label-lg font-label-lg text-on-surface-variant uppercase tracking-widest">Syllabus Overview</h4>
+                
+                <div class="space-y-sm">
+                    <div class="flex justify-between text-body-sm">
+                        <span>Total Chapters:</span>
+                        <span class="font-bold">{{ course.lessons|length }}</span>
+                    </div>
+                    <div class="flex justify-between text-body-sm">
+                        <span>Level:</span>
+                        <span class="font-bold">{{ course.level }}</span>
+                    </div>
+                    <div class="flex justify-between text-body-sm">
+                        <span>Category:</span>
+                        <span class="font-bold">{{ course.category }}</span>
+                    </div>
+                    </div>
+                </div>
+
+                {% if course.status == 'draft' %}
+                <form action="{{ url_for('instructor.publish_course', course_id=course.id) }}" method="POST" class="pt-md border-t border-outline-variant/10">
+                    <button type="submit" class="w-full py-md bg-primary text-white font-bold rounded-lg hover:shadow-lg transition-all active:scale-[0.98]">
+                        Publish Live Now
+                    </button>
+                </form>
+                {% else %}
+                <div class="p-sm bg-green-500/10 text-green-700 text-center rounded font-bold text-xs">
+                    Course status: Live & Published
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </aside>
+</main>
+{% endblock %}

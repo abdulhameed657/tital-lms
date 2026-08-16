@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block layout %}
+<div x-data="{ mobileSidebar: false }">
+    <!-- Mobile Slide-Over Admin Sidebar Drawer -->
+    <div x-show="mobileSidebar" class="relative z-50 md:hidden" style="display: none;">
+        <div x-show="mobileSidebar" x-transition.opacity @click="mobileSidebar = false"
+            class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"></div>
+        <div x-show="mobileSidebar" x-transition:enter="transition ease-out duration-300 transform"
+            x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="-translate-x-full"
+            class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 shadow-2xl p-4 overflow-y-auto space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg border border-primary/30 overflow-hidden shrink-0">
+                        <img src="/static/logo.png" alt="Titan Logo" class="w-full h-full object-cover">
+                    </div>
+                    <span class="font-extrabold text-sm text-on-surface">Super Admin Panel</span>
+                </div>
+                <button @click="mobileSidebar = false" class="p-1 text-slate-400 hover:text-slate-700">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+            <nav class="space-y-1">
+                <!-- Executive AI Sentinel -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'ai_assistant' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.ai_assistant') }}">
+                    <span class="material-symbols-outlined text-lg text-tertiary" style="{% if active_page == 'ai_assistant' %}font-variation-settings: 'FILL' 1;{% endif %}">auto_awesome</span> Executive AI Sentinel
+                </a>
+                <!-- Security Audit -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'logs' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.audit_logs') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'logs' %}font-variation-settings: 'FILL' 1;{% endif %}">gavel</span> Security Audit
+                </a>
+                <!-- System Settings -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'settings' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.settings') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'settings' %}font-variation-settings: 'FILL' 1;{% endif %}">settings</span> System Settings
+                </a>
+                <!-- Role RBAC -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'rbac' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.rbac') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'rbac' %}font-variation-settings: 'FILL' 1;{% endif %}">admin_panel_settings</span> Role RBAC
+                </a>
+                <!-- User Management -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'users' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.users') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'users' %}font-variation-settings: 'FILL' 1;{% endif %}">group</span> User Management
+                </a>
+                <!-- DB Backups -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'backups' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.backups') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'backups' %}font-variation-settings: 'FILL' 1;{% endif %}">database</span> DB Backups
+                </a>
+                <!-- Multi-Tenancy -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'tenants' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.tenants') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'tenants' %}font-variation-settings: 'FILL' 1;{% endif %}">corporate_fare</span> Multi-Tenancy
+                </a>
+                <!-- AI Moderation -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'moderation' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.moderation') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'moderation' %}font-variation-settings: 'FILL' 1;{% endif %}">gavel</span> AI Moderation
+                </a>
+
+                <!-- Log Out -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 pt-3 border-t border-slate-100 dark:border-slate-800 mt-2"
+                    href="{{ url_for('auth.logout') }}">
+                    <span class="material-symbols-outlined text-lg">logout</span> Log Out
+                </a>
+            </nav>
+
+        </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside data-lenis-prevent
+        class="h-screen fixed left-0 top-0 w-64 bg-surface-container/80 dark:bg-inverse-surface/80 glass-nav border-r border-outline-variant/20 hidden md:flex flex-col z-50">
+        <!-- Fixed Sidebar Brand Card (White background & bottom divider) -->
+        <div
+            class="px-4 pt-5 pb-3 shrink-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-outline-variant/20 shadow-sm mb-2">
+            <div class="px-3 py-3 bg-white dark:bg-slate-800 rounded-2xl border-2 border-primary/20 shadow-md">
+                <a href="{{ url_for('public.home') }}" class="flex items-center gap-xs">
+                    <div class="w-10 h-10 overflow-hidden rounded-xl shadow-md shrink-0 border border-primary/30">
+                        <img src="/static/logo.png" alt="Titan Logo" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h1
+                            class="text-base text-on-surface tracking-tight leading-none font-extrabold" style="font-family: Inter, sans-serif;">
+                            Titan LMS</h1>
+                        <p class="text-label-sm uppercase tracking-widest text-primary font-extrabold">Super Admin</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <nav class="flex-1 space-y-1 px-sm overflow-y-auto px-4 py-2">
+            <!-- Executive AI Sentinel -->
+            <a class="flex items-center gap-md {% if active_page == 'ai_assistant' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.ai_assistant') }}">
+                <svg class="w-6 h-6 shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 200 200"
+                    fill="none">
+                    <path
+                        d="M100 10C50.3 10 10 50.3 10 100C10 121.2 17.4 140.7 29.8 156.1L15 185C13.2 188.5 16.5 191.8 20 190L48.9 175.2C64.3 187.6 83.8 195 105 195C154.7 195 195 154.7 195 105C195 55.3 154.7 10 100 10Z"
+                        fill="currentColor" />
+                    <rect x="45" y="65" width="110" height="70" rx="30" fill="white" />
+                    <rect x="42" y="55" width="6" height="15" rx="3" fill="white" />
+                    <rect x="152" y="55" width="6" height="15" rx="3" fill="white" />
+                    <circle cx="72" cy="98" r="10" fill="currentColor" />
+                    <circle cx="128" cy="98" r="10" fill="currentColor" />
+                    <path d="M85 110Q100 120 115 110" stroke="currentColor" stroke-width="6" stroke-linecap="round"
+                        fill="none" />
+                </svg>
+                <span class="text-label-lg font-label-lg">Executive AI Sentinel</span>
+            </a>
+
+            <!-- Security Logs -->
+            <a class="flex items-center gap-md {% if active_page == 'logs' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.audit_logs') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'logs' %}font-variation-settings: 'FILL' 1;{% endif %}">gavel</span>
+                <span class="text-label-lg font-label-lg">Security & Audit</span>
+            </a>
+
+            <!-- System Settings -->
+            <a class="flex items-center gap-md {% if active_page == 'settings' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.settings') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'settings' %}font-variation-settings: 'FILL' 1;{% endif %}">settings</span>
+                <span class="text-label-lg font-label-lg">System Settings</span>
+            </a>
+
+
+
+            <!-- Role RBAC -->
+            <a class="flex items-center gap-md group {% if active_page == 'rbac' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                href="{{ url_for('admin.rbac') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'rbac' %}font-variation-settings: 'FILL' 1;{% endif %}">admin_panel_settings</span>
+                <span class="text-label-lg font-bold">Role RBAC</span>
+            </a>
+
+            <!-- User Management -->
+            <a class="flex items-center gap-md group {% if active_page == 'users' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                href="{{ url_for('admin.users') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'users' %}font-variation-settings: 'FILL' 1;{% endif %}">group</span>
+                <span class="text-label-lg font-bold">User Management</span>
+            </a>
+
+            <!-- Database Backups -->
+            <a class="flex items-center gap-md group {% if active_page == 'backups' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                href="{{ url_for('admin.backups') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'backups' %}font-variation-settings: 'FILL' 1;{% endif %}">database</span>
+                <span class="text-label-lg font-label-lg">DB Backups</span>
+            </a>
+
+
+        </nav>
+
+        <!-- Sidebar Bottom Footer Box -->
+        <div
+            class="px-3 py-3 m-3 bg-white/70 dark:bg-slate-800/70 rounded-2xl border-2 border-outline-variant/30 shadow-md space-y-2">
+            <div class="space-y-1">
+                <a class="flex items-center gap-md text-red-600 hover:text-red-700 font-bold px-3 py-2 rounded-xl hover:bg-red-50 transition-all"
+                    href="{{ url_for('auth.logout') }}">
+                    <span class="material-symbols-outlined text-sm text-red-600">logout</span>
+                    <span class="text-label-md font-label-md">Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="md:ml-64 min-h-screen flex flex-col bg-background page-reveal">
+        <!-- Top Navigation Bar -->
+        <header class="sticky top-0 z-40 bg-surface/70 glass-nav shadow-sm border-b border-outline-variant/10">
+            <div class="flex justify-between items-center w-full px-4 sm:px-6 md:px-8 py-3 max-w-7xl mx-auto">
+                <div class="flex items-center gap-3">
+                    <!-- Prominent Mobile Hamburger Menu Button -->
+                    <button @click="mobileSidebar = !mobileSidebar"
+                        class="md:hidden flex items-center gap-1 bg-primary/10 border border-primary/30 text-primary px-3 py-1.5 rounded-xl font-bold text-xs shadow-xs active:scale-95 transition-all">
+                        <span class="material-symbols-outlined text-lg"
+                            x-text="mobileSidebar ? 'close' : 'menu'">menu</span>
+                        <span class="font-extrabold" x-text="mobileSidebar ? 'Close' : 'Menu'">Menu</span>
+                    </button>
+                    <div class="relative hidden sm:block">
+                        <input
+                            class="bg-surface-container-low border-outline-variant/30 rounded-full pl-10 pr-4 py-2 text-body-sm w-64 focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                            placeholder="Search system resources..." type="text">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-md">
+                    <!-- Notifications -->
+                    <a href="{{ url_for('student.notification_center') }}"
+                        class="p-2 text-on-surface-variant hover:bg-secondary-container/30 rounded-full transition-colors relative">
+                        <span class="material-symbols-outlined">notifications</span>
+                        {% if unread_notifications > 0 %}
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+                        {% endif %}
+                    </a>
+
+                    <div class="flex items-center gap-sm pl-md border-l border-outline-variant/30">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-label-lg font-label-lg text-on-surface font-bold">{{ current_user.name }}</p>
+                            <p class="text-label-sm text-on-surface-variant font-bold">Super Administrator</p>
+                        </div>
+                        <div
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary-fixed flex items-center justify-center overflow-hidden border-2 border-primary/20 shrink-0">
+                            <img class="w-full h-full object-cover"
+                                src="{{ current_user.avatar_url or 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150' }}"
+                                alt="Admin Avatar">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Page Body -->
+        <div class="flex-1">
+            {% block admin_content %}{% block main_content %}{% endblock %}{% endblock %}
+        </div>
+    </main>
+</div>
+{% endblock %}

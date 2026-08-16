@@ -1,0 +1,137 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Events Calendar | Titan LMS Student{% endblock %}
+
+{% block student_content %}
+<div class="p-lg max-w-7xl mx-auto space-y-lg">
+    <!-- Header Banner -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-md bg-surface border border-outline-variant rounded-2xl p-xl shadow-sm">
+        <div>
+            <div class="flex items-center gap-xs text-blue-600 font-bold text-label-md uppercase tracking-wider">
+                <span class="material-symbols-outlined animate-bounce">event</span>
+                <span>Campus & Course Events Calendar</span>
+            </div>
+            <h1 class="text-headline-md font-bold text-on-surface mt-xs">Workshops, Exams & Campus Events</h1>
+            <p class="text-body-md text-on-surface-variant">Stay updated on live workshops, mid-term coding exams, guest lectures, and holidays.</p>
+        </div>
+        <div class="bg-blue-500/10 border border-blue-500/30 px-lg py-md rounded-2xl flex items-center gap-md">
+            <span class="material-symbols-outlined text-blue-600 text-3xl">event_upcoming</span>
+            <div>
+                <span class="text-[10px] text-outline uppercase font-bold block">Upcoming Events</span>
+                <span class="text-title-md font-bold text-blue-600">{{ events|length }} Events Scheduled</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="bg-surface border border-outline-variant rounded-2xl p-lg space-y-md">
+        <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-600">calendar_month</span>
+            Upcoming Events Calendar
+        </h3>
+        {% if events %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+            {% for ev in events %}
+            <div class="border border-outline-variant rounded-2xl p-md space-y-sm bg-surface hover:-translate-y-1.5 hover:shadow-2xl hover:border-blue-500/60 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between">
+                <div class="space-y-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full 
+                            {% if ev.event_type == 'workshop' %}bg-blue-500/20 text-blue-600
+                            {% elif ev.event_type == 'exam' %}bg-red-500/20 text-red-600
+                            {% elif ev.event_type == 'holiday' %}bg-amber-500/20 text-amber-600
+                            {% else %}bg-indigo-500/20 text-indigo-600{% endif %} uppercase">
+                            {{ ev.event_type }}
+                        </span>
+                        <span class="text-xs font-bold text-blue-600 bg-blue-500/10 px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span> Live
+                        </span>
+                    </div>
+
+                    <h4 class="font-bold text-on-surface text-title-sm mt-1">{{ ev.title }}</h4>
+                    <p class="text-xs text-on-surface-variant">Scope: <strong>{% if ev.course %}{{ ev.course.title }}{% else %}All Campus Students{% endif %}</strong></p>
+                </div>
+
+                <div class="text-xs space-y-1.5 bg-blue-500/5 border border-blue-500/10 p-sm rounded-xl text-on-surface-variant mt-sm">
+                    <p class="flex items-center gap-xs font-bold text-on-surface">
+                        <span class="material-symbols-outlined text-sm text-blue-600">calendar_today</span>
+                        <span>{{ ev.event_date.strftime('%A, %B %d, %Y') }}</span>
+                    </p>
+                    <p class="flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-sm text-sky-500">schedule</span>
+                        <span>{{ ev.start_time }} - {{ ev.end_time }}</span>
+                    </p>
+                    <p class="flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-sm text-indigo-500">pin_drop</span>
+                        <span>{{ ev.location_or_link or 'Campus Main Hall' }}</span>
+                    </p>
+                </div>
+
+                {% if ev.description %}
+                <p class="text-xs text-on-surface-variant line-clamp-2 mt-xs italic">
+                    "{{ ev.description }}"
+                </p>
+                {% endif %}
+
+                <!-- Open Card Modal Button -->
+                <div class="pt-sm border-t border-outline-variant/30">
+                    <button type="button" onclick="openEventModal('{{ ev.title }}', '{{ ev.event_type }}', '{{ ev.course.title if ev.course else 'All Campus Students' }}', '{{ ev.event_date.strftime('%A, %B %d, %Y') }}', '{{ ev.start_time }} - {{ ev.end_time }}', '{{ ev.location_or_link or 'Campus Auditorium' }}', '{{ ev.description|replace("'", "\\'") }}')"
+                        class="w-full bg-blue-500/10 hover:bg-blue-600 text-blue-600 hover:text-white font-bold py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-xs">
+                        <span class="material-symbols-outlined text-sm">open_in_full</span>
+                        <span>Open Event Details</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-on-surface-variant py-md">No upcoming events scheduled right now.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Interactive Event Detail Modal -->
+<div id="detailEventModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-xl shadow-2xl space-y-md animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <div>
+                <span id="ev_type" class="text-xs font-bold text-blue-600 uppercase tracking-wide">Event Type</span>
+                <h3 id="ev_title" class="text-title-lg font-bold text-on-surface">Event Title</h3>
+            </div>
+            <button onclick="document.getElementById('detailEventModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+        <div class="space-y-sm text-sm">
+            <div class="bg-blue-500/5 border border-blue-500/20 p-md rounded-xl space-y-2 text-on-surface-variant">
+                <p>🎯 <strong>Scope:</strong> <span id="ev_scope" class="font-bold text-on-surface"></span></p>
+                <p>📅 <strong>Date:</strong> <span id="ev_date" class="font-bold text-blue-600"></span></p>
+                <p>⏰ <strong>Time:</strong> <span id="ev_time" class="font-bold text-on-surface"></span></p>
+                <p>📍 <strong>Location / Link:</strong> <span id="ev_loc" class="font-bold text-indigo-600"></span></p>
+            </div>
+            <div class="bg-blue-500/10 border border-blue-500/20 p-md rounded-xl space-y-1">
+                <span class="text-xs font-bold text-blue-600 uppercase block">Event Description</span>
+                <p id="ev_desc" class="text-xs text-on-surface italic"></p>
+            </div>
+        </div>
+        <div class="flex justify-end pt-sm border-t border-outline-variant">
+            <button type="button" onclick="document.getElementById('detailEventModal').classList.add('hidden')"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-xl py-md rounded-xl text-sm shadow-md">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openEventModal(title, type, scope, date, time, loc, desc) {
+    document.getElementById('ev_title').innerText = title;
+    document.getElementById('ev_type').innerText = type.toUpperCase();
+    document.getElementById('ev_scope').innerText = scope;
+    document.getElementById('ev_date').innerText = date;
+    document.getElementById('ev_time').innerText = time;
+    document.getElementById('ev_loc').innerText = loc;
+    document.getElementById('ev_desc').innerText = desc || "No extra description provided.";
+    document.getElementById('detailEventModal').classList.remove('hidden');
+}
+</script>
+{% endblock %}

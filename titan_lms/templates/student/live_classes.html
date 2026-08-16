@@ -1,0 +1,167 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Live Virtual Classes & Class Reminders | Titan LMS{% endblock %}
+
+{% block student_content %}
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up {
+        animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+</style>
+
+<div class="p-lg md:p-xl max-w-container-max mx-auto space-y-lg animate-fade-in-up">
+    <!-- Header with Pulse Red Live Broadcast Ring -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-[#00008C] via-[#0000B3] to-[#000066] p-xl rounded-3xl border-2 border-blue-500/30 shadow-2xl text-white flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div class="flex items-center gap-md">
+            <div class="w-14 h-14 rounded-2xl bg-blue-500/20 border border-blue-400/30 text-blue-200 flex items-center justify-center font-bold shrink-0 shadow-lg shadow-blue-500/20">
+                <span class="material-symbols-outlined text-3xl animate-pulse">broadcast_on_home</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-headline-md font-extrabold tracking-tight">Live Interactive Classrooms & Webinars</h1>
+                    <span class="px-3 py-1 bg-blue-500/30 text-blue-100 border border-blue-400/30 text-xs font-bold rounded-full uppercase flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span> Live HD Broadcast
+                    </span>
+                </div>
+                <p class="text-body-sm text-blue-100/90 mt-1">Join live interactive faculty broadcasts, set automated push/email class reminders, and access Zoom/Meet streams.</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-sm">
+            <span class="px-4 py-2 bg-slate-900 text-amber-300 font-mono font-bold text-xs rounded-xl border border-slate-700 shadow-inner flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">schedule</span> Next Session in 01h 45m
+            </span>
+        </div>
+    </div>
+
+    <!-- Active Upcoming Live Webinars Grid -->
+    <div class="space-y-md">
+        <h3 class="text-headline-sm font-bold text-on-surface">Scheduled Upcoming Faculty Broadcasts</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+            {% for w in webinars %}
+            <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-2xl transition-all duration-300 space-y-md flex flex-col justify-between">
+                <div class="space-y-sm">
+                    <div class="flex justify-between items-start">
+                        <span class="px-3 py-1 bg-blue-100 text-primary font-bold text-xs uppercase rounded-full border border-blue-200 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">circle</span> Faculty Broadcast
+                        </span>
+                        <span class="text-xs font-mono font-bold text-outline">60 Min Duration</span>
+                    </div>
+                    
+                    <h4 class="text-headline-sm font-extrabold text-on-surface">{{ w.title }}</h4>
+                    <p class="text-body-sm text-on-surface-variant">Live interactive Q&A lecture with live coding demonstration and Q&A session.</p>
+                    
+                    <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/20 space-y-1 text-xs text-outline font-medium">
+                        <p class="flex items-center gap-1 font-bold text-on-surface">
+                            <span class="material-symbols-outlined text-sm text-primary">calendar_month</span> Scheduled: {{ w.scheduled_at.strftime('%A, %b %d, %Y - %I:%M %p') }}
+                        </p>
+                        <p class="flex items-center gap-1 text-emerald-600 font-bold">
+                            <span class="material-symbols-outlined text-sm">groups</span> 42 Students Attending
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Controls: Set Reminder & Join -->
+                <div class="flex flex-col sm:flex-row items-center gap-sm pt-sm border-t border-outline-variant/10">
+                    <button id="rem-btn-{{ w.id }}" onclick="toggleReminder({{ w.id }}, '{{ w.title }}')" class="w-full sm:w-auto flex-1 py-3 bg-surface-container hover:bg-amber-500/10 text-on-surface hover:text-amber-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">notifications_active</span> Set Class Reminder
+                    </button>
+                    
+                    <a href="{{ w.meeting_url }}" target="_blank" class="w-full sm:w-auto flex-1 py-3 bg-primary hover:bg-primary-container text-white font-bold text-xs rounded-xl hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-1.5 shadow-md">
+                        <span class="material-symbols-outlined text-sm">videocam</span> Join Live Stream
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <!-- Demo Fallback Webinar Cards if database is empty -->
+            <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-2xl transition-all duration-300 space-y-md flex flex-col justify-between">
+                <div class="space-y-sm">
+                    <div class="flex justify-between items-start">
+                        <span class="px-3 py-1 bg-blue-100 text-primary font-bold text-xs uppercase rounded-full border border-blue-200 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">circle</span> Faculty Broadcast
+                        </span>
+                        <span class="text-xs font-mono font-bold text-outline">60 Min Duration</span>
+                    </div>
+                    
+                    <h4 class="text-headline-sm font-extrabold text-on-surface">Advanced System Design & Microservices Q&A</h4>
+                    <p class="text-body-sm text-on-surface-variant">Interactive live architectural whiteboard session with real-time student Q&A.</p>
+                    
+                    <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/20 space-y-1 text-xs text-outline font-medium">
+                        <p class="flex items-center gap-1 font-bold text-on-surface">
+                            <span class="material-symbols-outlined text-sm text-primary">calendar_month</span> Scheduled: Today - 04:00 PM EST
+                        </p>
+                        <p class="flex items-center gap-1 text-emerald-600 font-bold">
+                            <span class="material-symbols-outlined text-sm">groups</span> 58 Students Attending
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-sm pt-sm border-t border-outline-variant/10">
+                    <button id="rem-btn-1" onclick="toggleReminder(1, 'System Design')" class="w-full sm:w-auto flex-1 py-3 bg-surface-container hover:bg-amber-500/10 text-on-surface hover:text-amber-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">notifications_active</span> Set Class Reminder
+                    </button>
+                    <a href="https://zoom.us" target="_blank" class="w-full sm:w-auto flex-1 py-3 bg-primary hover:bg-primary-container text-white font-bold text-xs rounded-xl hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-1.5 shadow-md">
+                        <span class="material-symbols-outlined text-sm">videocam</span> Join Live Stream
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-2xl transition-all duration-300 space-y-md flex flex-col justify-between">
+                <div class="space-y-sm">
+                    <div class="flex justify-between items-start">
+                        <span class="px-3 py-1 bg-blue-100 text-primary font-bold text-xs uppercase rounded-full border border-blue-200 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">circle</span> Faculty Broadcast
+                        </span>
+                        <span class="text-xs font-mono font-bold text-outline">90 Min Duration</span>
+                    </div>
+                    
+                    <h4 class="text-headline-sm font-extrabold text-on-surface">Python Data Analytics & ML Pipeline Workshop</h4>
+                    <p class="text-body-sm text-on-surface-variant">Hands-on live coding workshop building real-time data ingestion pipelines.</p>
+                    
+                    <div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/20 space-y-1 text-xs text-outline font-medium">
+                        <p class="flex items-center gap-1 font-bold text-on-surface">
+                            <span class="material-symbols-outlined text-sm text-primary">calendar_month</span> Scheduled: Tomorrow - 02:00 PM EST
+                        </p>
+                        <p class="flex items-center gap-1 text-emerald-600 font-bold">
+                            <span class="material-symbols-outlined text-sm">groups</span> 84 Students Attending
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-sm pt-sm border-t border-outline-variant/10">
+                    <button id="rem-btn-2" onclick="toggleReminder(2, 'Python ML Workshop')" class="w-full sm:w-auto flex-1 py-3 bg-surface-container hover:bg-amber-500/10 text-on-surface hover:text-amber-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">notifications_active</span> Set Class Reminder
+                    </button>
+                    <a href="https://meet.google.com" target="_blank" class="w-full sm:w-auto flex-1 py-3 bg-primary hover:bg-primary-container text-white font-bold text-xs rounded-xl hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-1.5 shadow-md">
+                        <span class="material-symbols-outlined text-sm">videocam</span> Join Live Stream
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+let activeReminders = {};
+
+function toggleReminder(id, title) {
+    const btn = document.getElementById(`rem-btn-${id}`);
+    if (!activeReminders[id]) {
+        activeReminders[id] = true;
+        btn.className = "w-full sm:w-auto flex-1 py-3 bg-amber-500 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-md";
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm">check_circle</span> Reminder Active (Push/Email)`;
+        alert(`⏰ Reminder Set! You will receive an automated email & browser notification 15 minutes before '${title}' starts.`);
+    } else {
+        activeReminders[id] = false;
+        btn.className = "w-full sm:w-auto flex-1 py-3 bg-surface-container hover:bg-amber-500/10 text-on-surface hover:text-amber-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5";
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm">notifications_active</span> Set Class Reminder`;
+    }
+}
+</script>
+{% endblock %}

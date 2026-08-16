@@ -1,0 +1,621 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Admin Attendance PIN & Manual Overrides | Titan LMS{% endblock %}
+
+{% block admin_content %}
+<div class="p-lg max-w-7xl mx-auto space-y-lg">
+    <!-- Header Banner with Clean Button Bar Alignment -->
+    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-md bg-surface border border-outline-variant rounded-2xl p-xl shadow-sm">
+        <div>
+            <div class="flex items-center gap-xs text-blue-600 font-bold text-label-md uppercase tracking-wider">
+                <span class="material-symbols-outlined">how_to_reg</span>
+                <span>Admin Attendance Control & Manual Overrides</span>
+            </div>
+            <h1 class="text-headline-md font-bold text-on-surface mt-xs">Student Attendance & Roll Number Override Hub</h1>
+            <p class="text-body-md text-on-surface-variant max-w-2xl">Set live session PIN codes, mark attendance for past dates by Roll Number, and scan student QR codes.</p>
+        </div>
+        <!-- Neatly Aligned Single-Row Button Bar (Blue Theme) -->
+        <div class="flex items-center gap-sm flex-wrap sm:flex-nowrap shrink-0 mt-md xl:mt-0">
+            <button onclick="openQrScannerModal()"
+                class="h-11 px-lg bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-xs whitespace-nowrap text-xs">
+                <span class="material-symbols-outlined text-sm animate-bounce">qr_code_scanner</span>
+                <span>Multi QR Auto Scanner</span>
+            </button>
+            <button onclick="document.getElementById('manualOverrideModal').classList.remove('hidden')"
+                class="h-11 px-lg bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-xs whitespace-nowrap text-xs">
+                <span class="material-symbols-outlined text-sm">edit_calendar</span>
+                <span>Past Date Override</span>
+            </button>
+            <button onclick="document.getElementById('createSessionModal').classList.remove('hidden')"
+                class="h-11 px-lg bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-xs whitespace-nowrap text-xs">
+                <span class="material-symbols-outlined text-sm">pin</span>
+                <span>Launch Live Session</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2 Column Section: Live PIN Sessions & Backdated Manual Attendance -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+        
+        <!-- Column 1 & 2: Attendance PIN Sessions & Recent Logs -->
+        <div class="lg:col-span-2 space-y-lg">
+            
+            <!-- Active Sessions List -->
+            <div class="bg-surface border border-outline-variant rounded-2xl p-lg space-y-md">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-blue-600">sensors</span> Active Live PIN Sessions
+                    </h3>
+                    <span class="text-label-sm font-bold text-outline">{{ open_sessions|length }} Sessions Open</span>
+                </div>
+
+                {% if open_sessions %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    {% for sess in open_sessions %}
+                    <div class="bg-blue-500/5 border border-blue-500/20 p-md rounded-2xl space-y-xs shadow-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-blue-600 uppercase">{{ sess.course.title }}</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 uppercase flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live PIN
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-on-surface text-sm">{{ sess.title }}</h4>
+                        <div class="bg-slate-900 text-amber-400 p-sm rounded-xl text-center font-mono font-bold text-lg tracking-widest border border-slate-700">
+                            PIN: {{ sess.pin_code }}
+                        </div>
+                        <p class="text-[11px] text-on-surface-variant flex items-center justify-between pt-xs">
+                            <span>Date: {{ sess.session_date }}</span>
+                            <form method="POST" action="{{ url_for('admin.attendance') }}" class="inline">
+                                <input type="hidden" name="action" value="close_session">
+                                <input type="hidden" name="session_id" value="{{ sess.id }}">
+                                <button type="submit" class="text-red-600 hover:text-red-700 text-xs font-bold underline">
+                                    Close Session
+                                </button>
+                            </form>
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-xs text-on-surface-variant py-md italic">No active live PIN sessions open. Click 'Launch Live Session' above.</p>
+                {% endif %}
+            </div>
+
+            <!-- Attendance Records Table & Admin Inline Status Editor -->
+            <div class="bg-surface border border-outline-variant rounded-2xl p-lg space-y-md">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-blue-600">history</span> Recent Attendance Logs & Inline Status Editor
+                    </h3>
+                </div>
+                
+                <!-- Client-side real-time table search -->
+                <div class="relative w-full max-w-md pt-xs">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-sm">search</span>
+                    <input type="text" id="attendanceTableSearch" onkeyup="filterAttendanceTable()" placeholder="Search student name, roll number, or status..." 
+                        class="w-full pl-10 pr-md py-2 bg-surface border border-outline-variant rounded-xl text-xs text-on-surface focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10">
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-surface-variant/40 text-on-surface-variant uppercase font-bold text-[10px]">
+                            <tr>
+                                <th class="p-2">Roll No</th>
+                                <th class="p-2">Student Name</th>
+                                <th class="p-2">Session Title</th>
+                                <th class="p-2">Date</th>
+                                <th class="p-2">Method</th>
+                                <th class="p-2">Status</th>
+                                <th class="p-2 text-right">Admin Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline-variant text-on-surface">
+                            {% for rec in recent_records %}
+                            <tr class="hover:bg-surface-variant/30">
+                                <td class="p-2 font-mono font-bold text-blue-600">{{ rec.user.get_roll_number() }}</td>
+                                <td class="p-2 font-bold">{{ rec.user.name }}</td>
+                                <td class="p-2 text-xs text-on-surface-variant">{{ rec.session.title }}</td>
+                                <td class="p-2 text-xs">{{ rec.session.session_date }}</td>
+                                <td class="p-2 text-xs">
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded {% if rec.method == 'admin_override' %}bg-indigo-500/20 text-indigo-600{% elif rec.method == 'auto_absent' %}bg-red-500/20 text-red-600 font-bold{% else %}bg-blue-500/20 text-blue-600{% endif %}">
+                                        {% if rec.method == 'auto_absent' %}AUTO-ABSENT (30m+){% else %}{{ rec.method }}{% endif %}
+                                    </span>
+                                </td>
+                                <td class="p-2">
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded-full 
+                                        {% if rec.status == 'present' %}bg-emerald-500/20 text-emerald-600
+                                        {% elif rec.status == 'late' %}bg-amber-500/20 text-amber-600
+                                        {% elif rec.status == 'excused' %}bg-blue-500/20 text-blue-600
+                                        {% else %}bg-red-500/20 text-red-600{% endif %} uppercase">
+                                        {{ rec.status }}
+                                    </span>
+                                </td>
+                                <td class="p-2 text-right">
+                                    <form method="POST" action="{{ url_for('admin.attendance') }}" class="inline-flex items-center gap-1">
+                                        <input type="hidden" name="action" value="edit_attendance_record">
+                                        <input type="hidden" name="record_id" value="{{ rec.id }}">
+                                        <select name="status" onchange="this.form.submit()" class="bg-surface border border-outline-variant text-xs rounded-lg px-2 py-1 font-bold text-on-surface focus:border-blue-500">
+                                            <option value="present" {% if rec.status == 'present' %}selected{% endif %}>Present</option>
+                                            <option value="late" {% if rec.status == 'late' %}selected{% endif %}>Late</option>
+                                            <option value="absent" {% if rec.status == 'absent' %}selected{% endif %}>Absent</option>
+                                            <option value="excused" {% if rec.status == 'excused' %}selected{% endif %}>Excused</option>
+                                        </select>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 3: Students Roll Number Directory & Quick Past Date Marker -->
+        <div class="space-y-lg">
+            
+            <!-- Quick Manual Attendance Override Form -->
+            <div class="bg-surface border border-outline-variant rounded-2xl p-lg space-y-md">
+                <h3 class="text-title-sm font-bold text-on-surface flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-blue-600">edit_note</span> Quick Manual Override
+                </h3>
+                <form method="POST" action="{{ url_for('admin.attendance') }}" class="space-y-sm">
+                    <input type="hidden" name="action" value="admin_mark_attendance">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Select Course *</label>
+                        <select name="course_id" required class="w-full bg-surface border border-outline-variant rounded-xl p-sm text-xs text-on-surface">
+                            {% for c in all_courses %}
+                            <option value="{{ c.id }}">{{ c.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Student Roll No (e.g. 466960) *</label>
+                        <input type="text" name="roll_number" placeholder="466960" required
+                            class="w-full bg-surface border border-outline-variant rounded-xl p-sm text-xs font-mono font-bold text-on-surface">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Date *</label>
+                        <input type="date" name="session_date" required
+                            class="w-full bg-surface border border-outline-variant rounded-xl p-sm text-xs text-on-surface">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1">Attendance Status *</label>
+                        <select name="status" class="w-full bg-surface border border-outline-variant rounded-xl p-sm text-xs font-bold text-on-surface">
+                            <option value="present">Present</option>
+                            <option value="late">Late</option>
+                            <option value="absent">Absent</option>
+                            <option value="excused">Excused / Leave</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs shadow transition-colors flex items-center justify-center gap-1">
+                        <span class="material-symbols-outlined text-sm">check_circle</span> Mark Attendance
+                    </button>
+                </form>
+            </div>
+
+            <!-- Student Roll Number Directory -->
+            <div class="bg-surface border border-outline-variant rounded-2xl p-lg space-y-md">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-title-sm font-bold text-on-surface flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-blue-600">badge</span> Student Roll Numbers
+                    </h3>
+                </div>
+                <form method="GET" action="{{ url_for('admin.attendance') }}">
+                    <input type="text" name="q" value="{{ search_q }}" placeholder="Search Roll No (466960)..."
+                        class="w-full bg-surface border border-outline-variant rounded-xl p-sm text-xs text-on-surface">
+                </form>
+                <div class="space-y-2 max-h-96 overflow-y-auto pr-1">
+                    {% for st in students %}
+                        {% for enr in st.enrollments %}
+                        <div class="flex items-center justify-between bg-surface-variant/40 p-2 rounded-xl text-xs border border-outline-variant">
+                            <div>
+                                <span class="font-mono font-bold text-blue-600 block">Roll No: {{ enr.get_roll_number() }}</span>
+                                <span class="font-bold text-on-surface">{{ st.name }}</span>
+                                <span class="text-[10px] text-on-surface-variant block">Course: {{ enr.course.title }}</span>
+                            </div>
+                            <button type="button" onclick="document.querySelector('[name=roll_number]').value='{{ enr.get_roll_number() }}'; document.querySelector('[name=course_id]').value='{{ enr.course_id }}'"
+                                class="bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 px-2 py-1 rounded-md text-[10px] font-bold">
+                                Select
+                            </button>
+                        </div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Past Date Manual Override Modal -->
+<div id="manualOverrideModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-xl shadow-2xl space-y-md">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-xs">
+                <span class="material-symbols-outlined text-indigo-600">edit_calendar</span> Admin Past Date Attendance Override
+            </h3>
+            <button onclick="document.getElementById('manualOverrideModal').classList.add('hidden')" class="text-on-surface-variant">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('admin.attendance') }}" class="space-y-md">
+            <input type="hidden" name="action" value="admin_mark_attendance">
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-1">Target Course *</label>
+                <select name="course_id" required class="w-full bg-surface border border-outline-variant rounded-xl p-md text-sm text-on-surface">
+                    {% for c in all_courses %}
+                    <option value="{{ c.id }}">{{ c.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-1">Student Roll Number (e.g. 466960) *</label>
+                <input type="text" name="roll_number" placeholder="466960" required
+                    class="w-full bg-surface border border-outline-variant rounded-xl p-md text-sm font-mono font-bold text-on-surface">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-1">Session Date *</label>
+                <input type="date" name="session_date" required
+                    class="w-full bg-surface border border-outline-variant rounded-xl p-md text-sm text-on-surface">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-1">Attendance Status *</label>
+                <select name="status" class="w-full bg-surface border border-outline-variant rounded-xl p-md text-sm font-bold text-on-surface">
+                    <option value="present">Present</option>
+                    <option value="late">Late</option>
+                    <option value="absent">Absent</option>
+                    <option value="excused">Excused / Leave</option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-xs pt-md border-t border-outline-variant">
+                <button type="button" onclick="document.getElementById('manualOverrideModal').classList.add('hidden')"
+                    class="px-lg py-md text-sm font-bold text-on-surface-variant">Cancel</button>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-xl py-md rounded-xl text-sm shadow-md">
+                    Submit Admin Override
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Launch Session Modal -->
+<div id="createSessionModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-xl shadow-2xl space-y-md">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-xs">
+                <span class="material-symbols-outlined text-sky-600">pin</span> Launch Live Attendance Session
+            </h3>
+            <button onclick="document.getElementById('createSessionModal').classList.add('hidden')" class="text-on-surface-variant">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('admin.attendance') }}" class="space-y-md">
+            <input type="hidden" name="action" value="create_session">
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-1">Select Course *</label>
+                <select name="course_id" required class="w-full bg-surface border border-outline-variant rounded-xl p-md text-sm text-on-surface">
+                    {% for c in all_courses %}
+                    <option value="{{ c.id }}">{{ c.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-1">Session Title *</label>
+                <input type="text" name="title" value="Daily Class Lecture Attendance" required
+                    class="w-full bg-surface border border-outline-variant rounded-xl p-md text-sm text-on-surface">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-1">Session Date *</label>
+                <input type="date" name="session_date"
+                    class="w-full bg-surface border border-outline-variant rounded-xl p-md text-sm text-on-surface">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-1">6-Digit PIN Code (Leave blank for auto-generate)</label>
+                <input type="text" name="pin_code" placeholder="e.g. 849201"
+                    class="w-full bg-surface border border-outline-variant rounded-xl p-md text-sm font-mono tracking-widest text-on-surface">
+            </div>
+            <div class="flex justify-end gap-xs pt-md border-t border-outline-variant">
+                <button type="button" onclick="document.getElementById('createSessionModal').classList.add('hidden')"
+                    class="px-lg py-md text-sm font-bold text-on-surface-variant">Cancel</button>
+                <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-xl py-md rounded-xl text-sm shadow-md">
+                    Launch PIN Session
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Multi QR Auto Scanner Modal (Blue Theme & Fee Payment Warning Alert) -->
+<div id="multiQrScannerModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-3xl w-full p-xl shadow-2xl space-y-md animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-600 text-2xl animate-pulse">qr_code_scanner</span>
+                <div>
+                    <h3 class="text-title-lg font-bold text-on-surface">Multi QR Code Auto-Attendance Scanner</h3>
+                    <p class="text-xs text-on-surface-variant">Continuous Camera Scanner & Rapid Barcode Reader</p>
+                </div>
+            </div>
+            <button onclick="closeQrScannerModal()" class="text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+            <!-- Left Column: Camera Feed / Rapid Barcode Input -->
+            <div class="space-y-sm">
+                <div class="bg-slate-900 border-2 border-dashed border-blue-500/40 rounded-2xl p-md flex flex-col items-center justify-center min-h-[220px] text-center relative overflow-hidden">
+                    <div id="qr-reader" class="w-full h-full rounded-xl overflow-hidden"></div>
+                    <div id="scannerPlaceholder" class="space-y-2 py-lg">
+                        <span class="material-symbols-outlined text-4xl text-blue-400 animate-bounce">center_focus_weak</span>
+                        <p class="text-xs text-blue-300 font-bold">Show Student QR Pass to Device Camera</p>
+                        <span class="text-[10px] text-slate-400 block">or rapid-scan Roll Number (e.g. 466960) below</span>
+                    </div>
+                </div>
+
+                <!-- Course Selector for Scanner -->
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1">Target Course *</label>
+                    <select id="scan_course_id" class="w-full bg-surface border border-outline-variant rounded-xl p-sm text-xs font-bold text-on-surface">
+                        <option value="">Auto-Detect Course from Roll Number</option>
+                        {% for c in all_courses %}
+                        <option value="{{ c.id }}">{{ c.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Rapid Barcode / Scanner Direct Input -->
+                <form id="barcodeScanForm" onsubmit="event.preventDefault(); handleManualScan();" class="space-y-1">
+                    <label class="block text-xs font-bold text-on-surface-variant">Rapid Roll Number / Barcode Input</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="barcode_input" placeholder="Scan or Type Roll No (466960)..." autofocus
+                            class="flex-1 bg-surface border border-blue-500/40 rounded-xl p-md text-xs font-mono font-bold text-on-surface focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-md py-md rounded-xl text-xs font-bold shadow">
+                            Scan
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Column: Live Scanned Stream -->
+            <div class="bg-surface-variant/30 border border-outline-variant rounded-2xl p-md flex flex-col justify-between space-y-2">
+                <div>
+                    <div class="flex items-center justify-between border-b border-outline-variant/30 pb-2 mb-2">
+                        <span class="text-xs font-bold text-blue-600 flex items-center gap-1 uppercase">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span> Live Scanned Stream
+                        </span>
+                        <span id="scan_count" class="text-xs font-bold bg-blue-500/20 text-blue-600 px-2 py-0.5 rounded-full">0 Students Scanned</span>
+                    </div>
+
+                    <!-- Alert Box for Scanned Result -->
+                    <div id="scan_alert" class="hidden p-sm rounded-xl text-xs font-bold mb-2"></div>
+
+                    <!-- Scrollable Log Stream -->
+                    <div id="scannedStream" class="space-y-1.5 max-h-[220px] overflow-y-auto pr-1">
+                        <p class="text-xs text-on-surface-variant text-center py-lg italic">Waiting for QR Code scans...</p>
+                    </div>
+                </div>
+
+                <div class="pt-sm border-t border-outline-variant/30 flex justify-between items-center text-xs">
+                    <span class="text-outline font-bold">Auto-saves to database</span>
+                    <button type="button" onclick="closeQrScannerModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-lg py-1.5 rounded-xl shadow">
+                        Done & Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HTML5 QRCode Reader Library -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script>
+let html5QrCode = null;
+let scannedCount = 0;
+
+function playSuccessBeep() {
+    try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContextClass();
+        audioCtx.resume().then(() => {
+            const osc1 = audioCtx.createOscillator();
+            const gain1 = audioCtx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+            gain1.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
+            osc1.start();
+            osc1.stop(audioCtx.currentTime + 0.1);
+
+            setTimeout(() => {
+                try {
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime); 
+                    gain2.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    osc2.start();
+                    osc2.stop(audioCtx.currentTime + 0.15);
+                } catch(err){}
+            }, 80);
+        });
+    } catch(e){}
+}
+
+function playWarningBuzzer() {
+    try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContextClass();
+        audioCtx.resume().then(() => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime); 
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.35);
+        });
+    } catch(e){}
+}
+
+function openQrScannerModal() {
+    document.getElementById('multiQrScannerModal').classList.remove('hidden');
+    document.getElementById('barcode_input').focus();
+    
+    if (!html5QrCode) {
+        try {
+            html5QrCode = new Html5Qrcode("qr-reader");
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 200, height: 200 } },
+                (decodedText, decodedResult) => {
+                    processRollScan(decodedText);
+                },
+                (errorMessage) => {}
+            ).then(() => {
+                document.getElementById('scannerPlaceholder').classList.add('hidden');
+            }).catch(err => {
+                console.log("Camera access fallback to rapid input bar");
+            });
+        } catch(e){}
+    }
+}
+
+function closeQrScannerModal() {
+    document.getElementById('multiQrScannerModal').classList.add('hidden');
+    if (html5QrCode) {
+        try {
+            html5QrCode.stop().then(() => { html5QrCode = null; });
+        } catch(e){ html5QrCode = null; }
+    }
+    window.location.reload();
+}
+
+function handleManualScan() {
+    const input = document.getElementById('barcode_input');
+    const val = input.value.trim();
+    if (val) {
+        processRollScan(val);
+        input.value = '';
+    }
+}
+
+let lastScannedText = '';
+let lastScannedTime = 0;
+
+function processRollScan(rollText) {
+    const now = Date.now();
+    if (rollText === lastScannedText && (now - lastScannedTime) < 2000) {
+        return;
+    }
+    lastScannedText = rollText;
+    lastScannedTime = now;
+
+    const courseId = document.getElementById('scan_course_id').value;
+
+    fetch('/admin/api/scan_attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            roll_number: rollText,
+            course_id: courseId,
+            status: 'present'
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const alertBox = document.getElementById('scan_alert');
+        alertBox.classList.remove('hidden', 'bg-red-500/20', 'text-red-600', 'bg-emerald-500/20', 'text-emerald-600', 'bg-amber-500/20', 'text-amber-600', 'border-amber-500/50');
+        
+        if (data.success) {
+            scannedCount++;
+            document.getElementById('scan_count').innerText = scannedCount + " Students Scanned";
+
+            const stream = document.getElementById('scannedStream');
+            if (scannedCount === 1) stream.innerHTML = '';
+
+            if (data.fee_paid === false) {
+                // UNPAID FEE WARNING ALERT!
+                playWarningBuzzer();
+                alertBox.classList.add('bg-red-500/20', 'text-red-600', 'border', 'border-red-500/40');
+                alertBox.innerText = `⚠️ FEE UNPAID WARNING: ${data.student_name} (Roll No: ${data.roll_number}) Fee Status is '${data.payment_status}'!`;
+
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between bg-red-500/10 border border-red-500/40 p-2 rounded-xl text-xs animate-in fade-in slide-in-from-top-2 shadow-xs';
+                item.innerHTML = `
+                    <div>
+                        <span class="font-bold text-on-surface block">${data.student_name}</span>
+                        <span class="text-[10px] font-mono text-blue-600 font-bold">Roll: ${data.roll_number} | ${data.course_title}</span>
+                    </div>
+                    <div class="text-right space-y-0.5">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-red-500/20 text-red-600 uppercase block">⚠️ FEE UNPAID (${data.payment_status})</span>
+                        <span class="text-[9px] text-outline block">${data.time}</span>
+                    </div>
+                `;
+                stream.prepend(item);
+            } else {
+                // FEE PAID SUCCESS
+                playSuccessBeep();
+                alertBox.classList.add('bg-emerald-500/20', 'text-emerald-600');
+                alertBox.innerText = data.message;
+
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between bg-surface border border-emerald-500/30 p-2 rounded-xl text-xs animate-in fade-in slide-in-from-top-2 shadow-xs';
+                item.innerHTML = `
+                    <div>
+                        <span class="font-bold text-on-surface block">${data.student_name}</span>
+                        <span class="text-[10px] font-mono text-blue-600 font-bold">Roll: ${data.roll_number} | ${data.course_title}</span>
+                    </div>
+                    <div class="text-right space-y-0.5">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 uppercase block">PRESENT 🟢</span>
+                        <span class="text-[9px] text-outline block">${data.time}</span>
+                    </div>
+                `;
+                stream.prepend(item);
+            }
+        } else {
+            playWarningBuzzer();
+            alertBox.classList.add('bg-red-500/20', 'text-red-600');
+            alertBox.innerText = data.message;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+    });
+}
+
+function filterAttendanceTable() {
+    const input = document.getElementById('attendanceTableSearch');
+    if (!input) return;
+    const filter = input.value.toLowerCase();
+    const tbody = document.querySelector('table tbody');
+    if (!tbody) return;
+    const rows = tbody.getElementsByTagName('tr');
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        if (cells.length >= 6) {
+            const roll = (cells[0].textContent || cells[0].innerText || '').toLowerCase();
+            const name = (cells[1].textContent || cells[1].innerText || '').toLowerCase();
+            const status = (cells[5].textContent || cells[5].innerText || '').toLowerCase();
+            
+            if (roll.includes(filter) || name.includes(filter) || status.includes(filter)) {
+                rows[i].style.display = "";
+            } else {
+                rows[i].style.display = "none";
+            }
+        }
+    }
+}
+</script>
+{% endblock %}

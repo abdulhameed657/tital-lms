@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block layout %}
+<div x-data="{ mobileSidebar: false }">
+    <!-- Mobile Slide-Over Admin Sidebar Drawer -->
+    <div x-show="mobileSidebar" class="relative z-50 md:hidden" style="display: none;">
+        <div x-show="mobileSidebar" x-transition.opacity @click="mobileSidebar = false"
+            class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"></div>
+        <div x-show="mobileSidebar" x-transition:enter="transition ease-out duration-300 transform"
+            x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="-translate-x-full"
+            class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 shadow-2xl p-4 overflow-y-auto space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg border border-primary/30 overflow-hidden shrink-0 shadow-sm">
+                        <img src="/static/logo.png" alt="Titan Logo" class="w-full h-full object-cover">
+                    </div>
+                    <span class="font-extrabold text-sm text-slate-900 dark:text-white">{{ current_tenant.name ~ ' Admin' if current_tenant else 'Titan Admin Panel' }}</span>
+                </div>
+                <button @click="mobileSidebar = false" class="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+            <nav class="space-y-1">
+                <!-- Dashboard -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'dashboard' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.dashboard') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'dashboard' %}font-variation-settings: 'FILL' 1;{% endif %}">dashboard</span> Dashboard
+                </a>
+                <!-- User Management -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'users' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.users') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'users' %}font-variation-settings: 'FILL' 1;{% endif %}">group</span> User Management
+                </a>
+                <!-- Team & Leadership -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'team' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.team') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'team' %}font-variation-settings: 'FILL' 1;{% endif %}">groups</span> Team &amp; Leadership
+                </a>
+                <!-- Course Moderation -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'courses' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.courses') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'courses' %}font-variation-settings: 'FILL' 1;{% endif %}">school</span> Course Moderation
+                </a>
+                <!-- Create Course -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'create_course' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.create_course') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'create_course' %}font-variation-settings: 'FILL' 1;{% endif %}">add_circle</span> Create Course
+                </a>
+                <!-- Issue Certificates -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'certificates' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.issue_certificate') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'certificates' %}font-variation-settings: 'FILL' 1;{% endif %}">workspace_premium</span> Issue Certificates
+                </a>
+                <!-- Revenue Analytics -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'revenue' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.revenue') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'revenue' %}font-variation-settings: 'FILL' 1;{% endif %}">payments</span> Revenue Analytics
+                </a>
+                <!-- Student Leaves -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'leaves' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.leaves') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'leaves' %}font-variation-settings: 'FILL' 1;{% endif %}">event_busy</span> Student Leaves
+                </a>
+                <!-- Tenant Settings -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'settings' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.settings') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'settings' %}font-variation-settings: 'FILL' 1;{% endif %}">settings</span> Tenant Settings
+                </a>
+                <!-- Security & Audit Logs -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'logs' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('admin.audit_logs') }}">
+                    <span class="material-symbols-outlined text-lg" style="{% if active_page == 'logs' %}font-variation-settings: 'FILL' 1;{% endif %}">shield</span> Security &amp; Audit Logs
+                </a>
+
+                <!-- AI Innovation Hub Prominent Mobile Button -->
+                <a href="{{ url_for('student.ai_hub') }}"
+                    class="w-full bg-[#0054cb] hover:bg-[#0041a3] text-white rounded-xl py-2.5 px-3 flex items-center justify-center gap-2 shadow-md font-bold text-xs active:scale-95 transition-all mt-4 mb-2">
+                    <span class="material-symbols-outlined text-lg">smart_toy</span>
+                    AI Innovation Hub
+                </a>
+
+                <!-- Log Out -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 pt-3 border-t border-slate-100 dark:border-slate-800 mt-2"
+                    href="{{ url_for('auth.logout') }}">
+                    <span class="material-symbols-outlined text-lg">logout</span> Log Out
+                </a>
+            </nav>
+
+        </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside data-lenis-prevent
+        class="h-screen fixed left-0 top-0 w-64 bg-surface-container/80 dark:bg-inverse-surface/80 glass-nav border-r border-outline-variant/20 hidden md:flex flex-col z-50">
+        <!-- Fixed Sidebar Brand Card (White background & bottom divider) -->
+        <div
+            class="px-4 pt-5 pb-3 shrink-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-outline-variant/20 shadow-sm mb-2">
+            <div class="px-3 py-3 bg-white dark:bg-slate-800 rounded-2xl border-2 border-primary/20 shadow-md">
+                <a href="{{ url_for('public.home') }}" class="flex items-center gap-xs">
+                    <div class="w-10 h-10 overflow-hidden rounded-xl shadow-md shrink-0 border border-primary/30">
+                        <img src="/static/logo.png" alt="Titan Logo" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h1 class="text-base text-on-surface tracking-tight leading-none font-extrabold" style="font-family: Inter, sans-serif;">
+                            {{ current_tenant.name if current_tenant else 'Titan LMS' }}</h1>
+                        <p class="text-label-sm uppercase tracking-widest text-primary font-extrabold">Admin Panel</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <nav class="flex-1 space-y-1 px-sm overflow-y-auto px-4 py-2">
+            <!-- Dashboard -->
+            <a class="flex items-center gap-md {% if active_page == 'dashboard' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.dashboard') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'dashboard' %}font-variation-settings: 'FILL' 1;{% endif %}">dashboard</span>
+                <span class="text-label-lg font-label-lg">Dashboard</span>
+            </a>
+
+            <!-- User Management -->
+            <a class="flex items-center gap-md {% if active_page == 'users' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.users') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'users' %}font-variation-settings: 'FILL' 1;{% endif %}">group</span>
+                <span class="text-label-lg font-label-lg">User Management</span>
+            </a>
+
+            <!-- Team & Leadership -->
+            <a class="flex items-center gap-md {% if active_page == 'team' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.team') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'team' %}font-variation-settings: 'FILL' 1;{% endif %}">groups</span>
+                <span class="text-label-lg font-label-lg">Team & Leadership</span>
+            </a>
+
+            <!-- Campus Network -->
+            <a class="flex items-center gap-md {% if active_page == 'admin_campuses' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.admin_campuses') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'admin_campuses' %}font-variation-settings: 'FILL' 1;{% endif %}">domain</span>
+                <span class="text-label-lg font-label-lg">Campus Network</span>
+            </a>
+
+            <!-- Student Applications Approval -->
+            <a class="flex items-center gap-md {% if active_page == 'registrations' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.registrations') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'registrations' %}font-variation-settings: 'FILL' 1;{% endif %}">how_to_reg</span>
+                <span class="text-label-lg font-label-lg">Student Applications</span>
+            </a>
+
+            <!-- Password Reset Approvals -->
+            <a class="flex items-center gap-md {% if active_page == 'admin_password_resets' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.password_resets') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'admin_password_resets' %}font-variation-settings: 'FILL' 1;{% endif %}">lock_reset</span>
+                <span class="text-label-lg font-label-lg">Password Resets</span>
+            </a>
+
+            <!-- Admin Attendance PIN & Telemetry -->
+            <a class="flex items-center gap-md {% if active_page == 'attendance' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.attendance') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'attendance' %}font-variation-settings: 'FILL' 1;{% endif %}">how_to_reg</span>
+                <span class="text-label-lg font-label-lg">Attendance & Overrides</span>
+            </a>
+
+            <!-- Student Leaves Management -->
+            <a class="flex items-center gap-md {% if active_page == 'leaves' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.leaves') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'leaves' %}font-variation-settings: 'FILL' 1;{% endif %}">event_busy</span>
+                <span class="text-label-lg font-label-lg">Student Leaves</span>
+            </a>
+
+            <!-- Course Resources Management -->
+            <a class="flex items-center gap-md {% if active_page == 'resources' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.resources') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'resources' %}font-variation-settings: 'FILL' 1;{% endif %}">folder_open</span>
+                <span class="text-label-lg font-label-lg">Course Resources</span>
+            </a>
+
+            <!-- Course Schedules & Approvals -->
+            <a class="flex items-center gap-md {% if active_page == 'schedules' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.schedules') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'schedules' %}font-variation-settings: 'FILL' 1;{% endif %}">calendar_clock</span>
+                <span class="text-label-lg font-label-lg">Course Schedules</span>
+            </a>
+
+            <!-- Campus & Course Events -->
+            <a class="flex items-center gap-md {% if active_page == 'events' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.events') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'events' %}font-variation-settings: 'FILL' 1;{% endif %}">event</span>
+                <span class="text-label-lg font-label-lg">Events Hub</span>
+            </a>
+
+            <!-- Course Catalog Moderation -->
+            <a class="flex items-center gap-md {% if active_page == 'courses' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.courses') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'courses' %}font-variation-settings: 'FILL' 1;{% endif %}">school</span>
+                <span class="text-label-lg font-label-lg">Course Moderation</span>
+            </a>
+
+            <!-- Issue Certificates -->
+            <a class="flex items-center gap-md {% if active_page == 'certificates' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.issue_certificate') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'certificates' %}font-variation-settings: 'FILL' 1;{% endif %}">workspace_premium</span>
+                <span class="text-label-lg font-label-lg">Issue Certificates</span>
+            </a>
+
+            <!-- Revenue Analytics -->
+            <a class="flex items-center gap-md {% if active_page == 'revenue' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.revenue') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'revenue' %}font-variation-settings: 'FILL' 1;{% endif %}">payments</span>
+                <span class="text-label-lg font-label-lg">Revenue Analytics</span>
+            </a>
+
+            <!-- Student Leaderboard -->
+            <a class="flex items-center gap-md {% if active_page == 'leaderboard' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1{% else %}text-on-surface-variant hover:bg-secondary-container/50 hover:text-primary transition-colors px-4 py-3 rounded-lg group{% endif %}"
+                href="{{ url_for('admin.leaderboard') }}">
+                <span class="material-symbols-outlined group-hover:scale-110 transition-transform"
+                    style="{% if active_page == 'leaderboard' %}font-variation-settings: 'FILL' 1;{% endif %}">leaderboard</span>
+                <span class="text-label-lg font-label-lg">Leaderboard</span>
+            </a>
+
+
+
+
+        </nav>
+
+        <!-- Sidebar Bottom Footer Box (Highlighted Logout Only) -->
+        <div
+            class="px-3 py-3 m-3 bg-white/70 dark:bg-slate-800/70 rounded-2xl border-2 border-outline-variant/30 shadow-md space-y-2">
+
+            <div class="space-y-1 border-t border-outline-variant/20 pt-2">
+                <a class="flex items-center gap-md text-red-600 hover:text-red-700 font-bold px-3 py-2 rounded-xl hover:bg-red-50 transition-all"
+                    href="{{ url_for('auth.logout') }}">
+                    <span class="material-symbols-outlined text-sm text-red-600">logout</span>
+                    <span class="text-label-md font-label-md">Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="md:ml-64 min-h-screen flex flex-col bg-background page-reveal">
+        <!-- Top Navigation Bar -->
+        <header class="sticky top-0 z-40 bg-surface/70 glass-nav shadow-sm border-b border-outline-variant/10">
+            <div class="flex justify-between items-center w-full px-4 sm:px-6 md:px-8 py-3 max-w-7xl mx-auto">
+                <div class="flex items-center gap-3">
+                    <!-- Prominent Mobile Hamburger Menu Button -->
+                    <button @click="mobileSidebar = !mobileSidebar"
+                        class="md:hidden flex items-center gap-1 bg-primary/10 border border-primary/30 text-primary px-3 py-1.5 rounded-xl font-bold text-xs shadow-xs active:scale-95 transition-all">
+                        <span class="material-symbols-outlined text-lg"
+                            x-text="mobileSidebar ? 'close' : 'menu'">menu</span>
+                        <span class="font-extrabold" x-text="mobileSidebar ? 'Close' : 'Menu'">Menu</span>
+                    </button>
+                    <div class="relative hidden sm:block">
+                        <input
+                            class="bg-surface-container-low border-outline-variant/30 rounded-full pl-10 pr-4 py-2 text-body-sm w-64 focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                            placeholder="Search system resources..." type="text">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-md">
+                    <!-- Notifications Dropdown -->
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open"
+                            class="p-2 text-on-surface-variant hover:bg-secondary-container/30 rounded-full transition-colors relative">
+                            <span class="material-symbols-outlined">notifications</span>
+                            {% if unread_notifications > 0 %}
+                            <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full animate-pulse"></span>
+                            {% endif %}
+                        </button>
+
+                        <div x-show="open" @click.away="open = false" x-transition
+                            class="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 overflow-hidden space-y-0"
+                            style="display: none;">
+                            <div class="p-md bg-slate-900 text-white flex justify-between items-center">
+                                <h4 class="font-bold text-xs flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">notifications_active</span> In-App Notifications
+                                </h4>
+                                <span class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">Real-time</span>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto divide-y divide-slate-100">
+                                {% if unread_notifications_list %}
+                                {% for n in unread_notifications_list %}
+                                <div class="p-md hover:bg-slate-50 transition-colors text-xs space-y-0.5 {% if not n.is_read %}bg-blue-50/60 font-semibold{% endif %}">
+                                    <p class="font-bold text-slate-800 flex items-center justify-between">
+                                        <span>{{ n.title }}</span>
+                                        <span class="text-[10px] font-normal text-slate-400">{{ n.created_at.strftime('%b %d, %H:%M') if n.created_at else '' }}</span>
+                                    </p>
+                                    <p class="text-slate-600 text-[11px] leading-snug">{{ n.content }}</p>
+                                </div>
+                                {% endfor %}
+                                {% else %}
+                                <div class="p-md text-xs text-slate-500 text-center py-6">
+                                    No notifications yet.
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="p-xs bg-slate-50 border-t border-slate-100 text-center">
+                                <a href="{{ url_for('student.notification_center') }}"
+                                    class="text-[11px] font-bold text-primary hover:underline">View Notification Center</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-sm pl-md border-l border-outline-variant/30">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-label-lg font-label-lg text-on-surface font-bold">{{ current_user.name }}</p>
+                            <p class="text-label-sm text-on-surface-variant font-bold">System Administrator</p>
+                        </div>
+                        <div
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary-fixed flex items-center justify-center overflow-hidden border-2 border-primary/20 shrink-0">
+                            <img class="w-full h-full object-cover"
+                                src="{{ current_user.avatar_url or 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150' }}"
+                                alt="Admin Avatar">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Page Body -->
+        <div class="flex-1">
+            {% block admin_content %}{% block main_content %}{% endblock %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- 5-Second Real-Time Backend Sync & Auto-Refresh -->
+    <script>
+        (function() {
+            let lastNotifs = null;
+            let lastMsgs = null;
+            let lastResCount = null;
+            let lastDlCount = null;
+
+            function syncBackendHeartbeat() {
+                fetch('/api/heartbeat')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.authenticated) return;
+
+                        if (lastNotifs !== null && lastMsgs !== null) {
+                            if (data.unread_notifications > lastNotifs || data.unread_messages > lastMsgs) {
+                                console.log('⚡ Real-time Admin Event Received: Auto-refreshing page...');
+                                if (window.location.pathname.includes('/admin/leaves') || window.location.pathname.includes('/admin/dashboard')) {
+                                    window.location.reload();
+                                }
+                            }
+                            if (lastResCount !== null && (data.total_resources !== lastResCount || data.total_downloads !== lastDlCount)) {
+                                if (window.location.pathname.includes('/resources')) {
+                                    console.log('⚡ Real-time Resource Update Received: Refreshing counts...');
+                                    window.location.reload();
+                                }
+                            }
+                        }
+                        lastNotifs = data.unread_notifications;
+                        lastMsgs = data.unread_messages;
+                        lastResCount = data.total_resources;
+                        lastDlCount = data.total_downloads;
+                    })
+                    .catch(err => console.debug('Sync:', err));
+            }
+
+            // Execute every 5 seconds (5000ms)
+            setInterval(syncBackendHeartbeat, 5000);
+            setTimeout(syncBackendHeartbeat, 1000);
+        })();
+    </script>
+    {% include 'components/review_modal.html' %}
+</div>
+{% endblock %}

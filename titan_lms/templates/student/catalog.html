@@ -1,0 +1,81 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Browse Catalog | Titan LMS{% endblock %}
+
+{% block student_content %}
+<div class="max-w-container-max mx-auto px-gutter py-xl space-y-xl">
+    <!-- Header -->
+    <header class="slide-from-top">
+        <h1 class="text-display-lg-mobile md:text-headline-lg font-headline-lg text-on-surface">Academic Course Catalog
+        </h1>
+        <p class="text-body-md text-on-surface-variant">Explore and enroll in premium professional technical tracks
+            designed by leading industry professionals.</p>
+    </header>
+
+    <!-- Courses Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {% for course in courses %}
+            {% set directions = ['slide-from-left', 'slide-from-right', 'slide-from-bottom'] %}
+            {% set anim_class = directions[loop.index0 % 3] %}
+            <div class="bg-white rounded-2xl border border-outline-variant/20 shadow-sm overflow-hidden hover:scale-[1.01] hover:shadow-lg hover:border-primary/30 transition-all duration-300 flex flex-col justify-between group {{ anim_class }}"
+                style="animation-delay: {{ 0.1 * loop.index0 }}s;">
+
+                <!-- Banner/Thumb -->
+                <div class="h-32 sm:h-36 relative overflow-hidden shrink-0">
+                    <img src="{{ course.thumbnail or 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600' }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        alt="Thumb">
+                    <span
+                        class="absolute top-2.5 left-2.5 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider shadow-sm">
+                        {{ course.category }}
+                    </span>
+                </div>
+
+                <!-- Content -->
+                <div class="p-3.5 sm:p-4 flex-1 flex flex-col justify-between gap-2">
+                    <div class="space-y-1">
+                        <div
+                            class="flex justify-between items-center text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                            <span>Level: {{ course.level }}</span>
+                            <span>{{ course.lessons|length }} modules</span>
+                        </div>
+                        <h3
+                            class="font-bold text-slate-900 text-sm sm:text-base leading-snug group-hover:text-primary transition-colors line-clamp-1">
+                            {{ course.title }}
+                        </h3>
+                        <p class="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                            {{ course.description }}
+                        </p>
+                    </div>
+
+                    <!-- Integrated Instructor + Action Row -->
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 mt-1">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            <img class="w-6 h-6 rounded-full object-cover border border-slate-200 shrink-0"
+                                src="{{ course.instructor.avatar_url or 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}"
+                                alt="avatar">
+                            <span class="text-[11px] font-semibold text-slate-700 truncate">{{ course.instructor.name }}</span>
+                        </div>
+                        {% if course.id in enrolled_course_ids %}
+                        {% if course.lessons %}
+                        <a href="{{ url_for('student.course_player', course_id=course.id, lesson_id=course.lessons[0].id) }}"
+                            class="bg-[#0054cb] hover:bg-[#0040a0] text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 active:scale-95 transition-all shadow-xs shrink-0">
+                            <span class="material-symbols-outlined text-[14px]">play_circle</span> Resume
+                        </a>
+                        {% else %}
+                        <span class="text-[10px] text-slate-400 font-bold">No Lessons</span>
+                        {% endif %}
+                        {% else %}
+                        <a href="{{ url_for('student.checkout', course_id=course.id) }}"
+                            class="bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 active:scale-95 transition-all shadow-xs shrink-0">
+                            Enroll <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+</div>
+{% endblock %}

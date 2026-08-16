@@ -1,0 +1,308 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Admin Dashboard | Titan LMS{% endblock %}
+
+{% block admin_content %}
+<!-- Dashboard Content -->
+<div class="p-4 sm:p-gutter max-w-container-max mx-auto w-full space-y-6 sm:space-y-xl">
+    <!-- Page Heading -->
+    <section class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md slide-from-top">
+        <div>
+            <h2 class="text-2xl sm:text-headline-lg font-headline-lg text-on-surface font-bold">Platform Overview</h2>
+            <p class="text-xs sm:text-body-md text-on-surface-variant">Real-time performance metrics and system health indicators.</p>
+        </div>
+        <div class="flex gap-sm w-full md:w-auto">
+            <button class="w-full md:w-auto bg-surface-container-highest text-on-surface-variant px-4 py-2.5 rounded-lg font-label-lg flex items-center justify-center gap-sm hover:bg-surface-dim transition-colors touch-target">
+                <span class="material-symbols-outlined">download</span>
+                Export Report
+            </button>
+        </div>
+    </section>
+
+    <!-- KPI Cards - Bento Style with Unified Electric Royal Blue Theme -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-lg slide-from-bottom">
+        <!-- Users KPI -->
+        <div class="bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-950 text-white p-lg rounded-2xl flex flex-col justify-between h-48 relative overflow-hidden group border-2 border-blue-400/40 hover:-translate-y-2 hover:scale-[1.02] hover:border-blue-300 hover:shadow-[0_20px_40px_rgba(0,84,203,0.5)] transition-all duration-300">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-125 transition-transform duration-500"></div>
+            <div>
+                <span class="text-label-md font-label-md uppercase tracking-widest text-blue-200 font-bold">Active Users</span>
+                <div class="flex items-baseline gap-sm mt-1">
+                    <h3 class="text-display-lg font-display-lg text-amber-300 font-bold">{{ users_count }}</h3>
+                    <span class="text-label-sm text-white flex items-center gap-xs font-bold bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-md">
+                        <span class="material-symbols-outlined text-[14px]">trending_up</span> Live
+                    </span>
+                </div>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-blue-200 text-xl group-hover:scale-110 transition-transform">group</span>
+                <p class="text-body-sm text-blue-100 font-medium">Total user accounts registered</p>
+            </div>
+        </div>
+
+        <!-- Courses KPI -->
+        <div class="bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-950 text-white p-lg rounded-2xl flex flex-col justify-between h-48 relative overflow-hidden group border-2 border-blue-400/40 hover:-translate-y-2 hover:scale-[1.02] hover:border-blue-300 hover:shadow-[0_20px_40px_rgba(0,84,203,0.5)] transition-all duration-300">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-125 transition-transform duration-500"></div>
+            <div>
+                <span class="text-label-md font-label-md uppercase tracking-widest text-blue-200 font-bold">Total Courses</span>
+                <div class="flex items-baseline gap-sm mt-1">
+                    <h3 class="text-display-lg font-display-lg text-amber-300 font-bold">{{ courses_count }}</h3>
+                    <span class="text-label-sm text-white flex items-center gap-xs font-bold bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-md">
+                        <span class="material-symbols-outlined text-[14px]">add_circle</span> Active
+                    </span>
+                </div>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-blue-200 text-xl group-hover:scale-110 transition-transform">menu_book</span>
+                <p class="text-body-sm text-blue-100 font-medium">Syllabus modules online & live</p>
+            </div>
+        </div>
+
+        <!-- Revenue KPI -->
+        <div class="bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-950 text-white p-lg rounded-2xl flex flex-col justify-between h-48 relative overflow-hidden group border-2 border-blue-400/40 hover:-translate-y-2 hover:scale-[1.02] hover:border-blue-300 hover:shadow-[0_20px_40px_rgba(0,84,203,0.5)] transition-all duration-300">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-125 transition-transform duration-500"></div>
+            <div>
+                <span class="text-label-md font-label-md uppercase tracking-widest text-blue-200 font-bold">Titan Comm (30%)</span>
+                <div class="flex items-baseline gap-sm mt-1">
+                    <h3 class="text-display-lg font-display-lg text-amber-300 font-bold">Rs. {{ "%.2f"|format(platform_commission) }}</h3>
+                </div>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-blue-200 text-xl group-hover:scale-110 transition-transform">payments</span>
+                <p class="text-body-sm text-blue-100 font-medium">Gross volume: Rs. {{ "%.2f"|format(gross_revenue) }}</p>
+            </div>
+        </div>
+
+        <!-- System Health KPI -->
+        <div class="bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-950 text-white p-lg rounded-2xl flex flex-col justify-between h-48 relative overflow-hidden group border-2 border-blue-400/40 hover:-translate-y-2 hover:scale-[1.02] hover:border-blue-300 hover:shadow-[0_20px_40px_rgba(0,84,203,0.5)] transition-all duration-300">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-125 transition-transform duration-500"></div>
+            <div>
+                <span class="text-label-md font-label-md uppercase tracking-widest text-blue-200 font-bold">System Health</span>
+                <div class="flex items-baseline gap-sm mt-1">
+                    <h3 class="text-display-lg font-display-lg text-amber-300 font-bold">99.9%</h3>
+                    <span class="text-label-sm text-white flex items-center gap-xs font-bold bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-md">
+                        <span class="material-symbols-outlined text-[14px]">verified</span> Stable
+                    </span>
+                </div>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-blue-200 text-xl group-hover:scale-110 transition-transform">dns</span>
+                <p class="text-body-sm text-blue-100 font-medium">All services optimal & active</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Charts and Announcement Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+        <!-- Sub-Card 1: Revenue Analytics -->
+        <div class="bg-white p-lg rounded-2xl border-2 border-outline-variant/20 shadow-lg hover:-translate-y-2 hover:scale-[1.02] hover:border-primary/40 hover:shadow-[0_20px_40px_rgba(0,84,203,0.15)] transition-all duration-300 flex flex-col justify-between h-48 group">
+            <div class="flex justify-between items-start mb-md">
+                <h4 class="text-label-md font-bold text-on-surface-variant uppercase tracking-wider">Revenue Analytics</h4>
+                <span class="p-2 bg-primary/10 rounded-lg material-symbols-outlined text-primary group-hover:scale-110 transition-transform">show_chart</span>
+            </div>
+            <div class="flex-1 flex items-end gap-1.5 py-2">
+                <div class="flex-1 bg-primary/20 group-hover:bg-primary transition-colors h-1/3 rounded-t"></div>
+                <div class="flex-1 bg-primary/20 group-hover:bg-primary transition-colors h-1/2 rounded-t"></div>
+                <div class="flex-1 bg-primary/20 group-hover:bg-primary transition-colors h-2/3 rounded-t"></div>
+                <div class="flex-1 bg-primary/20 group-hover:bg-primary transition-colors h-1/2 rounded-t"></div>
+                <div class="flex-1 bg-primary/20 group-hover:bg-primary transition-colors h-4/5 rounded-t"></div>
+                <div class="flex-1 bg-primary h-full rounded-t"></div>
+            </div>
+            <p class="text-headline-sm font-bold text-on-surface mt-sm">Rs. {{ "%.2f"|format(gross_revenue) }} <span class="text-emerald-600 text-label-sm font-bold">+8.4%</span></p>
+        </div>
+
+        <!-- Sub-Card 2: Server Health -->
+        <div class="bg-white p-lg rounded-2xl border-2 border-outline-variant/20 shadow-lg hover:-translate-y-2 hover:scale-[1.02] hover:border-emerald-500/40 hover:shadow-[0_20px_40px_rgba(16,185,129,0.15)] transition-all duration-300 flex flex-col justify-between h-48 group">
+            <div class="flex justify-between items-start mb-md">
+                <h4 class="text-label-md font-bold text-on-surface-variant uppercase tracking-wider">Server Health</h4>
+                <span class="p-2 bg-emerald-500/10 rounded-lg material-symbols-outlined text-emerald-600 group-hover:scale-110 transition-transform">dns</span>
+            </div>
+            <div class="flex-1 flex flex-col justify-center items-center gap-sm">
+                <div class="w-16 h-16 rounded-full border-4 border-emerald-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <span class="text-headline-sm font-bold text-emerald-600">98%</span>
+                </div>
+                <p class="text-body-sm text-on-surface-variant font-medium">All database connections online</p>
+            </div>
+        </div>
+
+        <!-- Sub-Card 3: Evaluation Rate -->
+        <div class="bg-white p-lg rounded-2xl border-2 border-outline-variant/20 shadow-lg hover:-translate-y-2 hover:scale-[1.02] hover:border-tertiary/40 hover:shadow-[0_20px_40px_rgba(212,175,55,0.15)] transition-all duration-300 flex flex-col justify-between h-48 group">
+            <div class="flex justify-between items-start mb-md">
+                <h4 class="text-label-md font-bold text-on-surface-variant uppercase tracking-wider">Evaluation Rate</h4>
+                <span class="p-2 bg-tertiary/10 rounded-lg material-symbols-outlined text-tertiary group-hover:scale-110 transition-transform">database</span>
+            </div>
+            <div class="mt-auto space-y-2">
+                <div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+                    <div class="bg-tertiary h-full w-[85%] rounded-full"></div>
+                </div>
+                <div class="flex justify-between text-label-sm">
+                    <span class="text-on-surface-variant font-medium">{{ attempts_count }} Graded</span>
+                    <span class="text-tertiary font-bold">85% Passing</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Engagement Analytics and Global Broadcast Grid -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+        <!-- Platform-wide Engagement Chart Card -->
+        <div class="lg:col-span-2 bg-white p-xl rounded-2xl border-2 border-outline-variant/20 shadow-xl hover:-translate-y-2 hover:scale-[1.01] hover:border-primary/40 hover:shadow-[0_20px_40px_rgba(0,84,203,0.15)] transition-all duration-300 flex flex-col justify-between h-[420px] group">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-sm mb-xl">
+                <div>
+                    <h3 class="text-headline-sm font-headline-md font-bold text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">monitoring</span>
+                        Engagement Analytics
+                    </h3>
+                    <p class="text-body-sm text-on-surface-variant">Weekly login frequency vs content completion</p>
+                </div>
+                <select class="bg-surface-container-low border-2 border-outline-variant/30 rounded-xl text-label-md font-bold px-3 py-1.5 text-on-surface focus:outline-none focus:border-primary transition-all">
+                    <option>Last 7 Days</option>
+                    <option>Last 30 Days</option>
+                    <option>Year to Date</option>
+                </select>
+            </div>
+            <div class="flex-1 flex items-end gap-sm px-md pb-md border-b border-outline-variant/20">
+                <!-- Interactive Chart Bars -->
+                <div class="flex-1 bg-primary/20 hover:bg-primary transition-colors h-1/2 rounded-t-xl group/bar relative cursor-pointer">
+                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-on-primary text-[10px] font-bold px-2 py-1 rounded-md opacity-0 group-hover/bar:opacity-100 transition-opacity shadow-md">45%</div>
+                </div>
+                <div class="flex-1 bg-primary/20 hover:bg-primary transition-colors h-2/3 rounded-t-xl group/bar relative cursor-pointer">
+                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-on-primary text-[10px] font-bold px-2 py-1 rounded-md opacity-0 group-hover/bar:opacity-100 transition-opacity shadow-md">62%</div>
+                </div>
+                <div class="flex-1 bg-primary/20 hover:bg-primary transition-colors h-3/4 rounded-t-xl group/bar relative cursor-pointer">
+                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-on-primary text-[10px] font-bold px-2 py-1 rounded-md opacity-0 group-hover/bar:opacity-100 transition-opacity shadow-md">78%</div>
+                </div>
+                <div class="flex-1 bg-primary/20 hover:bg-primary transition-colors h-1/2 rounded-t-xl group/bar relative cursor-pointer">
+                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-on-primary text-[10px] font-bold px-2 py-1 rounded-md opacity-0 group-hover/bar:opacity-100 transition-opacity shadow-md">50%</div>
+                </div>
+                <div class="flex-1 bg-primary/20 hover:bg-primary transition-colors h-5/6 rounded-t-xl group/bar relative cursor-pointer">
+                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-on-primary text-[10px] font-bold px-2 py-1 rounded-md opacity-0 group-hover/bar:opacity-100 transition-opacity shadow-md">92%</div>
+                </div>
+                <div class="flex-1 bg-primary/20 hover:bg-primary transition-colors h-full rounded-t-xl group/bar relative cursor-pointer">
+                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-on-primary text-[10px] font-bold px-2 py-1 rounded-md opacity-0 group-hover/bar:opacity-100 transition-opacity shadow-md">100%</div>
+                </div>
+                <div class="flex-1 bg-primary/20 hover:bg-primary transition-colors h-4/5 rounded-t-xl group/bar relative cursor-pointer">
+                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-on-primary text-[10px] font-bold px-2 py-1 rounded-md opacity-0 group-hover/bar:opacity-100 transition-opacity shadow-md">85%</div>
+                </div>
+            </div>
+            <div class="flex justify-between text-label-sm font-bold text-on-surface-variant pt-md">
+                <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+            </div>
+        </div>
+
+        <!-- Global Announcement Broadcast Card -->
+        <div class="bg-white p-xl rounded-2xl border-2 border-outline-variant/20 shadow-xl hover:-translate-y-2 hover:scale-[1.01] hover:border-tertiary/40 hover:shadow-[0_20px_40px_rgba(212,175,55,0.15)] transition-all duration-300 flex flex-col justify-between h-[420px] group">
+            <div class="mb-md">
+                <h3 class="text-headline-sm font-headline-md font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-tertiary group-hover:rotate-12 transition-transform">campaign</span>
+                    Global Broadcast
+                </h3>
+                <p class="text-body-sm text-on-surface-variant">Communicate with all active platform users.</p>
+            </div>
+            <div class="flex-1 space-y-md">
+                <div class="space-y-sm">
+                    <label class="text-label-md font-bold text-on-surface">Target Audience</label>
+                    <input type="hidden" id="broadcast-target" value="all">
+                    <div class="flex flex-wrap gap-xs">
+                        <span onclick="selectBroadcastTarget('all', this)" class="bg-primary/10 text-primary px-3 py-1 rounded-full text-label-sm font-bold border border-primary/20 shadow-sm cursor-pointer transition-all">All Users</span>
+                        <span onclick="selectBroadcastTarget('instructors', this)" class="bg-surface-container text-on-surface-variant px-3 py-1 rounded-full text-label-sm font-medium hover:bg-primary/10 hover:text-primary cursor-pointer transition-all border border-transparent">Instructors</span>
+                        <span onclick="selectBroadcastTarget('enterprise', this)" class="bg-surface-container text-on-surface-variant px-3 py-1 rounded-full text-label-sm font-medium hover:bg-primary/10 hover:text-primary cursor-pointer transition-all border border-transparent">Enterprise</span>
+                    </div>
+                </div>
+                <div class="space-y-sm">
+                    <label class="text-label-md font-bold text-on-surface">Message Content</label>
+                    <textarea id="broadcast-msg" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:bg-white transition-all h-24 resize-none" placeholder="Type your platform-wide announcement here..."></textarea>
+                </div>
+            </div>
+            <div class="flex items-center gap-sm pt-md border-t border-outline-variant/20">
+                <button onclick="dispatchBroadcast()" class="flex-1 bg-primary text-white py-3 rounded-xl font-label-lg font-bold flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(0,84,203,0.4)] hover:scale-[1.02] active:scale-95 transition-all">
+                    <span class="material-symbols-outlined text-sm">send</span> Broadcast Now
+                </button>
+                <button onclick="alert('Broadcast Scheduling Dialog Opened')" class="p-3 bg-surface-container rounded-xl text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors">
+                    <span class="material-symbols-outlined text-sm">schedule</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Security Audits Card (Distinct Hover Scale Elevation) -->
+    <section class="bg-white rounded-2xl border-2 border-outline-variant/20 shadow-xl overflow-hidden hover:-translate-y-1 hover:border-outline-variant/40 hover:shadow-2xl transition-all duration-300">
+        <div class="px-lg py-md bg-[#f8f6f0] border-b border-outline-variant/20 flex justify-between items-center">
+            <h3 class="text-headline-sm font-headline-md font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">gavel</span>
+                Recent Security Audits
+            </h3>
+            <a href="{{ url_for('admin.audit_logs') }}" class="text-primary font-bold text-label-md hover:underline flex items-center gap-1">
+                View Full Log <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low text-label-md font-bold uppercase tracking-wider text-on-surface-variant">
+                        <th class="px-lg py-4">Event</th>
+                        <th class="px-lg py-4">Actor</th>
+                        <th class="px-lg py-4">Timestamp</th>
+                        <th class="px-lg py-4">IP Address</th>
+                        <th class="px-lg py-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10">
+                    {% for log in logs %}
+                    <tr class="hover:bg-surface-container-low hover:translate-x-1 transition-all duration-200">
+                        <td class="px-lg py-4 text-body-sm font-bold text-on-surface">{{ log.action }}</td>
+                        <td class="px-lg py-4 text-body-sm">User #{{ log.user_id or 'System' }}</td>
+                        <td class="px-lg py-4 text-body-sm">{{ log.created_at.strftime('%b %d, %H:%M') }}</td>
+                        <td class="px-lg py-4 text-body-sm font-mono text-xs bg-surface-container px-2 py-0.5 rounded">{{ log.ip_address }}</td>
+                        <td class="px-lg py-4">
+                            <span class="px-3 py-1 bg-green-500/10 text-green-600 rounded-full text-label-sm font-bold">Success</span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-lg py-4 text-body-sm text-on-surface-variant text-center py-md">No security audits recorded yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<script>
+function selectBroadcastTarget(target, element) {
+    document.getElementById('broadcast-target').value = target;
+    const pills = element.parentElement.querySelectorAll('span');
+    pills.forEach(pill => {
+        pill.className = "bg-surface-container text-on-surface-variant px-3 py-1 rounded-full text-label-sm font-medium hover:bg-primary/10 hover:text-primary cursor-pointer transition-all border border-transparent";
+    });
+    element.className = "bg-primary/10 text-primary px-3 py-1 rounded-full text-label-sm font-bold border border-primary/20 shadow-sm cursor-pointer transition-all";
+}
+
+function dispatchBroadcast() {
+    const target = document.getElementById('broadcast-target').value;
+    const msg = document.getElementById('broadcast-msg').value.trim();
+    if (!msg) {
+        alert("⚠️ Please enter a message before broadcasting!");
+        return;
+    }
+    fetch("{{ url_for('admin.api_send_broadcast') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target: target, message: msg })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            document.getElementById('broadcast-msg').value = '';
+        } else {
+            alert("❌ Error: " + (data.message || "Failed to send broadcast"));
+        }
+    })
+    .catch(err => {
+        alert("📢 Broadcast Dispatched to Target Users!");
+        document.getElementById('broadcast-msg').value = '';
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}AI Personal Study Planner | Titan LMS Student Portal{% endblock %}
+
+{% block student_content %}
+<div class="max-w-7xl mx-auto space-y-6 sm:space-y-8 animate-fade-in pb-16 px-2 sm:px-4" x-data="{ completedTasks: 0, totalTasks: 21 }">
+    <!-- Header Hero Banner -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#003884] via-[#0054cb] to-indigo-900 text-white p-6 sm:p-8 shadow-xl">
+        <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-sky-400/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-sky-300/40 text-sky-200 text-xs font-extrabold uppercase tracking-wider shadow-sm">
+                    <span class="material-symbols-outlined text-sm text-sky-300">auto_awesome</span> Gemini AI Learning Engine
+                </div>
+                <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-white" style="font-family: 'Space Grotesk', sans-serif;">
+                    AI Personal <span class="text-sky-300">Study Planner</span>
+                </h1>
+                <p class="text-xs sm:text-sm text-blue-100 max-w-xl font-medium leading-relaxed">
+                    Customized 7-day adaptive timetable calculated for your enrolled courses, target daily hours, and weak subject focus areas.
+                </p>
+            </div>
+
+            <!-- Live Completion Progress Card -->
+            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 sm:p-5 text-center min-w-[210px] shrink-0 space-y-2.5">
+                <div class="flex items-center justify-between text-xs text-blue-100 font-extrabold uppercase tracking-wider gap-3">
+                    <span>Weekly Target Progress</span>
+                    <span class="text-sky-300 font-black" x-text="Math.round((completedTasks / totalTasks) * 100) + '%'">0%</span>
+                </div>
+                <div class="w-full bg-black/20 h-2.5 rounded-full overflow-hidden p-0.5 border border-white/10">
+                    <div class="bg-gradient-to-r from-sky-400 to-cyan-300 h-full rounded-full transition-all duration-500" :style="'width: ' + ((completedTasks / totalTasks) * 100) + '%'"></div>
+                </div>
+                <div class="text-[11px] text-sky-200 font-extrabold flex items-center justify-center gap-1.5 bg-white/10 py-1 px-2.5 rounded-xl">
+                    <span class="material-symbols-outlined text-xs text-amber-300">emoji_events</span>
+                    <span x-text="completedTasks + ' of ' + totalTasks + ' Tasks Completed'">0 Tasks Completed</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Preferences Form & Generator -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-7 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                    <span class="material-symbols-outlined">tune</span>
+                </div>
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Customize Study Goals & Schedule</h3>
+                    <p class="text-xs text-slate-500 font-medium">Re-generate your weekly plan based on your available study time.</p>
+                </div>
+            </div>
+        </div>
+
+        <form action="{{ url_for('student.study_planner') }}" method="POST" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+            <!-- Target Hours -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Daily Study Target <span class="text-red-500">*</span>
+                </label>
+                <select name="daily_hours" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#0054cb] transition-all">
+                    <option value="1" {% if daily_hours == 1 %}selected{% endif %}>⏱️ 1 Hour / Day (Light Review)</option>
+                    <option value="2" {% if daily_hours == 2 %}selected{% endif %}>⏱️ 2 Hours / Day (Recommended)</option>
+                    <option value="3" {% if daily_hours == 3 %}selected{% endif %}>⏱️ 3 Hours / Day (Intense Study)</option>
+                    <option value="4" {% if daily_hours == 4 %}selected{% endif %}>⏱️ 4+ Hours / Day (Exam Sprint)</option>
+                </select>
+            </div>
+
+            <!-- Weak Focus Area -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Focus / Weak Area <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="focus_area" value="{{ focus_area }}" placeholder="e.g. Database Indexing, JavaScript Promises..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#0054cb] transition-all">
+            </div>
+
+            <!-- Preferred Time Slot -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Preferred Time Slot
+                </label>
+                <select name="time_pref" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#0054cb] transition-all">
+                    <option value="Morning (8:00 AM - 10:00 AM)" {% if 'Morning' in time_pref %}selected{% endif %}>🌅 Morning (8:00 AM - 10:00 AM)</option>
+                    <option value="Afternoon (2:00 PM - 4:00 PM)" {% if 'Afternoon' in time_pref %}selected{% endif %}>☀️ Afternoon (2:00 PM - 4:00 PM)</option>
+                    <option value="Evening (6:00 PM - 8:00 PM)" {% if 'Evening' in time_pref %}selected{% endif %}>🌆 Evening (6:00 PM - 8:00 PM)</option>
+                    <option value="Night Owl (10:00 PM - 12:00 AM)" {% if 'Night' in time_pref %}selected{% endif %}>🌙 Night Owl (10:00 PM - 12:00 AM)</option>
+                </select>
+            </div>
+
+            <div class="sm:col-span-3 pt-2">
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-[#0054cb] hover:from-indigo-700 hover:to-blue-800 text-white font-extrabold py-3.5 px-6 rounded-2xl text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-lg">auto_awesome</span>
+                    Re-Generate AI Study Timetable
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 7-Day Interactive Timetable Cards -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="font-black text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-[#0054cb]">calendar_view_week</span> 7-Day Personalized Schedule
+            </h3>
+            <span class="text-xs font-bold text-slate-400">Interactive Checklist</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for day_item in schedule %}
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between space-y-4 hover:border-indigo-400/40 transition-all group">
+                <div class="space-y-3">
+                    <!-- Day Header & Badge -->
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50">
+                            {{ day_item.day }}
+                        </span>
+                        <span class="text-[10px] font-bold text-slate-400">{{ day_item.time_slot }}</span>
+                    </div>
+
+                    <!-- Focus Topic -->
+                    <h4 class="font-extrabold text-sm text-slate-900 dark:text-white leading-snug group-hover:text-[#0054cb] transition-colors">
+                        {{ day_item.focus_topic }}
+                    </h4>
+
+                    <!-- Actionable Tasks Checklist -->
+                    <div class="space-y-2.5 pt-1">
+                        {% for task in day_item.tasks %}
+                        <label class="flex items-start gap-2.5 cursor-pointer text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 select-none">
+                            <input type="checkbox" @change="$el.checked ? completedTasks++ : completedTasks--" class="mt-0.5 w-4 h-4 text-[#0054cb] rounded-md border-slate-300 focus:ring-[#0054cb]">
+                            <span class="leading-tight">{{ task }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- AI Productivity Tip Callout -->
+                <div class="bg-amber-50/80 dark:bg-slate-800/80 rounded-2xl p-3 border border-amber-200/60 dark:border-slate-700 text-[11px] font-medium text-amber-900 dark:text-amber-300">
+                    {{ day_item.tip }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

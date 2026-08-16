@@ -1,0 +1,490 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Student Dashboard | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    .hero-gradient {
+        background: linear-gradient(135deg, #0054cb 0%, #001847 100%);
+    }
+
+    .progress-ring-circle {
+        transition: stroke-dashoffset 0.35s;
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
+    }
+
+    .bg-surface-container-lowest {
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
+    }
+
+    @keyframes flyLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-60px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes flyRight {
+        from {
+            opacity: 0;
+            transform: translateX(60px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes flyUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes flyDown {
+        from {
+            opacity: 0;
+            transform: translateY(-40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fly-left {
+        animation: flyLeft 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .fly-right {
+        animation: flyRight 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .fly-up {
+        animation: flyUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .fly-down {
+        animation: flyDown 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes slideFromBottom {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideFromLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideFromRight {
+        from {
+            opacity: 0;
+            transform: translateX(40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .animate-dash-hero {
+        animation: slideFromBottom 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .animate-dash-courses {
+        animation: slideFromLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        opacity: 0;
+        animation-delay: 0.1s;
+    }
+
+    .animate-dash-achievements {
+        animation: slideFromBottom 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        opacity: 0;
+        animation-delay: 0.2s;
+    }
+
+    .animate-dash-deadlines {
+        animation: slideFromRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        opacity: 0;
+        animation-delay: 0.15s;
+    }
+
+    .animate-dash-ai {
+        animation: slideFromRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        opacity: 0;
+        animation-delay: 0.25s;
+    }
+</style>
+{% endblock %}
+
+{% block student_content %}
+<div class="max-w-container-max mx-auto px-4 sm:px-gutter py-6 sm:py-xl">
+    <!-- Hero Card: Continue Learning -->
+    <section class="mb-6 sm:mb-xl animate-dash-hero">
+        <div
+            class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#00008C] via-[#0000B3] to-[#000066] p-5 sm:p-xl md:p-xxl flex flex-col md:flex-row justify-between items-center gap-lg shadow-2xl border-2 border-white/20 backdrop-blur-xl group">
+            <div class="absolute -top-24 -right-24 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl pointer-events-none">
+            </div>
+            <div
+                class="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none">
+            </div>
+            <div class="relative z-10 text-white max-w-xl">
+                <span
+                    class="inline-block px-3 py-1 bg-white/20 backdrop-blur-md border border-white/30 rounded-full text-xs font-extrabold uppercase mb-3 tracking-widest text-white shadow-md">Active Track</span>
+                {% if next_lesson %}
+                <h3 class="text-headline-lg md:text-headline-xl font-headline-lg font-extrabold mb-3 text-white">{{
+                    next_lesson.course.title }}</h3>
+                <p class="text-body-lg text-blue-100/90 mb-8 font-body-md leading-relaxed">Next Module: Lesson {{
+                    next_lesson.order }} - {{ next_lesson.title }}. Resume where you left off.</p>
+                <div class="flex flex-wrap gap-md">
+                    <a href="{{ url_for('student.course_player', course_id=next_lesson.course_id, lesson_id=next_lesson.id) }}"
+                        class="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold font-label-lg px-8 py-3.5 rounded-xl flex items-center gap-2 shadow-xl hover:scale-105 active:scale-95 transition-all">
+                        <span class="material-symbols-outlined font-bold"
+                            style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                        Continue Learning
+                    </a>
+                    <a href="{{ url_for('student.catalog') }}"
+                        class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-6 py-3.5 rounded-xl font-label-lg font-bold transition-all shadow-md">
+                        Browse Catalog
+                    </a>
+                </div>
+                {% else %}
+                <h3 class="text-headline-lg font-headline-lg font-extrabold mb-3 text-white">Start Learning Today</h3>
+                <p class="text-body-lg text-blue-100/90 mb-8 font-body-md leading-relaxed">Unlock professional
+                    certifications and expert-curated technical courses.</p>
+                <div class="flex flex-wrap gap-md">
+                    <a href="{{ url_for('student.catalog') }}"
+                        class="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold font-label-lg px-8 py-3.5 rounded-xl flex items-center gap-2 shadow-xl hover:scale-105 active:scale-95 transition-all">
+                        Explore Courses
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="relative z-10 hidden lg:block">
+                <div
+                    class="w-80 h-48 bg-white/10 backdrop-blur-2xl border-2 border-white/25 rounded-2xl p-5 flex flex-col justify-between group-hover:scale-105 transition-transform duration-500 shadow-2xl">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-12 h-12 bg-amber-400/20 border border-amber-300/30 rounded-xl flex items-center justify-center text-amber-300 shrink-0 shadow-inner">
+                            <span class="material-symbols-outlined text-2xl font-bold">movie</span>
+                        </div>
+                        <div>
+                            <p class="text-label-md text-white font-extrabold leading-tight">Last activity: Just now</p>
+                            <p class="text-xs text-blue-200 mt-0.5">Resume where you left off</p>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs font-bold text-blue-100">
+                            <span>Module Progress</span>
+                            <span class="text-amber-300">85%</span>
+                        </div>
+                        <div class="w-full bg-white/20 h-2 rounded-full overflow-hidden backdrop-blur-xs">
+                            <div
+                                class="bg-gradient-to-r from-amber-400 to-amber-300 h-full w-[85%] shadow-[0_0_10px_rgba(251,191,36,0.8)]">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Grid Layout -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-gutter">
+        <!-- My Courses Section (Left Column) -->
+        <div class="xl:col-span-8 space-y-lg animate-dash-courses">
+            <div class="flex justify-between items-end">
+                <div>
+                    <h4 class="text-headline-sm font-headline-md font-bold text-on-surface">My Enrolled Courses</h4>
+                    <p class="text-body-sm text-on-surface-variant">{{ enrollments|length }} Active enrollments this
+                        semester</p>
+                </div>
+                <a class="text-primary text-label-md font-bold hover:underline"
+                    href="{{ url_for('student.catalog') }}">View All Courses</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                {% for enrollment in enrollments %}
+                {% set anim_dirs = ['fly-left', 'fly-right', 'fly-up', 'fly-down'] %}
+                {% set anim = anim_dirs[loop.index0 % 4] %}
+                <!-- Course Bento Card (Glassmorphic) -->
+                <div class="bg-white/70 backdrop-blur-md border-2 border-white/80 p-4 sm:p-5 rounded-2xl shadow-lg hover:-translate-y-1 hover:scale-[1.01] hover:border-primary/50 hover:shadow-xl transition-all duration-300 group flex flex-col justify-between min-h-[200px] {{ anim }}"
+                    style="animation-delay: {{ 0.08 * loop.index0 }}s;">
+                    <div class="flex justify-between items-start mb-4">
+                        <div
+                            class="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover:scale-105 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-xs border border-primary/20">
+                            <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">
+                                {% if loop.index0 % 2 == 0 %}architecture{% else %}terminal{% endif %}
+                            </span>
+                        </div>
+                        <div class="relative w-12 h-12 group-hover:scale-105 transition-transform">
+                            <svg class="w-full h-full">
+                                <circle class="text-slate-200 stroke-current" cx="24" cy="24" fill="transparent" r="20"
+                                    stroke-width="3.5"></circle>
+                                <circle class="text-primary stroke-current progress-ring-circle" cx="24" cy="24"
+                                    fill="transparent" r="20" stroke-linecap="round" stroke-width="3.5"
+                                    stroke-dasharray="125.6"
+                                    stroke-dashoffset="{{ 125.6 - (125.6 * enrollment.progress_pct / 100) }}"></circle>
+                            </svg>
+                            <span
+                                class="absolute inset-0 flex items-center justify-center text-[10px] font-extrabold text-primary">{{
+                                enrollment.progress_pct }}%</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h5
+                            class="text-base sm:text-lg font-bold mb-1.5 group-hover:text-primary transition-colors text-on-surface leading-snug">
+                            {{ enrollment.course.title }}</h5>
+                        <p class="text-xs text-on-surface-variant mb-4 line-clamp-2 leading-relaxed">{{
+                            enrollment.course.description }}</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-2.5 border-t border-outline-variant/10">
+                        <a href="{{ url_for('student.course_player', course_id=enrollment.course_id, lesson_id=enrollment.course.lessons[0].id if enrollment.course.lessons else 0) }}"
+                            class="text-primary text-xs sm:text-sm font-extrabold flex items-center gap-1 hover:underline">
+                            Enter Course <span
+                                class="material-symbols-outlined text-xs group-hover:translate-x-1 transition-transform font-bold">arrow_forward</span>
+                        </a>
+                        <span class="text-[11px] text-outline font-bold uppercase">{{ enrollment.course.lessons|length
+                            }} modules</span>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Empty State Container -->
+                <div
+                    class="col-span-full w-full bg-white/70 backdrop-blur-md rounded-3xl border-2 border-white/80 shadow-2xl overflow-hidden flex flex-col items-center justify-center py-xxl px-lg text-center min-h-[480px] relative group">
+                    <div class="max-w-xl mx-auto space-y-md relative z-10">
+                        <div
+                            class="inline-flex items-center gap-xs px-3.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-label-sm font-bold uppercase tracking-widest mb-xs">
+                            <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+                            Academic Journey Awaits
+                        </div>
+                        <h2
+                            class="font-headline-md text-headline-md md:text-headline-lg text-on-surface tracking-tight font-extrabold">
+                            Your Journey Starts Here
+                        </h2>
+                        <p class="text-body-lg font-body-lg text-on-surface-variant max-w-md mx-auto leading-relaxed">
+                            It looks like you haven't enrolled in any courses yet. Unlock your potential by exploring
+                            our cutting-edge curriculum.
+                        </p>
+                    </div>
+
+                    <div class="mt-xl flex flex-col sm:flex-row gap-md relative z-10">
+                        <a href="{{ url_for('student.catalog') }}"
+                            class="bg-primary text-white px-xl py-md rounded-xl font-label-lg text-label-lg transition-all duration-300 shadow-xl shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-sm font-bold">
+                            <span class="material-symbols-outlined text-[22px]">explore</span>
+                            Explore Catalog
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Recent Achievements Strip -->
+            <div
+                class="bg-white/70 backdrop-blur-md p-lg rounded-3xl border border-white/80 shadow-xl animate-dash-achievements">
+                <div class="flex items-center justify-between mb-4">
+                    <h5 class="text-label-lg font-headline-sm font-bold text-on-surface">Recent Achievements</h5>
+                    <a href="{{ url_for('student.rewards_store') }}"
+                        class="material-symbols-outlined text-on-surface-variant hover:text-primary">arrow_forward</a>
+                </div>
+                <div class="flex gap-md overflow-x-auto pb-2 custom-scrollbar">
+                    {% for badge in badges %}
+                    <!-- Badge Item -->
+                    <div
+                        class="flex-shrink-0 flex items-center gap-3 bg-white/90 backdrop-blur-xs px-4 py-3 rounded-2xl border border-amber-500/20 shadow-md hover:scale-105 transition-transform">
+                        <div
+                            class="w-10 h-10 rounded-full bg-amber-400/20 text-amber-600 flex items-center justify-center font-bold">
+                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">{{
+                                badge.badge.icon or 'workspace_premium' }}</span>
+                        </div>
+                        <div>
+                            <p class="text-label-md font-bold text-on-surface leading-none">{{ badge.badge.name }}</p>
+                            <p class="text-[10px] text-amber-600 font-bold uppercase">UNLOCKED</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-body-sm text-on-surface-variant py-sm">No badges unlocked yet. Earning badges unlocks
+                        multipliers!</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Widgets (Right Column) -->
+        <div class="xl:col-span-4 space-y-lg">
+            <!-- Upcoming Deadlines -->
+            <div
+                class="bg-white/70 backdrop-blur-md border border-white/80 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all animate-dash-deadlines">
+                <div class="p-lg bg-surface-container/50 border-b border-outline-variant/10">
+                    <h4 class="text-headline-sm font-headline-md font-bold text-on-surface">Upcoming Deadlines</h4>
+                </div>
+                <div class="divide-y divide-outline-variant/10">
+                    <!-- Deadline Item 1 -->
+                    <div class="p-lg flex items-start gap-md hover:bg-white/80 transition-colors group cursor-pointer">
+                        <div
+                            class="w-12 h-12 flex-shrink-0 bg-red-100 text-red-600 rounded-xl flex flex-col items-center justify-center border border-red-200">
+                            <span class="text-label-sm font-bold uppercase">Oct</span>
+                            <span class="text-headline-sm font-bold leading-none">24</span>
+                        </div>
+                        <div>
+                            <h6 class="text-label-lg font-bold group-hover:text-primary transition-colors">Neural Net
+                                Research Paper</h6>
+                            <p class="text-body-sm text-on-surface-variant">Submit by 11:59 PM</p>
+                            <span
+                                class="mt-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700 uppercase">Urgent</span>
+                        </div>
+                    </div>
+                    <!-- Deadline Item 2 -->
+                    <div class="p-lg flex items-start gap-md hover:bg-white/80 transition-colors group cursor-pointer">
+                        <div
+                            class="w-12 h-12 flex-shrink-0 bg-slate-100 text-on-surface-variant rounded-xl flex flex-col items-center justify-center border border-slate-200">
+                            <span class="text-label-sm font-bold uppercase">Oct</span>
+                            <span class="text-headline-sm font-bold leading-none">27</span>
+                        </div>
+                        <div>
+                            <h6 class="text-label-lg font-bold group-hover:text-primary transition-colors">UI System
+                                Critique</h6>
+                            <p class="text-body-sm text-on-surface-variant">Design Methods Course</p>
+                            <span
+                                class="mt-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 uppercase">Regular</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-white/40 text-center border-t border-outline-variant/10">
+                    <a href="{{ url_for('student.performance_analytics') }}"
+                        class="text-label-md font-bold text-primary hover:underline">View Performance Analytics</a>
+                </div>
+            </div>
+
+            <!-- AI Insights Mini-Card (Glassmorphic Deep Navy Blue) -->
+            <div
+                class="bg-gradient-to-br from-[#00008C] to-[#0000B3] text-white p-lg rounded-3xl shadow-xl relative overflow-hidden group animate-dash-ai border-2 border-white/20 backdrop-blur-xl">
+                <div
+                    class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700">
+                </div>
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-amber-300 font-bold">tips_and_updates</span>
+                    <h5 class="text-label-lg font-bold text-white">AI Learning Insight</h5>
+                </div>
+                <p class="text-body-sm text-blue-100/90 leading-relaxed italic">
+                    "Based on your recent study timeline stats, we recommend launching the Innovation Hub Workspace to
+                    outline your next sandbox concept paper."
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Titan AI Mentor Floating Component -->
+<div class="fixed bottom-6 right-6 z-50 group" id="ai-mentor">
+    <!-- Expanded Recommendation Card (Animated Entry) -->
+    <div class="absolute bottom-full right-0 mb-md w-72 bg-white rounded-xl shadow-2xl p-lg border border-primary/10 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none"
+        id="ai-recommendation">
+        <div class="flex items-center gap-sm mb-md">
+            <svg class="w-6 h-6 shrink-0" viewBox="0 0 200 200" fill="none">
+                <path d="M100 10C50.3 10 10 50.3 10 100C10 121.2 17.4 140.7 29.8 156.1L15 185C13.2 188.5 16.5 191.8 20 190L48.9 175.2C64.3 187.6 83.8 195 105 195C154.7 195 195 154.7 195 105C195 55.3 154.7 10 100 10Z" fill="#2563EB"/>
+                <rect x="45" y="65" width="110" height="70" rx="30" fill="white"/>
+                <rect x="42" y="55" width="6" height="15" rx="3" fill="white"/>
+                <rect x="152" y="55" width="6" height="15" rx="3" fill="white"/>
+                <circle cx="72" cy="98" r="10" fill="#2563EB"/>
+                <circle cx="128" cy="98" r="10" fill="#2563EB"/>
+                <path d="M85 110Q100 120 115 110" stroke="#2563EB" stroke-width="6" stroke-linecap="round" fill="none"/>
+            </svg>
+            <span class="text-label-md font-bold text-on-surface">Titan AI Mentor</span>
+        </div>
+        <p class="text-body-sm text-on-surface-variant mb-md leading-relaxed">
+            "Based on your recent study timeline stats, I've prepared a custom sandbox concept outline in your <span
+                class="font-bold">AI Innovation Hub</span>."
+        </p>
+        <a href="{{ url_for('student.ai_hub') }}"
+            class="block text-center w-full bg-primary text-white py-2 rounded font-label-md hover:bg-primary-container transition-all active:scale-95">
+            Start Session
+        </a>
+    </div>
+
+    <!-- The Floating Trigger -->
+    <button
+        class="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(37,99,235,0.5)] hover:scale-110 active:scale-90 transition-all relative overflow-hidden p-2"
+        onclick="toggleAIMentor()">
+        <svg class="w-10 h-10 shrink-0 relative z-10" viewBox="0 0 200 200" fill="none">
+            <path d="M100 10C50.3 10 10 50.3 10 100C10 121.2 17.4 140.7 29.8 156.1L15 185C13.2 188.5 16.5 191.8 20 190L48.9 175.2C64.3 187.6 83.8 195 105 195C154.7 195 195 154.7 195 105C195 55.3 154.7 10 100 10Z" fill="white"/>
+            <rect x="45" y="65" width="110" height="70" rx="30" fill="#2563EB"/>
+            <rect x="42" y="55" width="6" height="15" rx="3" fill="#2563EB"/>
+            <rect x="152" y="55" width="6" height="15" rx="3" fill="#2563EB"/>
+            <circle cx="72" cy="98" r="10" fill="white"/>
+            <circle cx="128" cy="98" r="10" fill="white"/>
+            <path d="M85 110Q100 120 115 110" stroke="white" stroke-width="6" stroke-linecap="round" fill="none"/>
+        </svg>
+        <!-- Notification Dot -->
+        <span
+            class="absolute top-3 right-3 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full animate-ping"></span>
+    </button>
+</div>
+
+<script>
+    function toggleAIMentor() {
+        const card = document.getElementById('ai-recommendation');
+        const isVisible = !card.classList.contains('opacity-0');
+
+        if (isVisible) {
+            card.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+        } else {
+            card.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+        }
+    }
+
+    // Show the recommendation card after 2 seconds for visibility
+    setTimeout(() => {
+        const card = document.getElementById('ai-recommendation');
+        if (card) {
+            card.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+
+            // Auto hide after 10 seconds if not interacted with
+            setTimeout(() => {
+                card.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }, 10000);
+        }
+    }, 2000);
+
+    // Hover lift effect for cards
+    document.querySelectorAll('.bg-surface-container-lowest').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-4px)';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'translateY(0)';
+        });
+    });
+</script>
+{% endblock %}

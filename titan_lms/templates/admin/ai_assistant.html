@@ -1,0 +1,542 @@
+{% extends "layouts/superadmin.html" %}
+
+{% block title %}Executive AI Sentinel | Admin Portal{% endblock %}
+
+{% block admin_content %}<style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Robot Eye Blinking Animation */
+    @keyframes robotBlink {
+
+        0%,
+        88%,
+        100% {
+            transform: scaleY(1);
+            opacity: 1;
+        }
+
+        93%,
+        95% {
+            transform: scaleY(0.08);
+            opacity: 0.3;
+        }
+    }
+
+    .animate-robot-blink {
+        animation: robotBlink 3.5s infinite ease-in-out;
+    }
+
+    /* Equalizer Talking Mouth Bar Animations */
+    @keyframes mouthWave1 {
+
+        0%,
+        100% {
+            height: 4px;
+        }
+
+        50% {
+            height: 14px;
+        }
+    }
+
+    @keyframes mouthWave2 {
+
+        0%,
+        100% {
+            height: 10px;
+        }
+
+        50% {
+            height: 18px;
+        }
+    }
+
+    @keyframes mouthWave3 {
+
+        0%,
+        100% {
+            height: 16px;
+        }
+
+        50% {
+            height: 6px;
+        }
+    }
+
+    .mouth-talking .mouth-bar-1 {
+        animation: mouthWave1 0.28s infinite ease-in-out alternate;
+    }
+
+    .mouth-talking .mouth-bar-2 {
+        animation: mouthWave2 0.32s infinite ease-in-out 0.05s alternate;
+    }
+
+    .mouth-talking .mouth-bar-3 {
+        animation: mouthWave3 0.25s infinite ease-in-out 0.1s alternate;
+    }
+
+    .mouth-talking .mouth-bar-4 {
+        animation: mouthWave2 0.30s infinite ease-in-out 0.08s alternate;
+    }
+
+    .mouth-talking .mouth-bar-5 {
+        animation: mouthWave1 0.34s infinite ease-in-out 0.02s alternate;
+    }
+</style>
+
+<div class="p-gutter max-w-container-max mx-auto w-full space-y-xl animate-fade-in-up">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-md slide-from-top">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <svg class="w-8 h-8 shrink-0 animate-bounce" viewBox="0 0 200 200" fill="none">
+                    <path d="M100 10C50.3 10 10 50.3 10 100C10 121.2 17.4 140.7 29.8 156.1L15 185C13.2 188.5 16.5 191.8 20 190L48.9 175.2C64.3 187.6 83.8 195 105 195C154.7 195 195 154.7 195 105C195 55.3 154.7 10 100 10Z" fill="#2563EB"/>
+                    <rect x="45" y="65" width="110" height="70" rx="30" fill="white"/>
+                    <rect x="42" y="55" width="6" height="15" rx="3" fill="white"/>
+                    <rect x="152" y="55" width="6" height="15" rx="3" fill="white"/>
+                    <circle cx="72" cy="98" r="10" fill="#2563EB"/>
+                    <circle cx="128" cy="98" r="10" fill="#2563EB"/>
+                    <path d="M85 110Q100 120 115 110" stroke="#2563EB" stroke-width="6" stroke-linecap="round" fill="none"/>
+                </svg>
+                <span class="text-label-md font-bold uppercase tracking-widest text-blue-600">Titan Executive AI</span>
+            </div>
+            <h1 class="text-headline-lg font-headline-lg text-on-surface font-bold">Platform Intelligence Sentinel</h1>
+            <p class="text-body-md text-on-surface-variant">Real-time system diagnostics, automated threat detection,
+                and predictive revenue analytics.</p>
+        </div>
+        <div class="flex gap-sm">
+            <button onclick="runSystemAudit()"
+                class="bg-primary text-white px-5 py-2.5 rounded-xl font-label-lg font-bold flex items-center gap-2 hover:shadow-[0_0_20px_rgba(0,84,203,0.4)] hover:scale-105 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-[18px]">verified_user</span>
+                Run System Audit
+            </button>
+        </div>
+    </div>
+
+    <!-- Executive Intelligence Bento Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-lg slide-from-bottom">
+        <!-- System Risk Score -->
+        <div
+            class="bg-white p-lg rounded-2xl border-2 border-emerald-500/20 shadow-lg hover:-translate-y-2 hover:scale-[1.02] hover:border-emerald-500 hover:shadow-[0_20px_40px_rgba(16,185,129,0.2)] transition-all duration-300 relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-emerald-500"></div>
+            <div class="flex justify-between items-start mb-3">
+                <span
+                    class="p-3 bg-emerald-500/10 rounded-xl material-symbols-outlined text-emerald-600 text-2xl group-hover:scale-110 transition-transform">shield</span>
+                <span
+                    class="bg-emerald-100 text-emerald-700 text-label-sm font-bold px-2.5 py-1 rounded-full uppercase">Optimal</span>
+            </div>
+            <p class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">System Health Score</p>
+            <h2 class="text-display-lg font-display-lg text-on-surface font-bold mt-1">99.8%</h2>
+            <p class="text-body-sm text-outline font-medium mt-1">0 Active security vulnerabilities detected</p>
+        </div>
+
+        <!-- AI Revenue Prediction -->
+        <div
+            class="bg-white p-lg rounded-2xl border-2 border-tertiary/30 shadow-lg hover:-translate-y-2 hover:scale-[1.02] hover:border-tertiary hover:shadow-[0_20px_40px_rgba(212,175,55,0.25)] transition-all duration-300 relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-tertiary"></div>
+            <div class="flex justify-between items-start mb-3">
+                <span
+                    class="p-3 bg-tertiary/10 rounded-xl material-symbols-outlined text-tertiary text-2xl group-hover:scale-110 transition-transform">trending_up</span>
+                <span
+                    class="bg-amber-100 text-amber-800 text-label-sm font-bold px-2.5 py-1 rounded-full uppercase">+24%
+                    Forecast</span>
+            </div>
+            <p class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">Revenue Telemetry
+            </p>
+            <h2 class="text-display-lg font-display-lg text-on-surface font-bold mt-1">Rs. {{
+                "%.2f"|format(platform_commission) }}</h2>
+            <p class="text-body-sm text-outline font-medium mt-1">Gross volume: Rs. {{ "%.2f"|format(gross_revenue) }}
+            </p>
+        </div>
+
+        <!-- Compliance & Moderation -->
+        <div
+            class="bg-white p-lg rounded-2xl border-2 border-purple-500/30 shadow-lg hover:-translate-y-2 hover:scale-[1.02] hover:border-purple-600 hover:shadow-[0_20px_40px_rgba(147,51,234,0.25)] transition-all duration-300 relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-purple-600"></div>
+            <div class="flex justify-between items-start mb-3">
+                <span
+                    class="p-3 bg-purple-500/10 rounded-xl material-symbols-outlined text-purple-600 text-2xl group-hover:scale-110 transition-transform">gavel</span>
+                <span
+                    class="bg-purple-100 text-purple-700 text-label-sm font-bold px-2.5 py-1 rounded-full uppercase">Clean</span>
+            </div>
+            <p class="text-label-md text-on-surface-variant uppercase tracking-wider font-bold">Automated Moderation</p>
+            <h2 class="text-display-lg font-display-lg text-on-surface font-bold mt-1">100% Flagged</h2>
+            <p class="text-body-sm text-outline font-medium mt-1">Courses & accounts scanned in real time</p>
+        </div>
+    </div>
+
+    <!-- Main AI Executive Workspace -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg slide-from-left">
+        <!-- Quick Action Prompt Chips (Left - 4 Columns) -->
+        <div class="lg:col-span-4 space-y-md">
+            <div class="bg-white p-lg rounded-2xl border-2 border-outline-variant/20 shadow-md">
+                <h3 class="text-headline-sm font-bold text-on-surface mb-xs flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">psychology</span>
+                    Executive Actions
+                </h3>
+                <p class="text-body-sm text-on-surface-variant mb-md">Click any command to trigger Titan Sentinel
+                    analysis:</p>
+
+                <div class="space-y-sm">
+                    <button onclick="sendPrompt('Audit system security vulnerabilities & compliance status')"
+                        class="w-full text-left p-md rounded-xl bg-surface-container-low hover:bg-primary/10 hover:border-primary border border-outline-variant/20 transition-all duration-200 group flex items-center justify-between">
+                        <div class="flex items-center gap-sm">
+                            <span
+                                class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">security</span>
+                            <span class="text-label-md font-bold text-on-surface group-hover:text-primary">Audit
+                                Security & Risk</span>
+                        </div>
+                        <span class="material-symbols-outlined text-sm text-outline">chevron_right</span>
+                    </button>
+
+                    <button onclick="sendPrompt('Generate quarterly platform revenue forecast and payout splits')"
+                        class="w-full text-left p-md rounded-xl bg-surface-container-low hover:bg-tertiary/10 hover:border-tertiary border border-outline-variant/20 transition-all duration-200 group flex items-center justify-between">
+                        <div class="flex items-center gap-sm">
+                            <span
+                                class="material-symbols-outlined text-tertiary group-hover:scale-110 transition-transform">payments</span>
+                            <span class="text-label-md font-bold text-on-surface group-hover:text-tertiary">Forecast
+                                Revenue Growth</span>
+                        </div>
+                        <span class="material-symbols-outlined text-sm text-outline">chevron_right</span>
+                    </button>
+
+                    <button
+                        onclick="sendPrompt('Scan course catalog for low engagement or moderation policy violations')"
+                        class="w-full text-left p-md rounded-xl bg-surface-container-low hover:bg-purple-500/10 hover:border-purple-500 border border-outline-variant/20 transition-all duration-200 group flex items-center justify-between">
+                        <div class="flex items-center gap-sm">
+                            <span
+                                class="material-symbols-outlined text-purple-600 group-hover:scale-110 transition-transform">fact_check</span>
+                            <span class="text-label-md font-bold text-on-surface group-hover:text-purple-600">Scan
+                                Course Catalog</span>
+                        </div>
+                        <span class="material-symbols-outlined text-sm text-outline">chevron_right</span>
+                    </button>
+
+                    <button onclick="sendPrompt('Analyze user registration trends and student activity spikes')"
+                        class="w-full text-left p-md rounded-xl bg-surface-container-low hover:bg-emerald-500/10 hover:border-emerald-500 border border-outline-variant/20 transition-all duration-200 group flex items-center justify-between">
+                        <div class="flex items-center gap-sm">
+                            <span
+                                class="material-symbols-outlined text-emerald-600 group-hover:scale-110 transition-transform">groups</span>
+                            <span class="text-label-md font-bold text-on-surface group-hover:text-emerald-600">User
+                                Activity Trends</span>
+                        </div>
+                        <span class="material-symbols-outlined text-sm text-outline">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live Audit Log Feed Widget -->
+            <div class="bg-white p-lg rounded-2xl border-2 border-outline-variant/20 shadow-md">
+                <h4
+                    class="text-label-lg font-bold text-on-surface mb-md uppercase tracking-wider text-outline flex items-center justify-between">
+                    <span>Recent Sentinel Audits</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                </h4>
+                <div class="space-y-3">
+                    {% for log in recent_logs %}
+                    <div
+                        class="p-sm rounded-lg bg-surface-container-low border border-outline-variant/10 text-body-sm flex justify-between items-center">
+                        <div class="truncate max-w-[180px]">
+                            <span class="font-bold text-on-surface block truncate">{{ log.action }}</span>
+                            <span class="text-[10px] text-on-surface-variant font-mono">{{
+                                log.created_at.strftime('%H:%M:%S') }}</span>
+                        </div>
+                        <span
+                            class="text-[10px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded uppercase">Logged</span>
+                    </div>
+                    {% else %}
+                    <div
+                        class="p-sm rounded-lg bg-surface-container-low border border-outline-variant/10 text-body-sm flex justify-between items-center">
+                        <div>
+                            <span class="font-bold text-on-surface block">System Health Check</span>
+                            <span class="text-[10px] text-on-surface-variant font-mono">12:00:00</span>
+                        </div>
+                        <span
+                            class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded uppercase">PASSED</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Executive AI Chat Console (Right - 8 Columns) -->
+        <div class="lg:col-span-8">
+            <div
+                class="bg-white rounded-2xl border-2 border-outline-variant/20 shadow-xl overflow-hidden flex flex-col h-[640px]">
+                <!-- Console Top Toolbar with Animated AI Robot Head -->
+                <div
+                    class="p-lg bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-950 text-white flex justify-between items-center border-b border-white/10 shadow-lg">
+                    <div class="flex items-center gap-4">
+                        <!-- Blue AI Chatbot Avatar Badge -->
+                        <div class="relative w-12 h-12 shrink-0 flex items-center justify-center">
+                            <svg class="w-12 h-12 shrink-0 drop-shadow-[0_4px_12px_rgba(255,255,255,0.3)] animate-pulse" viewBox="0 0 200 200" fill="none">
+                                <path d="M100 10C50.3 10 10 50.3 10 100C10 121.2 17.4 140.7 29.8 156.1L15 185C13.2 188.5 16.5 191.8 20 190L48.9 175.2C64.3 187.6 83.8 195 105 195C154.7 195 195 154.7 195 105C195 55.3 154.7 10 100 10Z" fill="white"/>
+                                <rect x="45" y="65" width="110" height="70" rx="30" fill="#2563EB"/>
+                                <rect x="42" y="55" width="6" height="15" rx="3" fill="#2563EB"/>
+                                <rect x="152" y="55" width="6" height="15" rx="3" fill="#2563EB"/>
+                                <circle cx="72" cy="98" r="10" fill="white"/>
+                                <circle cx="128" cy="98" r="10" fill="white"/>
+                                <path d="M85 110Q100 120 115 110" stroke="white" stroke-width="6" stroke-linecap="round" fill="none"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <h3 class="text-headline-sm font-bold text-white leading-tight">Titan Executive AI Console
+                            </h3>
+                            <p class="text-label-sm text-blue-100">Role Access: System Administrator Authorized</p>
+                        </div>
+                    </div>
+                    <span
+                        class="px-3 py-1 bg-white/20 text-white border border-white/30 rounded-full text-label-sm font-bold flex items-center gap-1.5 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span> Sentinel Engine Active
+                    </span>
+                </div>
+
+                <!-- Chat History Feed -->
+                <div id="admin-chat-messages"
+                    class="flex-1 p-lg overflow-y-auto space-y-md bg-surface-container-lowest custom-scrollbar">
+                    <!-- AI Welcome Message with Animated Robot Avatar -->
+                    <div class="flex items-start gap-md max-w-2xl">
+                        <!-- Animated AI Robot Head -->
+                        <div class="relative w-10 h-10 shrink-0 flex items-center justify-center mt-1">
+                            <svg class="w-10 h-10 shrink-0 drop-shadow-[0_4px_10px_rgba(37,99,235,0.4)]" viewBox="0 0 200 200" fill="none">
+                                <path d="M100 10C50.3 10 10 50.3 10 100C10 121.2 17.4 140.7 29.8 156.1L15 185C13.2 188.5 16.5 191.8 20 190L48.9 175.2C64.3 187.6 83.8 195 105 195C154.7 195 195 154.7 195 105C195 55.3 154.7 10 100 10Z" fill="#2563EB"/>
+                                <rect x="45" y="65" width="110" height="70" rx="30" fill="white"/>
+                                <rect x="42" y="55" width="6" height="15" rx="3" fill="white"/>
+                                <rect x="152" y="55" width="6" height="15" rx="3" fill="white"/>
+                                <circle cx="72" cy="98" r="10" fill="#2563EB"/>
+                                <circle cx="128" cy="98" r="10" fill="#2563EB"/>
+                                <path d="M85 110Q100 120 115 110" stroke="#2563EB" stroke-width="6" stroke-linecap="round" fill="none"/>
+                            </svg>
+                        </div>
+
+                        <div class="bg-white p-lg rounded-2xl border border-outline-variant/20 shadow-md space-y-2">
+                            <p class="text-body-md text-on-surface font-medium leading-relaxed">
+                                Greetings, Administrator <span class="font-bold text-primary">{{ current_user.name
+                                    }}</span>. I am your specialized Executive AI Sentinel.
+                            </p>
+                            <p class="text-body-sm text-on-surface-variant leading-relaxed">
+                                I monitor system performance, perform real-time security compliance audits, forecast
+                                tuition revenue trends, and enforce course moderation policies. How can I assist system
+                                governance today?
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Console Input Toolbar with Voice Microphone & Speech Controls -->
+                <div class="p-md bg-white border-t border-outline-variant/20">
+                    <form id="admin-ai-form" onsubmit="handleAdminChat(event)" class="flex items-center gap-sm">
+                        <button type="button" id="voice-mic-btn" onclick="toggleVoiceInput()"
+                            class="p-3 rounded-xl bg-slate-100 hover:bg-cyan-50 text-slate-700 hover:text-cyan-600 border border-slate-200 transition-all flex items-center justify-center shrink-0"
+                            title="Start Voice Input (Speech Recognition)">
+                            <span class="material-symbols-outlined text-xl" id="mic-icon">mic</span>
+                        </button>
+                        <input type="text" id="admin-prompt-input"
+                            placeholder="Ask Titan Executive AI (e.g., Analyze revenue projections, check user risk scores)..."
+                            required
+                            class="flex-1 px-lg py-3 rounded-xl border border-outline-variant/40 bg-surface-container-low text-on-surface focus:outline-none focus:border-primary focus:bg-white text-body-md font-medium transition-all">
+                        <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-xl py-3 rounded-xl font-label-lg font-bold flex items-center gap-2 hover:brightness-110 active:scale-95 shadow-md transition-all">
+                            <span>Execute</span>
+                            <span class="material-symbols-outlined text-sm">send</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isListening = false;
+    let recognition = null;
+
+    // Web Speech Recognition Setup
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRec();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = function () {
+            isListening = true;
+            const micBtn = document.getElementById('voice-mic-btn');
+            const micIcon = document.getElementById('mic-icon');
+            if (micBtn) {
+                micBtn.classList.add('bg-red-500', 'text-white', 'animate-pulse');
+                micBtn.classList.remove('bg-slate-100', 'text-slate-700');
+            }
+            if (micIcon) micIcon.textContent = 'mic_active';
+        };
+
+        recognition.onresult = function (event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('admin-prompt-input').value = transcript;
+            stopVoiceInput();
+            handleAdminChat(new Event('submit'));
+        };
+
+        recognition.onerror = function (event) {
+            console.warn('Speech recognition error:', event.error);
+            stopVoiceInput();
+        };
+
+        recognition.onend = function () {
+            stopVoiceInput();
+        };
+    }
+
+    function toggleVoiceInput() {
+        if (!recognition) {
+            alert("Voice Recognition is not supported on this browser. Try Chrome/Edge!");
+            return;
+        }
+        if (isListening) {
+            recognition.stop();
+            stopVoiceInput();
+        } else {
+            recognition.start();
+        }
+    }
+
+    function stopVoiceInput() {
+        isListening = false;
+        const micBtn = document.getElementById('voice-mic-btn');
+        const micIcon = document.getElementById('mic-icon');
+        if (micBtn) {
+            micBtn.classList.remove('bg-red-500', 'text-white', 'animate-pulse');
+            micBtn.classList.add('bg-slate-100', 'text-slate-700');
+        }
+        if (micIcon) micIcon.textContent = 'mic';
+    }
+
+    // AI Talking Mouth Equalizer Animation + Web Speech Voice Output
+    function animateRobotTalking(text) {
+        const mouthContainers = document.querySelectorAll('.robot-mouth-container');
+        mouthContainers.forEach(el => el.classList.add('mouth-talking'));
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            // Clean HTML tags for speech synthesizer
+            const cleanText = text.replace(/<[^>]*>?/gm, '');
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.1;
+
+            utterance.onend = function () {
+                mouthContainers.forEach(el => el.classList.remove('mouth-talking'));
+            };
+            utterance.onerror = function () {
+                mouthContainers.forEach(el => el.classList.remove('mouth-talking'));
+            };
+
+            window.speechSynthesis.speak(utterance);
+        } else {
+            // Fallback mouth animation duration
+            setTimeout(() => {
+                mouthContainers.forEach(el => el.classList.remove('mouth-talking'));
+            }, 3000);
+        }
+    }
+
+    function sendPrompt(text) {
+        document.getElementById('admin-prompt-input').value = text;
+        handleAdminChat(new Event('submit'));
+    }
+
+    function handleAdminChat(e) {
+        if (e) e.preventDefault();
+        const input = document.getElementById('admin-prompt-input');
+        const query = input.value.trim();
+        if (!query) return;
+
+        const messages = document.getElementById('admin-chat-messages');
+
+        // Append User Message
+        const userDiv = document.createElement('div');
+        userDiv.className = "flex justify-end mb-md";
+        userDiv.innerHTML = `
+        <div class="bg-blue-600 text-white p-lg rounded-2xl max-w-xl shadow-md font-medium">
+            ${query}
+        </div>
+    `;
+        messages.appendChild(userDiv);
+
+        input.value = '';
+        messages.scrollTop = messages.scrollHeight;
+
+        // Simulate AI Sentinel Response
+        setTimeout(() => {
+            let aiReply = "";
+            const q = query.toLowerCase();
+
+            if (q.includes("security") || q.includes("audit") || q.includes("risk")) {
+                aiReply = `<strong>🛡️ Titan Sentinel Security Audit Report:</strong><br><br>
+                       • <strong>Status:</strong> SOC-2 Compliant & Active.<br>
+                       • <strong>Active Vulnerabilities:</strong> 0 Critical threats detected.<br>
+                       • <strong>Database Connections:</strong> Optimal latency (14ms response time).<br>
+                       • <strong>Recommendation:</strong> All system authorization keys are up to date.`;
+            } else if (q.includes("revenue") || q.includes("forecast") || q.includes("payout")) {
+                aiReply = `<strong>📈 Executive Revenue & Commission Projection:</strong><br><br>
+                       • <strong>Gross Platform Volume:</strong> Rs. {{ "%.2f"|format(gross_revenue) }}<br>
+                       • <strong>Titan Platform Share (30%):</strong> Rs. {{ "%.2f"|format(platform_commission) }}<br>
+                       • <strong>Projected Growth:</strong> Estimated 24% revenue expansion next quarter driven by new course enrollments.`;
+            } else if (q.includes("course") || q.includes("moderation") || q.includes("catalog")) {
+                aiReply = `<strong>FACT-CHECK Catalog Moderation Audit:</strong><br><br>
+                       • <strong>Total Active Courses:</strong> {{ courses_count }} verified courses.<br>
+                       • <strong>Policy Compliance:</strong> 100% courses comply with Titan LMS quality standards.<br>
+                       • <strong>Action Required:</strong> 0 courses flagged for manual administrator review.`;
+            } else {
+                aiReply = `<strong>Titan Executive Intelligence Response:</strong><br><br>
+                       Analyzed system telemetry for: <em>"${query}"</em>.<br>
+                       All platform operations are operating at peak efficiency with zero system bottlenecks.`;
+            }
+
+            const msgId = Date.now();
+            const aiDiv = document.createElement('div');
+            aiDiv.className = "flex items-start gap-md max-w-2xl mb-md slide-from-left";
+            aiDiv.innerHTML = `
+            <div class="relative w-10 h-10 shrink-0 flex items-center justify-center mt-1">
+                <svg class="w-10 h-10 shrink-0 drop-shadow-[0_4px_10px_rgba(37,99,235,0.4)]" viewBox="0 0 200 200" fill="none">
+                    <path d="M100 10C50.3 10 10 50.3 10 100C10 121.2 17.4 140.7 29.8 156.1L15 185C13.2 188.5 16.5 191.8 20 190L48.9 175.2C64.3 187.6 83.8 195 105 195C154.7 195 195 154.7 195 105C195 55.3 154.7 10 100 10Z" fill="#2563EB"/>
+                    <rect x="45" y="65" width="110" height="70" rx="30" fill="white"/>
+                    <rect x="42" y="55" width="6" height="15" rx="3" fill="white"/>
+                    <rect x="152" y="55" width="6" height="15" rx="3" fill="white"/>
+                    <circle cx="72" cy="98" r="10" fill="#2563EB"/>
+                    <circle cx="128" cy="98" r="10" fill="#2563EB"/>
+                    <path d="M85 110Q100 120 115 110" stroke="#2563EB" stroke-width="6" stroke-linecap="round" fill="none"/>
+                </svg>
+            </div>
+            <div class="bg-white p-lg rounded-2xl border border-outline-variant/20 shadow-md text-on-surface text-body-sm space-y-1">
+                ${aiReply}
+            </div>
+        `;
+            messages.appendChild(aiDiv);
+            messages.scrollTop = messages.scrollHeight;
+
+            // Trigger Voice Speech & Animated Talking Mouth Bars
+            animateRobotTalking(aiReply);
+        }, 600);
+    }
+
+    function runSystemAudit() {
+        sendPrompt("Run complete platform system audit and security scan");
+    }
+</script>
+{% endblock %}

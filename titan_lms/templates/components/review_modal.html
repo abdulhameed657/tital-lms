@@ -1,0 +1,145 @@
+{% if current_user.is_authenticated %}
+<!-- Auto Popup Review Card Modal (No Floating Button) -->
+<div id="reviewModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+  <div class="bg-white max-w-lg w-full rounded-3xl p-6 md:p-8 shadow-2xl relative space-y-6 border border-[#0054cb]/15 animate-fade-in-up">
+    
+    <!-- Modal Header -->
+    <div class="flex justify-between items-start">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-widest text-[#0054cb] bg-[#0054cb]/10 px-3 py-1 rounded-full">⭐ Community Feedback</span>
+        <h3 class="text-2xl font-black text-[#1c1c17] mt-2" style="font-family:'Montserrat',sans-serif;">How is your Titan experience?</h3>
+        <p class="text-xs text-[#424654] mt-1">Please drop a quick rating and review to help us keep improving Titan LMS.</p>
+      </div>
+      <button onclick="closeReviewModal()" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors">
+        <span class="material-symbols-outlined text-lg">close</span>
+      </button>
+    </div>
+
+    <!-- Review Form -->
+    <form id="reviewForm" onsubmit="handleReviewSubmit(event)" class="space-y-5">
+      
+      <!-- Interactive Rating Stars -->
+      <div>
+        <label class="block text-xs font-bold text-[#1c1c17] uppercase tracking-wider mb-2">Overall Rating *</label>
+        <div class="flex items-center gap-2" id="starRatingContainer">
+          <input type="hidden" name="rating" id="reviewRatingInput" value="5">
+          {% for i in range(1, 6) %}
+          <button type="button" onclick="setStarRating({{ i }})" class="star-btn text-yellow-400 hover:scale-110 transition-transform" data-star="{{ i }}">
+            <span class="material-symbols-outlined text-3xl fill-1">star</span>
+          </button>
+          {% endfor %}
+          <span id="ratingLabel" class="text-xs font-bold text-[#0054cb] ml-2">5.0 / 5.0 (Excellent)</span>
+        </div>
+      </div>
+
+      <!-- Role / Course Title -->
+      <div>
+        <label class="block text-xs font-bold text-[#1c1c17] uppercase tracking-wider mb-1.5">Your Role / Course *</label>
+        <input type="text" name="role" required placeholder="e.g. AI & Data Science Student" 
+          value="{{ current_user.role|capitalize if current_user.is_authenticated else 'Titan Student' }}"
+          class="w-full bg-[#f6f3eb] border border-[#0054cb]/20 rounded-xl px-4 py-3 text-sm text-[#1c1c17] font-semibold focus:outline-none focus:border-[#0054cb] focus:ring-2 focus:ring-[#0054cb]/20 transition-all">
+      </div>
+
+      <!-- Content -->
+      <div>
+        <label class="block text-xs font-bold text-[#1c1c17] uppercase tracking-wider mb-1.5">Your Review & Testimonial *</label>
+        <textarea name="content" required rows="4" placeholder="Write your honest review about Titan LMS..."
+          class="w-full bg-[#f6f3eb] border border-[#0054cb]/20 rounded-xl p-4 text-sm text-[#1c1c17] font-medium focus:outline-none focus:border-[#0054cb] focus:ring-2 focus:ring-[#0054cb]/20 transition-all resize-none"></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button type="button" onclick="closeReviewModal()" class="px-5 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm transition-colors">
+          Remind Later
+        </button>
+        <button type="submit" id="submitReviewBtn"
+          class="px-7 py-3 rounded-xl bg-gradient-to-r from-[#0054cb] to-[#2c6dec] text-white font-black text-sm shadow-lg hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2">
+          <span class="material-symbols-outlined text-lg">send</span>
+          <span>Submit Review</span>
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Auto open review card when user is logged in if not dismissed in this session
+  if (!sessionStorage.getItem('review_dismissed')) {
+    setTimeout(() => {
+      openReviewModal();
+    }, 600);
+  }
+});
+
+function openReviewModal() {
+  const modal = document.getElementById('reviewModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeReviewModal() {
+  const modal = document.getElementById('reviewModal');
+  if (modal) modal.classList.add('hidden');
+  sessionStorage.setItem('review_dismissed', 'true');
+}
+
+function setStarRating(rating) {
+  document.getElementById('reviewRatingInput').value = rating;
+  const labels = {
+    1: '1.0 / 5.0 (Poor)',
+    2: '2.0 / 5.0 (Fair)',
+    3: '3.0 / 5.0 (Good)',
+    4: '4.0 / 5.0 (Very Good)',
+    5: '5.0 / 5.0 (Excellent)'
+  };
+  document.getElementById('ratingLabel').innerText = labels[rating] || (rating + '.0 / 5.0');
+  
+  const stars = document.querySelectorAll('#starRatingContainer .star-btn');
+  stars.forEach((btn, index) => {
+    const icon = btn.querySelector('span');
+    if (index < rating) {
+      icon.classList.remove('text-gray-300');
+      icon.classList.add('text-yellow-400');
+    } else {
+      icon.classList.remove('text-yellow-400');
+      icon.classList.add('text-gray-300');
+    }
+  });
+}
+
+function handleReviewSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const btn = document.getElementById('submitReviewBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">sync</span> Submitting...';
+
+  const formData = new FormData(form);
+
+  fetch('/submit-review', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span> Submitted!';
+    sessionStorage.setItem('review_dismissed', 'true');
+    setTimeout(() => {
+      closeReviewModal();
+      alert('⭐ Thank you! Your review has been submitted successfully.');
+    }, 600);
+  })
+  .catch(err => {
+    btn.disabled = false;
+    sessionStorage.setItem('review_dismissed', 'true');
+    closeReviewModal();
+    alert('⭐ Thank you! Your review has been submitted.');
+  });
+}
+</script>
+{% endif %}

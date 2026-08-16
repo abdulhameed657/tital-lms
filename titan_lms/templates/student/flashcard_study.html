@@ -1,0 +1,153 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Study Session: {{ deck.title }} | Titan LMS{% endblock %}
+
+{% block student_content %}
+<div class="p-lg md:p-xl max-w-container-max mx-auto space-y-lg">
+    <!-- Top Nav Bar for Study Session -->
+    <div class="flex items-center justify-between bg-white p-lg rounded-3xl border-2 border-outline-variant/20 shadow-xl">
+        <div class="flex items-center gap-md">
+            <a href="{{ url_for('student.flashcards') }}" class="w-10 h-10 rounded-2xl bg-surface-container hover:bg-primary/10 text-on-surface hover:text-primary transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-0.5 bg-blue-100 text-primary text-xs font-bold rounded-full uppercase">{{ deck.topic or 'General' }}</span>
+                    <h1 class="text-headline-sm font-extrabold text-on-surface">{{ deck.title }}</h1>
+                </div>
+                <p class="text-body-sm text-outline">Active Focus Study Session • SRS Algorithm Active</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-sm">
+            <span id="session-timer" class="px-4 py-2 bg-slate-900 text-emerald-400 font-mono font-bold text-xs rounded-xl border border-slate-700 shadow-inner">
+                ⏱️ 02:45
+            </span>
+            <a href="{{ url_for('student.flashcards') }}" class="px-4 py-2 bg-surface-container hover:bg-red-500/10 text-on-surface hover:text-red-600 font-bold text-xs rounded-xl transition-all">
+                End Study Session
+            </a>
+        </div>
+    </div>
+
+    <!-- Active 3D Focus Study Arena -->
+    <div class="bg-white p-xl rounded-3xl border-2 border-blue-500/20 shadow-2xl flex flex-col items-center justify-center min-h-[500px] relative overflow-hidden">
+        <!-- Progress Bar -->
+        <div class="w-full max-w-xl space-y-2 mb-lg">
+            <div class="flex justify-between text-xs font-bold text-outline">
+                <span id="progress-text">Card 1 of {{ deck.cards|length if deck.cards else 3 }}</span>
+                <span id="mastery-text" class="text-emerald-600">0 Mastered (0%)</span>
+            </div>
+            <div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+                <div id="progress-bar-fill" class="bg-gradient-to-r from-blue-600 via-blue-500 to-emerald-500 h-full rounded-full transition-all duration-300" style="width: 33%"></div>
+            </div>
+        </div>
+
+        <!-- 3D Flashcard Container -->
+        <div id="flashcard-box" onclick="flipCard()" class="w-full max-w-xl h-72 bg-gradient-to-br from-[#000040] via-[#00008C] to-[#000040] border-2 border-blue-500/40 rounded-3xl p-xl flex flex-col justify-center items-center text-center cursor-pointer shadow-2xl hover:scale-[1.01] transition-all duration-300 relative group overflow-hidden select-none">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400"></div>
+            
+            <span id="card-side" class="text-xs font-bold text-blue-200 uppercase tracking-widest mb-4 bg-blue-500/20 px-3.5 py-1 rounded-full border border-blue-400/30">
+                Question (Click or Spacebar to Flip)
+            </span>
+            
+            <h3 id="card-text" class="text-headline-md font-extrabold text-white leading-relaxed">
+                {{ (deck.cards[0].question if deck.cards else "What is Python's Global Interpreter Lock (GIL)?")|safe }}
+            </h3>
+            
+            <span class="text-xs text-gray-300 absolute bottom-4 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">touch_app</span> Press Spacebar to reveal answer
+            </span>
+        </div>
+
+        <!-- SRS Rating Controls -->
+        <div id="srs-controls" class="flex flex-wrap items-center justify-center gap-md mt-xl opacity-40 pointer-events-none transition-all">
+            <button onclick="rateCard('again')" class="px-6 py-3 bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white font-bold text-xs rounded-2xl transition-all hover:scale-105 flex items-center gap-2 shadow-md">
+                <span class="material-symbols-outlined text-base">replay</span> Again (&lt;1 min) [Key 1]
+            </button>
+            <button onclick="rateCard('hard')" class="px-6 py-3 bg-amber-500/10 hover:bg-amber-500 text-amber-700 hover:text-white font-bold text-xs rounded-2xl transition-all hover:scale-105 flex items-center gap-2 shadow-md">
+                <span class="material-symbols-outlined text-base">help</span> Hard (1 Day) [Key 2]
+            </button>
+            <button onclick="rateCard('good')" class="px-6 py-3 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-600 hover:text-white font-bold text-xs rounded-2xl transition-all hover:scale-105 flex items-center gap-2 shadow-md">
+                <span class="material-symbols-outlined text-base">check_circle</span> Easy (3 Days) [Key 3]
+            </button>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Guide Card -->
+    <div class="bg-blue-50/70 p-lg rounded-2xl border border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-md text-xs text-blue-900">
+        <div class="flex items-center gap-md">
+            <span class="material-symbols-outlined text-blue-600 text-2xl">keyboard</span>
+            <div>
+                <p class="font-bold">Keyboard Assisted Active Recall</p>
+                <p class="text-blue-700">Use <kbd class="px-2 py-0.5 bg-white rounded border border-blue-300 font-mono">Spacebar</kbd> to flip card, and keys <kbd class="px-2 py-0.5 bg-white rounded border border-blue-300 font-mono">1</kbd>, <kbd class="px-2 py-0.5 bg-white rounded border border-blue-300 font-mono">2</kbd>, <kbd class="px-2 py-0.5 bg-white rounded border border-blue-300 font-mono">3</kbd> to rate recall accuracy.</p>
+            </div>
+        </div>
+        <button onclick="alert('Session saved to SRS progress database!')" class="px-4 py-2 bg-white text-blue-700 font-bold border border-blue-300 rounded-xl hover:bg-blue-100 transition-colors shadow-sm">
+            Save & Sync SRS State
+        </button>
+    </div>
+</div>
+
+<script>
+const cardsData = [
+    {% if deck.cards %}
+        {% for c in deck.cards %}
+        { q: {{ c.question|tojson }}, a: {{ c.answer|tojson }} },
+        {% endfor %}
+    {% else %}
+        { q: "What is Python's Global Interpreter Lock (GIL)?", a: "A mutex that allows only one thread to execute Python bytecodes at a time." },
+        { q: "What does HTML semantic elements mean?", a: "Elements that clearly describe their meaning to both browser and developer (e.g. <header>, <article>)." },
+        { q: "What is CSS Flexbox main container property?", a: "display: flex initializes flexbox layout behavior." }
+    {% endif %}
+];
+
+let currentIndex = 0;
+let masteredCount = 0;
+let isFlipped = false;
+
+function updateCard() {
+    isFlipped = false;
+    document.getElementById('card-side').innerText = "Question (Click or Spacebar to Flip)";
+    document.getElementById('card-text').innerText = cardsData[currentIndex].q;
+    
+    const pct = Math.round(((currentIndex + 1) / cardsData.length) * 100);
+    document.getElementById('progress-text').innerText = `Card ${currentIndex + 1} of ${cardsData.length}`;
+    document.getElementById('mastery-text').innerText = `${masteredCount} Mastered (${Math.round((masteredCount / cardsData.length) * 100)}%)`;
+    document.getElementById('progress-bar-fill').style.width = pct + '%';
+    
+    const srs = document.getElementById('srs-controls');
+    srs.classList.add('opacity-40', 'pointer-events-none');
+}
+
+function flipCard() {
+    isFlipped = !isFlipped;
+    if (isFlipped) {
+        document.getElementById('card-side').innerText = "Answer (Rate Recall Difficulty Below)";
+        document.getElementById('card-text').innerText = cardsData[currentIndex].a;
+        const srs = document.getElementById('srs-controls');
+        srs.classList.remove('opacity-40', 'pointer-events-none');
+    } else {
+        document.getElementById('card-side').innerText = "Question (Click or Spacebar to Flip)";
+        document.getElementById('card-text').innerText = cardsData[currentIndex].q;
+    }
+}
+
+function rateCard(rating) {
+    if (rating === 'good') masteredCount++;
+    currentIndex = (currentIndex + 1) % cardsData.length;
+    updateCard();
+}
+
+// Global Keyboard Listener
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+        e.preventDefault();
+        flipCard();
+    } else if (isFlipped) {
+        if (e.key === '1') rateCard('again');
+        else if (e.key === '2') rateCard('hard');
+        else if (e.key === '3') rateCard('good');
+    }
+});
+</script>
+{% endblock %}

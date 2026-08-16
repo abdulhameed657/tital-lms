@@ -1,0 +1,272 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Manage Course Resources & Study Material | Admin Portal{% endblock %}
+
+{% block admin_content %}
+<div class="max-w-7xl mx-auto space-y-6 sm:space-y-8 animate-fade-in pb-16 px-2 sm:px-4" x-data="{ editModal: false, editRes: { id: '', title: '', course_id: '', resource_type: 'PDF', file_size: '', external_url: '', description: '' } }">
+    <!-- Header Hero Banner -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#003884] via-[#0054cb] to-indigo-900 text-white p-6 sm:p-8 shadow-xl">
+        <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-sky-400/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-sky-300/40 text-sky-200 text-xs font-extrabold uppercase tracking-wider shadow-sm">
+                    <span class="material-symbols-outlined text-sm text-sky-300">admin_panel_settings</span> Faculty Control Hub
+                </div>
+                <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-white" style="font-family: 'Space Grotesk', sans-serif;">
+                    Manage Course <span class="text-sky-300">Resources</span>
+                </h1>
+                <p class="text-xs sm:text-sm text-blue-100 max-w-xl font-medium leading-relaxed">
+                    Upload lecture slides, code repositories, reference zips, cheat sheets, and books for student downloads across all institute courses.
+                </p>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 text-center min-w-[120px] shrink-0">
+                <span class="block text-2xl font-black text-sky-300">{{ "%02d"|format(resources|length) }}</span>
+                <span class="text-[10px] text-blue-100 uppercase font-bold tracking-wider">Total Resources</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid: Upload Form (5 cols) & Live Table (7 cols) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+        
+        <!-- Left: Publish Resource Form -->
+        <div class="lg:col-span-5 bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-7 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-5">
+            <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="w-9 h-9 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                    <span class="material-symbols-outlined">upload_file</span>
+                </div>
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Publish New Resource</h3>
+                    <p class="text-xs text-slate-500 font-medium">Add study material for student access.</p>
+                </div>
+            </div>
+
+            <form action="{{ url_for('admin.resources') }}" method="POST" class="space-y-4">
+                <!-- Select Course -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        Target Course <span class="text-red-500">*</span>
+                    </label>
+                    <select name="course_id" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#0054cb] transition-all">
+                        <option value="">-- Select Target Course --</option>
+                        {% for c in courses %}
+                        <option value="{{ c.id }}">{{ c.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Resource Title -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        Resource Title <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="title" required placeholder="e.g. Python Core Cheat Sheet 2026..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#0054cb] transition-all">
+                </div>
+
+                <!-- Type & Size Row -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                            Resource Type
+                        </label>
+                        <select name="resource_type" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#0054cb] transition-all">
+                            <option value="PDF">📄 PDF / Notes</option>
+                            <option value="Code">💻 Source Code (.zip)</option>
+                            <option value="Slide">📊 Lecture Slides</option>
+                            <option value="Book">📚 E-Book</option>
+                            <option value="Link">🔗 External Link</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                            File Size / Label
+                        </label>
+                        <input type="text" name="file_size" value="2.5 MB" placeholder="e.g. 3.2 MB" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#0054cb] transition-all">
+                    </div>
+                </div>
+
+                <!-- File URL or External Link -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        File Download URL / Link
+                    </label>
+                    <input type="url" name="external_url" placeholder="https://example.com/file.pdf or GitHub URL..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#0054cb] transition-all">
+                </div>
+
+                <!-- Description -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                        Description / Notes
+                    </label>
+                    <textarea name="description" rows="3" placeholder="Brief summary of what is included in this resource..." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#0054cb] transition-all resize-none"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-[#0054cb] hover:bg-blue-700 text-white font-extrabold py-3.5 px-6 rounded-2xl text-xs sm:text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-lg">publish</span>
+                    Publish Resource for Students
+                </button>
+            </form>
+        </div>
+
+        <!-- Right: Uploaded Resources Table (7 cols) -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-7 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined">folder_managed</span>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Uploaded Resources</h3>
+                        <p class="text-xs text-slate-500 font-medium">All active study materials shared with students.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-100 dark:border-slate-800 text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">
+                            <th class="py-3 px-3">Resource Details</th>
+                            <th class="py-3 px-3">Course</th>
+                            <th class="py-3 px-3 text-center">Downloads</th>
+                            <th class="py-3 px-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                        {% for r in resources %}
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="py-3 px-3 space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-black 
+                                        {% if r.resource_type == 'PDF' %}bg-rose-100 text-rose-700
+                                        {% elif r.resource_type == 'Code' %}bg-emerald-100 text-emerald-700
+                                        {% elif r.resource_type == 'Slide' %}bg-amber-100 text-amber-700
+                                        {% elif r.resource_type == 'Book' %}bg-purple-100 text-purple-700
+                                        {% else %}bg-blue-100 text-blue-700{% endif %}">
+                                        {{ r.resource_type }}
+                                    </span>
+                                    <span class="font-extrabold text-slate-800 dark:text-white">{{ r.title }}</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 line-clamp-1">{{ r.description or 'No description' }}</p>
+                            </td>
+                            <td class="py-3 px-3 font-semibold text-slate-600 dark:text-slate-400">
+                                {{ r.course.title if r.course else 'General' }}
+                            </td>
+                            <td class="py-3 px-3 text-center font-bold text-slate-700 dark:text-slate-300">
+                                {{ r.downloads_count }}
+                            </td>
+                            <td class="py-3 px-3 text-right space-x-1 whitespace-nowrap">
+                                <!-- Edit Button -->
+                                <button type="button" @click="editModal = true; editRes = { id: '{{ r.id }}', title: '{{ r.title|replace('\'', '\\\'') }}', course_id: '{{ r.course_id }}', resource_type: '{{ r.resource_type }}', file_size: '{{ r.file_size }}', external_url: '{{ r.external_url or r.file_url or '' }}', description: '{{ r.description|replace('\'', '\\\'') if r.description else '' }}' }" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors inline-flex items-center" title="Edit Resource">
+                                    <span class="material-symbols-outlined text-base">edit</span>
+                                </button>
+
+                                <!-- Delete Button -->
+                                <form action="{{ url_for('admin.delete_resource', id=r.id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this resource?');">
+                                    <button type="submit" class="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-colors inline-flex items-center" title="Delete Resource">
+                                        <span class="material-symbols-outlined text-base">delete</span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="py-8 text-center text-slate-400 text-xs">
+                                No course resources uploaded yet. Use the form on the left to add one!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Resource Modal -->
+    <div x-show="editModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div @click.away="editModal = false" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-7 shadow-2xl max-w-lg w-full space-y-5 border border-slate-200 dark:border-slate-800 animate-scale-up">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#0054cb]">edit_note</span> Edit Resource
+                </h3>
+                <button type="button" @click="editModal = false" class="text-slate-400 hover:text-slate-600">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form :action="'/admin/resources/' + editRes.id + '/edit'" method="POST" class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Course</label>
+                    <select name="course_id" x-model="editRes.course_id" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold">
+                        {% for c in courses %}
+                        <option value="{{ c.id }}">{{ c.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Resource Title</label>
+                    <input type="text" name="title" x-model="editRes.title" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Type</label>
+                        <select name="resource_type" x-model="editRes.resource_type" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold">
+                            <option value="PDF">📄 PDF / Notes</option>
+                            <option value="Code">💻 Source Code (.zip)</option>
+                            <option value="Slide">📊 Lecture Slides</option>
+                            <option value="Book">📚 E-Book</option>
+                            <option value="Link">🔗 External Link</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">File Size</label>
+                        <input type="text" name="file_size" x-model="editRes.file_size" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">URL / Link</label>
+                    <input type="url" name="external_url" x-model="editRes.external_url" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Description</label>
+                    <textarea name="description" x-model="editRes.description" rows="3" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold resize-none"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" @click="editModal = false" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-100">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#0054cb] text-white text-xs font-bold hover:bg-blue-700 shadow-md">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        let currentDlSum = {{ resources|map(attribute='downloads_count')|sum or 0 }};
+        let currentCount = {{ resources|length or 0 }};
+
+        function checkResourceUpdates() {
+            fetch('/api/heartbeat')
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.authenticated) return;
+                    if (data.total_resources !== currentCount || data.total_downloads !== currentDlSum) {
+                        console.log('⚡ Real-time Resource Event: Auto refreshing table data...');
+                        window.location.reload();
+                    }
+                })
+                .catch(e => console.debug(e));
+        }
+
+        setInterval(checkResourceUpdates, 5000);
+    })();
+</script>
+{% endblock %}

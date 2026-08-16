@@ -1,0 +1,115 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Interactive Live Sandbox & Lab | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    .terminal-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+    .terminal-scroll::-webkit-scrollbar-thumb {
+        background: #2c6dec;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block student_content %}
+<div class="max-w-container-max mx-auto px-gutter py-xl space-y-lg h-[calc(100vh-100px)] flex flex-col">
+    <!-- Header & Breadcrumb (Design from code.html) -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md shrink-0 slide-from-top">
+        <div>
+            <div class="flex items-center gap-xs text-label-md text-on-surface-variant mb-1">
+                <span>Advanced Applied Engineering</span>
+                <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span class="text-primary font-bold">Module 4: Live Cluster Deployment</span>
+            </div>
+            <h1 class="font-headline-lg text-headline-lg text-on-surface">Architecting Scalable Micro-Services Lab</h1>
+        </div>
+        <div class="flex items-center gap-sm">
+            <span class="px-3 py-1 bg-tertiary/10 text-tertiary rounded-full text-label-sm font-bold flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-tertiary animate-ping"></span> Live Sandbox Ready
+            </span>
+        </div>
+    </div>
+
+    <!-- Layout Grid: Video Stream & Interactive Terminal Lab -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg flex-1 min-h-0 slide-from-bottom">
+        <!-- Video Stream Player -->
+        <div class="lg:col-span-6 bg-inverse-surface rounded-2xl overflow-hidden shadow-2xl relative flex flex-col justify-between p-md border border-outline-variant/20">
+            <div class="relative flex-1 rounded-xl overflow-hidden bg-black flex items-center justify-center">
+                <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1000" alt="Lecture Video Stream" class="w-full h-full object-cover opacity-85">
+                <div class="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl text-white text-label-md font-bold flex items-center gap-2 border border-white/20">
+                    <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+                    Dr. Sarah Jenkins (Instructor Stream)
+                </div>
+            </div>
+            
+            <div class="mt-md bg-white/10 backdrop-blur-xl p-md rounded-xl flex justify-between items-center text-white border border-white/10">
+                <p class="text-label-md font-bold">Lesson 4.2: Terminal Commands & Deployment</p>
+                <button onclick="alert('Full screen mode toggled')" class="material-symbols-outlined text-white hover:text-primary transition-colors">fullscreen</button>
+            </div>
+        </div>
+
+        <!-- Interactive Terminal Sandbox (Right Side) -->
+        <div class="lg:col-span-6 bg-[#0f172a] text-slate-100 rounded-2xl shadow-2xl border border-slate-700/50 flex flex-col justify-between overflow-hidden font-mono">
+            <!-- Terminal Header -->
+            <div class="bg-slate-800/80 px-lg py-md border-b border-slate-700 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                    <span class="text-xs text-slate-400 font-bold ml-2">titan-cloud-sandbox:~/app</span>
+                </div>
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold uppercase">Online</span>
+            </div>
+
+            <!-- Terminal Output Window -->
+            <div class="p-lg flex-1 overflow-y-auto space-y-3 text-sm terminal-scroll" id="terminal-output">
+                <p class="text-slate-400">Welcome to Titan LMS Cloud Shell Sandbox v3.4.1</p>
+                <p class="text-slate-400">Type <span class="text-emerald-400">docker ps</span> or <span class="text-emerald-400">kubectl get pods</span> to begin task verification.</p>
+                <div class="pt-2">
+                    <p class="text-emerald-400">titan@student:~$ kubectl get nodes</p>
+                    <p class="text-slate-300">NAME           STATUS   ROLES    AGE   VERSION</p>
+                    <p class="text-slate-300">node-titan-1   Ready    master   12d   v1.28.2</p>
+                    <p class="text-slate-300">node-titan-2   Ready    worker   12d   v1.28.2</p>
+                </div>
+            </div>
+
+            <!-- Terminal Input Form -->
+            <div class="p-md bg-slate-800/50 border-t border-slate-700 flex items-center gap-2">
+                <span class="text-emerald-400 font-bold">titan@student:~$</span>
+                <input type="text" id="terminal-input" placeholder="Type bash command here (e.g. docker run)..." class="flex-1 bg-transparent text-slate-100 font-mono text-sm focus:outline-none" onkeydown="if(event.key==='Enter') executeCommand()">
+                <button onclick="executeCommand()" class="bg-primary hover:bg-primary-container text-white px-4 py-1.5 rounded text-xs font-bold font-sans transition-all">
+                    Run
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function executeCommand() {
+        const input = document.getElementById('terminal-input');
+        const output = document.getElementById('terminal-output');
+        const cmd = input.value.trim();
+        if (!cmd) return;
+
+        const cmdLine = document.createElement('div');
+        cmdLine.innerHTML = `<p class="text-emerald-400">titan@student:~$ ${cmd}</p>`;
+
+        const resLine = document.createElement('p');
+        resLine.className = 'text-slate-300';
+        if (cmd.includes('docker') || cmd.includes('kubectl')) {
+            resLine.innerText = '✅ Task completed! Container deployed successfully to Titan Cloud Cluster. (+50 XP Granted)';
+        } else {
+            resLine.innerText = `Command executed: '${cmd}'. Sandbox state validated.`;
+        }
+
+        output.appendChild(cmdLine);
+        output.appendChild(resLine);
+        input.value = '';
+        output.scrollTop = output.scrollHeight;
+    }
+</script>
+{% endblock %}

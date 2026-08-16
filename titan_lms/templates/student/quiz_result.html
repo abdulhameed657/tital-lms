@@ -1,0 +1,245 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Quiz Results | {{ quiz.title }} | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    .glass-nav { backdrop-filter: blur(12px); background: rgba(252,249,241,0.88); }
+    .card-lift { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .card-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,84,203,0.1); }
+
+    @keyframes scoreIn { from { stroke-dashoffset: 282.7; } to { stroke-dashoffset: {{ 282.7 - (282.7 * attempt.score / 100) | round(1) }}; } }
+    .score-ring { animation: scoreIn 1.5s cubic-bezier(0.22,1,0.36,1) 0.3s both; }
+
+    @keyframes flyUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes flyLeft { from{opacity:0;transform:translateX(-50px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes flyRight { from{opacity:0;transform:translateX(50px)} to{opacity:1;transform:translateX(0)} }
+    .fly-up    { animation: flyUp   0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-left  { animation: flyLeft 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-right { animation: flyRight 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+
+    .review-item { transition: transform 0.2s ease; }
+    .review-item:hover { transform: translateX(4px); }
+    .progress-bar-glow { box-shadow: 0 0 12px rgba(0,84,203,0.3); }
+</style>
+{% endblock %}
+
+{% block student_content %}
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+
+    <!-- ═══ HERO SCORE BANNER ═══ -->
+    <section class="relative mb-xxl rounded-2xl overflow-hidden p-lg md:p-xxl flex flex-col md:flex-row items-center justify-between gap-xl fly-up"
+             style="background: linear-gradient(135deg, #0054cb 0%, #2c6dec 60%, {% if attempt.passed %}#735c00{% else %}#ba1a1a{% endif %} 100%);">
+        <!-- Decorative orb -->
+        <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 pointer-events-none"
+             style="background: radial-gradient(circle, white 0%, transparent 70%);"></div>
+
+        <div class="relative z-10 text-white text-center md:text-left">
+            <!-- Grade pill -->
+            <div class="inline-flex items-center gap-sm px-md py-xs rounded-full mb-md shadow-lg font-bold text-label-sm
+                {% if attempt.passed %}bg-tertiary text-on-tertiary{% else %}bg-error text-on-error{% endif %}">
+                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1;">
+                    {% if attempt.passed %}workspace_premium{% else %}do_not_disturb_on{% endif %}
+                </span>
+                {% if attempt.score >= 90 %}High Distinction
+                {% elif attempt.score >= 80 %}Distinction
+                {% elif attempt.score >= 70 %}Pass
+                {% else %}Not Passed{% endif %}
+            </div>
+            <h1 class="font-headline-lg text-display-lg-mobile md:text-headline-lg mb-sm leading-tight">
+                {{ quiz.title }}
+            </h1>
+            <p class="text-body-lg opacity-90 max-w-lg">
+                {% if attempt.passed %}
+                    Congratulations! Your performance in this evaluation has been verified. You've demonstrated strong command of the subject matter.
+                {% else %}
+                    You did not reach the required 70% pass score. Review the detailed AI feedback below and retry when ready.
+                {% endif %}
+            </p>
+
+            <!-- Mini stats row -->
+            <div class="flex flex-wrap gap-md mt-lg">
+                <div class="bg-white/15 rounded-xl px-md py-sm text-white text-center min-w-[80px]">
+                    <span class="block text-headline-sm font-bold">{{ attempt.answers | selectattr('is_correct') | list | length }}/{{ attempt.answers|length }}</span>
+                    <span class="text-label-sm opacity-80">Correct</span>
+                </div>
+                <div class="bg-white/15 rounded-xl px-md py-sm text-white text-center min-w-[80px]">
+                    <span class="block text-headline-sm font-bold">{{ "%.0f"|format(attempt.score) }}%</span>
+                    <span class="text-label-sm opacity-80">Score</span>
+                </div>
+                <div class="bg-white/15 rounded-xl px-md py-sm text-white text-center min-w-[80px]">
+                    <span class="block text-headline-sm font-bold">{% if attempt.passed %}+50{% else %}0{% endif %}</span>
+                    <span class="text-label-sm opacity-80">XP Earned</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Score ring -->
+        <div class="relative z-10 flex flex-col items-center shrink-0" style="animation-delay:0.3s;">
+            <div class="relative w-52 h-52">
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="8"/>
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-linecap="round"
+                            stroke-width="10"
+                            stroke-dasharray="282.7"
+                            stroke-dashoffset="{{ 282.7 - (282.7 * attempt.score / 100) | round(1) }}"
+                            class="score-ring drop-shadow-lg"/>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-white">
+                    <span class="text-display-lg font-bold leading-none">{{ "%.0f"|format(attempt.score) }}%</span>
+                    <span class="text-label-lg opacity-80 uppercase tracking-tighter">Module Score</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ BENTO GRID ═══ -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+
+        <!-- LEFT: AI Feedback + Actions (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-lg">
+
+            <!-- AI Evaluation Card -->
+            <div class="bg-surface-container-low rounded-xl p-lg md:p-xl border border-outline-variant/30 shadow-sm card-lift fly-left" style="animation-delay:0.15s;">
+                <div class="flex items-center gap-md mb-lg">
+                    <div class="bg-primary/10 p-sm rounded-lg">
+                        <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">psychology</span>
+                    </div>
+                    <h2 class="font-headline-md text-headline-md text-on-surface">AI Performance Evaluation</h2>
+                </div>
+                <div class="space-y-md text-on-surface-variant">
+                    <p class="font-body-md leading-relaxed">
+                        {{ attempt.ai_feedback or 'Your quiz attempt has been evaluated. Review the question-by-question breakdown on the right to identify areas for improvement.' }}
+                    </p>
+                    {% if attempt.passed %}
+                    <p class="font-body-md leading-relaxed border-l-4 border-tertiary pl-md bg-tertiary/5 py-sm rounded-r-lg">
+                        <strong class="text-tertiary">Strategic Insight:</strong>
+                        You passed this evaluation. Continue your learning path and tackle the next module to build on your momentum.
+                    </p>
+                    {% else %}
+                    <p class="font-body-md leading-relaxed border-l-4 border-error pl-md bg-error/5 py-sm rounded-r-lg">
+                        <strong class="text-error">Growth Focus:</strong>
+                        Review the questions you got wrong carefully. Revisit the course lessons covering those topics before your next attempt.
+                    </p>
+                    {% endif %}
+
+                    <!-- Strength / Opportunity -->
+                    <div class="grid grid-cols-2 gap-md pt-md">
+                        <div class="p-md bg-surface-container rounded-lg border border-outline-variant/20">
+                            <span class="text-label-sm font-bold uppercase text-secondary mb-1 block">Primary Strength</span>
+                            <span class="text-headline-sm font-bold text-primary">
+                                {% if attempt.score >= 80 %}Conceptual Mastery{% elif attempt.score >= 70 %}Logical Reasoning{% else %}Foundational Knowledge{% endif %}
+                            </span>
+                        </div>
+                        <div class="p-md bg-surface-container rounded-lg border border-outline-variant/20">
+                            <span class="text-label-sm font-bold uppercase text-secondary mb-1 block">Growth Opportunity</span>
+                            <span class="text-headline-sm font-bold text-tertiary">
+                                {% if attempt.score < 80 %}Advanced Application{% else %}Edge Case Analysis{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-xl flex flex-wrap gap-md pt-lg border-t border-outline-variant/10">
+                    <a href="{{ url_for('student.catalog') }}"
+                       class="bg-primary text-white px-lg py-md rounded-lg font-bold text-label-lg flex items-center gap-sm hover:shadow-[0_0_15px_rgba(0,84,203,0.4)] transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-[20px]">menu_book</span>
+                        Continue Learning
+                    </a>
+                    <a href="{{ url_for('student.my_quizzes') }}"
+                       class="border border-primary text-primary px-lg py-md rounded-lg font-bold text-label-lg flex items-center gap-sm hover:bg-primary/5 transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-[20px]">quiz</span>
+                        All My Quizzes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Next Lesson Recommendation -->
+            <div class="bg-surface-container-highest rounded-xl p-lg flex items-center gap-lg card-lift fly-left" style="animation-delay:0.25s;">
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">auto_stories</span>
+                </div>
+                <div class="flex-1">
+                    <span class="text-label-sm font-bold text-secondary uppercase tracking-widest block mb-xs">Next Step</span>
+                    <h3 class="font-headline-sm text-headline-sm text-on-surface">
+                        {% if attempt.passed %}Continue to the next module in {{ quiz.course.title }}{% else %}Revisit weak topics in {{ quiz.course.title }}{% endif %}
+                    </h3>
+                    <div class="flex items-center gap-md mt-sm">
+                        <span class="text-body-sm text-on-surface-variant flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-[16px]">schedule</span>
+                            Estimated 30 mins
+                        </span>
+                        <span class="text-body-sm text-on-surface-variant flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-[16px]">bar_chart</span>
+                            {{ quiz.course.title }}
+                        </span>
+                    </div>
+                </div>
+                <a href="{{ url_for('student.course_player', course_id=quiz.course_id, lesson_id=0) }}"
+                   class="bg-white text-primary p-md rounded-full shadow-sm hover:shadow-md transition-all shrink-0">
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- RIGHT: Question-by-Question Review (5 cols) -->
+        <div class="lg:col-span-5 fly-right" style="animation-delay:0.2s;">
+            <div class="bg-surface-container-low rounded-xl border border-outline-variant/30 shadow-sm flex flex-col overflow-hidden" style="max-height:680px;">
+                <!-- Header -->
+                <div class="p-lg border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-high/30">
+                    <h2 class="font-headline-sm text-headline-sm">Question Review</h2>
+                    <span class="bg-primary/10 text-primary px-sm py-xs rounded font-label-md text-label-md">
+                        {{ attempt.answers | selectattr('is_correct') | list | length }} / {{ attempt.answers|length }} Correct
+                    </span>
+                </div>
+                <!-- Scrollable list -->
+                <div class="flex-grow overflow-y-auto p-lg space-y-lg">
+                    {% for answer in attempt.answers %}
+                    <div class="review-item">
+                        <div class="flex items-start gap-md mb-sm">
+                            <div class="{% if answer.is_correct %}bg-green-100 text-green-700{% else %}bg-error-container text-on-error-container{% endif %} p-1.5 rounded flex items-center justify-center mt-0.5 shrink-0">
+                                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1;">
+                                    {% if answer.is_correct %}check_circle{% else %}cancel{% endif %}
+                                </span>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-body-md text-on-surface mb-xs">
+                                    {{ '%02d'|format(loop.index) }}. {{ answer.question.question_text[:80] }}{% if answer.question.question_text|length > 80 %}…{% endif %}
+                                </h4>
+                            </div>
+                        </div>
+
+                        {% if answer.is_correct %}
+                        <div class="ml-10 p-md bg-green-50 rounded-lg border border-green-100">
+                            <p class="text-label-lg font-bold text-green-800 mb-1">Your Answer: {{ answer.student_answer }}</p>
+                            <p class="text-body-sm text-on-surface-variant">{{ answer.ai_evaluation or 'Correct. Well done!' }}</p>
+                        </div>
+                        {% else %}
+                        <div class="ml-10 p-md bg-error-container/20 rounded-lg border border-error-container/50">
+                            <div class="flex flex-col gap-1 mb-sm">
+                                <p class="text-label-lg font-bold text-error line-through">Your Answer: {{ answer.student_answer or '(not answered)' }}</p>
+                                <p class="text-label-lg font-bold text-green-700">Correct Answer: {{ answer.question.correct_answer }}</p>
+                            </div>
+                            <p class="text-body-sm text-on-surface-variant">{{ answer.ai_evaluation or 'Review this topic and try again.' }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.review-item').forEach((item, i) => {
+        item.style.animationDelay = (0.4 + i * 0.07) + 's';
+        item.style.animation = 'flyUp 0.5s cubic-bezier(0.22,1,0.36,1) both';
+        item.style.animationDelay = (0.4 + i * 0.07) + 's';
+    });
+});
+</script>
+{% endblock %}

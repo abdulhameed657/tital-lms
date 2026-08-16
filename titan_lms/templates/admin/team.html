@@ -1,0 +1,164 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Manage Leadership & Team | Titan LMS{% endblock %}
+
+{% block admin_content %}
+<div class="p-lg md:p-xl space-y-xl max-w-container-max mx-auto">
+    
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-xxl slide-from-top">
+        <div>
+            <h1 class="text-display-lg font-display-lg text-on-surface mb-xs font-bold">Leadership & Team Management</h1>
+            <p class="text-body-lg text-on-surface-variant">Add, edit, or remove executive board members and leadership cards shown on the About Us page.</p>
+        </div>
+        <button onclick="document.getElementById('addMemberModal').classList.remove('hidden')" class="bg-primary hover:bg-primary-container text-white px-xl py-md rounded-lg font-label-lg transition-all shadow-md flex items-center gap-sm">
+            <span class="material-symbols-outlined text-sm">person_add</span> Add New Member
+        </button>
+    </div>
+
+    <!-- Team Members Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+        {% for m in members %}
+        <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/10 flex flex-col justify-between space-y-md relative group hover:border-primary/30 transition-all">
+            <div class="flex gap-md items-start">
+                <div class="w-20 h-20 rounded-xl overflow-hidden bg-surface-container flex-shrink-0 flex items-center justify-center border border-outline-variant/20">
+                    {% if m.image_url %}
+                        <img src="{{ m.image_url }}" alt="{{ m.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <span class="text-headline-md font-bold text-primary">{{ m.initials or 'TM' }}</span>
+                    {% endif %}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-headline-sm font-bold text-on-surface truncate">{{ m.name }}</h3>
+                    <p class="text-label-md font-semibold text-primary uppercase tracking-wider mt-xs truncate">{{ m.designation }}</p>
+                    {% if m.bio %}
+                        <p class="text-body-sm text-on-surface-variant line-clamp-2 mt-xs">{{ m.bio }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-md border-t border-outline-variant/10 text-xs text-on-surface-variant">
+                <span>Display Order: <strong>#{{ m.order }}</strong></span>
+                <div class="flex items-center gap-sm">
+                    <button onclick="editMember('{{ m.id }}', '{{ m.name|e }}', '{{ m.designation|e }}', '{{ (m.bio or '')|e }}', '{{ m.order }}')" class="p-sm text-primary hover:bg-primary/10 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined text-sm">edit</span>
+                    </button>
+                    <form action="{{ url_for('admin.delete_team_member', member_id=m.id) }}" method="POST" onsubmit="return confirm('Remove this team member?');">
+                        <button type="submit" class="p-sm text-error hover:bg-error/10 rounded-lg transition-colors">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-full bg-surface-container-lowest p-xxl text-center rounded-xl border border-outline-variant/10">
+            <span class="material-symbols-outlined text-4xl text-outline mb-sm">group_off</span>
+            <h3 class="text-headline-sm font-bold">No Custom Team Members Added Yet</h3>
+            <p class="text-body-md text-on-surface-variant mt-xs">Default static leadership cards are currently active on the About page. Click "Add New Member" to customize.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- Modal: Add Member -->
+<div id="addMemberModal" class="fixed inset-0 z-50 bg-on-surface/50 backdrop-blur-sm flex items-center justify-center p-md hidden">
+    <div class="bg-surface-container-lowest max-w-lg w-full rounded-2xl p-xl shadow-xl space-y-lg border border-outline-variant/20 animate-fade-in-up">
+        <div class="flex justify-between items-center border-b border-outline-variant/10 pb-md">
+            <h2 class="text-headline-md font-bold">Add Team Member</h2>
+            <button onclick="document.getElementById('addMemberModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form action="{{ url_for('admin.team') }}" method="POST" enctype="multipart/form-data" class="space-y-md">
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Full Name *</label>
+                <input type="text" name="name" required placeholder="e.g. Dr. Sarah Ahmed" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Designation / Role *</label>
+                <input type="text" name="designation" required placeholder="e.g. Chief Operations Officer" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Portrait Photo</label>
+                <input type="file" name="image" accept="image/*" class="w-full bg-surface border border-outline-variant rounded-lg p-sm text-body-sm text-on-surface-variant">
+                <p class="text-body-sm text-on-surface-variant mt-xs">Square/portrait orientation recommended.</p>
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Short Bio (Optional)</label>
+                <textarea name="bio" rows="2" placeholder="Brief background statement..." class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary"></textarea>
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Display Order</label>
+                <input type="number" name="order" value="1" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div class="flex justify-end gap-md pt-md border-t border-outline-variant/10">
+                <button type="button" onclick="document.getElementById('addMemberModal').classList.add('hidden')" class="px-md py-sm bg-surface-container rounded-lg font-bold">Cancel</button>
+                <button type="submit" class="px-lg py-sm bg-primary text-white rounded-lg font-bold">Save Member</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Edit Member -->
+<div id="editMemberModal" class="fixed inset-0 z-50 bg-on-surface/50 backdrop-blur-sm flex items-center justify-center p-md hidden">
+    <div class="bg-surface-container-lowest max-w-lg w-full rounded-2xl p-xl shadow-xl space-y-lg border border-outline-variant/20 animate-fade-in-up">
+        <div class="flex justify-between items-center border-b border-outline-variant/10 pb-md">
+            <h2 class="text-headline-md font-bold">Edit Team Member</h2>
+            <button onclick="document.getElementById('editMemberModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="editMemberForm" method="POST" enctype="multipart/form-data" class="space-y-md">
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Full Name *</label>
+                <input type="text" id="edit_name" name="name" required class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Designation / Role *</label>
+                <input type="text" id="edit_designation" name="designation" required class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Replace Portrait Photo (Optional)</label>
+                <input type="file" name="image" accept="image/*" class="w-full bg-surface border border-outline-variant rounded-lg p-sm text-body-sm text-on-surface-variant">
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Short Bio</label>
+                <textarea id="edit_bio" name="bio" rows="2" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary"></textarea>
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Display Order</label>
+                <input type="number" id="edit_order" name="order" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div class="flex justify-end gap-md pt-md border-t border-outline-variant/10">
+                <button type="button" onclick="document.getElementById('editMemberModal').classList.add('hidden')" class="px-md py-sm bg-surface-container rounded-lg font-bold">Cancel</button>
+                <button type="submit" class="px-lg py-sm bg-primary text-white rounded-lg font-bold">Update Member</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function editMember(id, name, designation, bio, order) {
+    document.getElementById('editMemberForm').action = "/admin/team/" + id + "/edit";
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_designation').value = designation;
+    document.getElementById('edit_bio').value = bio;
+    document.getElementById('edit_order').value = order;
+    document.getElementById('editMemberModal').classList.remove('hidden');
+}
+</script>
+{% endblock %}

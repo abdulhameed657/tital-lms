@@ -1,0 +1,303 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Course Schedules & Approvals | Titan LMS Admin{% endblock %}
+
+{% block admin_content %}
+<div class="p-lg max-w-7xl mx-auto space-y-lg">
+    <!-- Header Banner -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-md bg-surface border border-outline-variant rounded-2xl p-xl shadow-sm">
+        <div>
+            <div class="flex items-center gap-xs text-blue-600 font-bold text-label-md uppercase tracking-wider">
+                <span class="material-symbols-outlined text-blue-600 animate-bounce">calendar_clock</span>
+                <span>Course Schedule & Timetable Control</span>
+            </div>
+            <h1 class="text-headline-md font-bold text-on-surface mt-xs">Course Schedules & Instructor Approvals</h1>
+            <p class="text-body-md text-on-surface-variant">Create course routines, auto-calculate total classes, and approve instructor schedule requests.</p>
+        </div>
+        <div>
+            <button onclick="document.getElementById('createScheduleModal').classList.remove('hidden')"
+                class="flex items-center gap-xs bg-blue-600 hover:bg-blue-700 text-white px-xl py-md rounded-xl font-bold transition-all shadow-md">
+                <span class="material-symbols-outlined">add</span>
+                <span>Create New Schedule</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+        <div class="bg-surface border border-outline-variant p-lg rounded-2xl flex items-center gap-md hover:-translate-y-1 hover:shadow-xl hover:border-blue-500/40 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined">calendar_today</span>
+            </div>
+            <div>
+                <p class="text-label-sm font-bold text-outline uppercase">Total Schedules</p>
+                <h3 class="text-headline-sm font-bold text-blue-600">{{ all_schedules|length }}</h3>
+            </div>
+        </div>
+        <div class="bg-surface border border-outline-variant p-lg rounded-2xl flex items-center gap-md hover:-translate-y-1 hover:shadow-xl hover:border-amber-500/40 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined">pending_actions</span>
+            </div>
+            <div>
+                <p class="text-label-sm font-bold text-outline uppercase">Pending Approval</p>
+                <h3 class="text-headline-sm font-bold text-amber-500">{{ pending_schedules|length }}</h3>
+            </div>
+        </div>
+        <div class="bg-surface border border-outline-variant p-lg rounded-2xl flex items-center gap-md hover:-translate-y-1 hover:shadow-xl hover:border-sky-500/40 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined">check_circle</span>
+            </div>
+            <div>
+                <p class="text-label-sm font-bold text-outline uppercase">Approved Active</p>
+                <h3 class="text-headline-sm font-bold text-sky-600">{{ approved_schedules|length }}</h3>
+            </div>
+        </div>
+        <div class="bg-surface border border-outline-variant p-lg rounded-2xl flex items-center gap-md hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/40 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined">format_list_numbered</span>
+            </div>
+            <div>
+                <p class="text-label-sm font-bold text-outline uppercase">Total Scheduled Classes</p>
+                <h3 class="text-headline-sm font-bold text-indigo-600">
+                    {% set ns = namespace(total=0) %}
+                    {% for s in all_schedules %}{% set ns.total = ns.total + s.total_classes %}{% endfor %}
+                    {{ ns.total }} Classes
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Instructor Proposals Section -->
+    {% if pending_schedules %}
+    <div class="bg-amber-500/5 border border-amber-500/30 rounded-2xl p-lg space-y-md">
+        <h3 class="text-title-lg font-bold text-amber-600 flex items-center gap-xs">
+            <span class="material-symbols-outlined">pending</span> Pending Instructor Proposals ({{ pending_schedules|length }})
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+            {% for s in pending_schedules %}
+            <div class="bg-surface border border-outline-variant p-md rounded-2xl space-y-sm shadow-sm hover:shadow-md transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-blue-600 block">{{ s.course.title }}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 uppercase">Pending Approval</span>
+                </div>
+                <h4 class="font-bold text-on-surface text-title-sm">{{ s.title }}</h4>
+                <p class="text-xs text-on-surface-variant">Instructor: <strong>{{ s.instructor.name }}</strong></p>
+                <div class="text-xs space-y-1 text-on-surface-variant bg-surface-variant/40 p-sm rounded-lg">
+                    <p>🗓️ <strong>Days:</strong> {{ s.days_of_week }}</p>
+                    <p>⏰ <strong>Timing:</strong> {{ s.start_time }} - {{ s.end_time }}</p>
+                    <p>📆 <strong>Duration:</strong> {{ s.start_date.strftime('%b %d') }} to {{ s.end_date.strftime('%b %d, %Y') }}</p>
+                    <p>📊 <strong>Total Classes (Auto Calculated):</strong> <strong class="text-blue-600 font-bold">{{ s.total_classes }} Classes</strong></p>
+                </div>
+
+                <div class="flex items-center gap-sm pt-xs border-t border-outline-variant">
+                    <form method="POST" action="{{ url_for('admin.schedules') }}" class="flex-1">
+                        <input type="hidden" name="action" value="approve_schedule">
+                        <input type="hidden" name="schedule_id" value="{{ s.id }}">
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs transition-colors shadow">
+                            Approve Schedule
+                        </button>
+                    </form>
+                    <button type="button" onclick="openRejectModal('{{ s.id }}')"
+                        class="bg-red-500/10 hover:bg-red-500 hover:text-white text-red-600 font-bold px-md py-2 rounded-xl text-xs transition-colors">
+                        Reject
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All Approved Schedules Grid -->
+    <div class="bg-surface border border-outline-variant rounded-2xl p-lg space-y-md">
+        <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-600">calendar_month</span>
+            Published & Approved Course Schedules
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+            {% for s in all_schedules %}
+            <div class="border border-outline-variant rounded-2xl p-md space-y-sm bg-surface hover:-translate-y-1.5 hover:shadow-2xl hover:border-blue-500/60 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between">
+                <div class="space-y-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-blue-600 uppercase">{{ s.course.title }}</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full 
+                            {% if s.status == 'approved' %}bg-blue-500/20 text-blue-600
+                            {% elif s.status == 'pending_approval' %}bg-amber-500/20 text-amber-600
+                            {% else %}bg-red-500/20 text-red-600{% endif %} uppercase">
+                            {{ s.status }}
+                        </span>
+                    </div>
+                    <h4 class="font-bold text-on-surface text-title-sm">{{ s.title }}</h4>
+                    <p class="text-xs text-on-surface-variant">Instructor: <strong>{{ s.instructor.name }}</strong></p>
+
+                    <div class="text-xs space-y-1.5 text-on-surface-variant bg-blue-500/5 border border-blue-500/10 p-sm rounded-xl">
+                        <p class="flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-sm text-blue-500">calendar_month</span>
+                            <span><strong>Days:</strong> {{ s.days_of_week }}</span>
+                        </p>
+                        <p class="flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-sm text-sky-500">schedule</span>
+                            <span><strong>Timing:</strong> {{ s.start_time }} - {{ s.end_time }}</span>
+                        </p>
+                        <p class="flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-sm text-indigo-500">date_range</span>
+                            <span><strong>Dates:</strong> {{ s.start_date.strftime('%b %d') }} to {{ s.end_date.strftime('%b %d, %Y') }}</span>
+                        </p>
+                    </div>
+
+                    <div class="flex justify-between items-center bg-surface-variant/40 p-sm rounded-xl text-xs font-bold">
+                        <span class="text-outline">Auto Calculated Classes:</span>
+                        <span class="text-blue-600 text-title-sm font-bold">{{ s.total_classes }} Classes</span>
+                    </div>
+                </div>
+
+                <!-- Card Action Buttons -->
+                <div class="pt-sm border-t border-outline-variant/30 flex items-center gap-2">
+                    <button type="button" onclick="openEditAdminScheduleModal({{ s.id }}, '{{ s.title|e }}', '{{ s.course_id }}', '{{ s.days_of_week|e }}', '{{ s.start_time|e }}', '{{ s.end_time|e }}', '{{ s.start_date.strftime('%Y-%m-%d') }}', '{{ s.end_date.strftime('%Y-%m-%d') }}', '{{ s.room_or_link or ''|e }}')"
+                        class="flex-1 bg-amber-500/10 hover:bg-amber-500 text-amber-600 hover:text-white font-bold py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-1 shadow-xs">
+                        <span class="material-symbols-outlined text-sm">edit</span>
+                        <span>Edit</span>
+                    </button>
+                    <form method="POST" action="{{ url_for('admin.schedules') }}" onsubmit="return confirm('Are you sure you want to delete this schedule?');" class="inline">
+                        <input type="hidden" name="action" value="delete_schedule">
+                        <input type="hidden" name="schedule_id" value="{{ s.id }}">
+                        <button type="submit" class="p-2 bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white rounded-xl text-xs transition-all flex items-center justify-center shadow-xs" title="Delete Schedule">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </form>
+                    <button type="button" onclick="openAdminScheduleModal('{{ s.title|e }}', '{{ s.course.title|e }}', '{{ s.instructor.name|e }}', '{{ s.days_of_week|e }}', '{{ s.start_time }} - {{ s.end_time }}', '{{ s.start_date.strftime('%b %d') }} to {{ s.end_date.strftime('%b %d, %Y') }}', '{{ s.room_or_link or 'Online'|e }}', '{{ s.completed_classes }}', '{{ s.total_classes }}', '{{ s.status }}')"
+                        class="flex-1 bg-blue-500/10 hover:bg-blue-600 text-blue-600 hover:text-white font-bold py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-1 shadow-xs">
+                        <span class="material-symbols-outlined text-sm">open_in_full</span>
+                        <span>View</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Admin Detail Modal -->
+<div id="adminSchedModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-xl shadow-2xl space-y-md animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <div>
+                <span id="as_course" class="text-xs font-bold text-blue-600 uppercase">Course</span>
+                <h3 id="as_title" class="text-title-lg font-bold text-on-surface">Title</h3>
+            </div>
+            <button onclick="document.getElementById('adminSchedModal').classList.add('hidden')" class="text-on-surface-variant">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+        <div class="space-y-sm text-sm">
+            <div class="bg-blue-500/5 border border-blue-500/20 p-md rounded-xl space-y-2 text-on-surface-variant">
+                <p>👨‍🏫 <strong>Instructor:</strong> <span id="as_inst" class="font-bold text-on-surface"></span></p>
+                <p>🗓️ <strong>Days:</strong> <span id="as_days" class="font-bold text-on-surface"></span></p>
+                <p>⏰ <strong>Timing:</strong> <span id="as_time" class="font-bold text-on-surface"></span></p>
+                <p>📆 <strong>Dates:</strong> <span id="as_duration" class="font-bold text-on-surface"></span></p>
+                <p>📍 <strong>Venue:</strong> <span id="as_venue" class="font-bold text-blue-600"></span></p>
+                <p>📊 <strong>Total Classes:</strong> <span id="as_classes" class="font-bold text-indigo-600"></span></p>
+            </div>
+        </div>
+        <div class="flex justify-end pt-sm border-t border-outline-variant">
+            <button type="button" onclick="document.getElementById('adminSchedModal').classList.add('hidden')"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-xl py-md rounded-xl text-sm shadow-md">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Schedule Modal -->
+<div id="editScheduleModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center hidden p-md" style="overflow-y:auto;">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-xl shadow-2xl space-y-md my-8">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-500">edit_calendar</span> Edit Course Schedule
+            </h3>
+            <button onclick="document.getElementById('editScheduleModal').classList.add('hidden')" class="text-on-surface-variant">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('admin.schedules') }}" class="space-y-md">
+            <input type="hidden" name="action" value="edit_schedule">
+            <input type="hidden" name="schedule_id" id="edit_sched_id">
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Target Course</label>
+                <select name="course_id" id="edit_sched_course_id" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary font-bold">
+                    {% for c in courses %}
+                    <option value="{{ c.id }}">{{ c.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Schedule Title / Topic</label>
+                <input type="text" name="title" id="edit_sched_title" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Days of Week (e.g. Monday, Wednesday, Friday)</label>
+                <input type="text" name="days_of_week" id="edit_sched_days" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+            </div>
+            <div class="grid grid-cols-2 gap-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Start Time</label>
+                    <input type="text" name="start_time" id="edit_sched_start_time" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">End Time</label>
+                    <input type="text" name="end_time" id="edit_sched_end_time" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Start Date</label>
+                    <input type="date" name="start_date" id="edit_sched_start_date" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">End Date</label>
+                    <input type="date" name="end_date" id="edit_sched_end_date" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Room / Venue / Link</label>
+                <input type="text" name="room_or_link" id="edit_sched_room" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+            </div>
+            <div class="flex items-center gap-md pt-sm border-t border-outline-variant">
+                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-md flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-sm">save</span> Save Changes
+                </button>
+                <button type="button" onclick="document.getElementById('editScheduleModal').classList.add('hidden')" class="px-xl py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-sm transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAdminScheduleModal(title, course, inst, days, time, duration, venue, completed, total, status) {
+    document.getElementById('as_title').innerText = title;
+    document.getElementById('as_course').innerText = course;
+    document.getElementById('as_inst').innerText = inst;
+    document.getElementById('as_days').innerText = days;
+    document.getElementById('as_time').innerText = time;
+    document.getElementById('as_duration').innerText = duration;
+    document.getElementById('as_venue').innerText = venue;
+    document.getElementById('as_classes').innerText = total + " Planned Classes";
+    document.getElementById('adminSchedModal').classList.remove('hidden');
+}
+
+function openEditAdminScheduleModal(id, title, courseId, days, startTime, endTime, startDate, endDate, room) {
+    document.getElementById('edit_sched_id').value = id;
+    document.getElementById('edit_sched_title').value = title;
+    document.getElementById('edit_sched_course_id').value = courseId;
+    document.getElementById('edit_sched_days').value = days;
+    document.getElementById('edit_sched_start_time').value = startTime;
+    document.getElementById('edit_sched_end_time').value = endTime;
+    document.getElementById('edit_sched_start_date').value = startDate;
+    document.getElementById('edit_sched_end_date').value = endDate;
+    document.getElementById('edit_sched_room').value = room;
+    document.getElementById('editScheduleModal').classList.remove('hidden');
+}
+</script>
+{% endblock %}

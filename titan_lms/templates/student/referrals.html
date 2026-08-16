@@ -1,0 +1,136 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Refer Friends & Earn Points | Titan LMS{% endblock %}
+
+{% block student_content %}
+<div class="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8 animate-fade-in">
+    <!-- Header Hero Card -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-[#00008C] via-[#0000B3] to-[#000066] p-6 sm:p-8 rounded-3xl border-2 border-blue-500/30 shadow-2xl text-white flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-blue-500/20 border border-blue-400/30 text-blue-200 flex items-center justify-center font-bold shrink-0 shadow-lg shadow-blue-500/20">
+                <span class="material-symbols-outlined text-3xl animate-bounce">card_giftcard</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight">Refer Friends & Earn Points</h1>
+                    <span class="px-3 py-1 bg-blue-500/30 text-blue-100 border border-blue-400/40 text-xs font-extrabold rounded-full uppercase">500 PTS per Invite</span>
+                </div>
+                <p class="text-xs sm:text-sm text-blue-100/90 mt-1">Invite your classmates and friends to Titan LMS. Earn 500 Titan Points for every friend who joins, and convert points into 25% OFF course coupons!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Referral Stats Bar -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+        <div class="bg-white p-6 rounded-2xl border-2 border-outline-variant/20 shadow-md flex items-center justify-between hover:shadow-xl transition-all">
+            <div>
+                <span class="text-xs font-extrabold text-outline uppercase tracking-wider block">Your Points Balance</span>
+                <span class="text-2xl sm:text-3xl font-extrabold text-primary">{{ current_user.points }} PTS</span>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-blue-100 text-primary flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-2xl">stars</span>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border-2 border-outline-variant/20 shadow-md flex items-center justify-between hover:shadow-xl transition-all">
+            <div>
+                <span class="text-xs font-extrabold text-outline uppercase tracking-wider block">Total Friends Invited</span>
+                <span class="text-2xl sm:text-3xl font-extrabold text-primary">{{ referrals|length }} Friends</span>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-blue-100 text-primary flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-2xl">group_add</span>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border-2 border-outline-variant/20 shadow-md flex items-center justify-between hover:shadow-xl transition-all">
+            <div>
+                <span class="text-xs font-extrabold text-outline uppercase tracking-wider block">Redemption Value</span>
+                <span class="text-2xl sm:text-3xl font-extrabold text-primary">25% OFF Vouchers</span>
+            </div>
+            <div class="w-12 h-12 rounded-xl bg-blue-100 text-primary flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-2xl">local_offer</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copy Link & Claim Vouchers Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        <!-- Referral Link Card -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-4">
+            <h3 class="text-lg font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">link</span> Your Unique Invite Link
+            </h3>
+            <p class="text-xs text-outline">Share this link with your friends. When they sign up, 500 Titan Points will be credited to your account automatically.</p>
+
+            <div class="flex items-center gap-2 bg-surface-container-low p-2 rounded-2xl border-2 border-blue-200">
+                <input type="text" readonly value="{{ referral_url }}" id="ref-url" class="bg-transparent border-none w-full text-xs sm:text-sm font-mono font-bold text-blue-900 focus:ring-0">
+                <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('ref-url').value); alert('🎉 Referral link copied to clipboard!');" class="bg-primary hover:bg-primary-container text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1 shrink-0 transition-all shadow-md">
+                    <span class="material-symbols-outlined text-sm">content_copy</span> Copy
+                </button>
+            </div>
+
+            <div class="pt-2 flex items-center gap-3">
+                <span class="text-xs font-bold text-outline uppercase">Share via:</span>
+                <button onclick="window.open('https://api.whatsapp.com/send?text=Join%20Titan%20LMS%20with%20my%20invite%20link:%20' + encodeURIComponent(document.getElementById('ref-url').value));" class="bg-emerald-600 text-white p-2 px-3 rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-emerald-700 shadow-sm">
+                    <span class="material-symbols-outlined text-sm">share</span> WhatsApp
+                </button>
+            </div>
+        </div>
+
+        <!-- Redeem Vouchers Card -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-4 flex flex-col justify-between">
+            <div class="space-y-2">
+                <h3 class="text-lg font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">redeem</span> Convert Points to Coupon
+                </h3>
+                <p class="text-xs text-outline">Redeem 500 Titan Points to generate an instant 25% OFF Promo Coupon for any course tuition fee.</p>
+            </div>
+
+            <div class="bg-blue-50/70 p-4 rounded-2xl border border-blue-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-3xl text-primary">local_offer</span>
+                    <div>
+                        <p class="font-extrabold text-sm text-blue-900">25% OFF Course Coupon</p>
+                        <p class="text-xs text-blue-700">Cost: 500 Points</p>
+                    </div>
+                </div>
+                <form method="POST" action="{{ url_for('student.claim_referral_coupon') }}">
+                    <button type="submit" {% if current_user.points < 500 %}disabled{% endif %} class="bg-primary hover:bg-primary-container disabled:opacity-50 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all">
+                        Redeem Coupon
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Referral History Table -->
+    <div class="bg-white p-6 sm:p-8 rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-4">
+        <h3 class="text-lg font-bold text-on-surface">Referral History & Rewards Log</h3>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-100 text-xs font-bold text-outline uppercase">
+                        <th class="py-3 px-4">Invited Friend</th>
+                        <th class="py-3 px-4">Date Joined</th>
+                        <th class="py-3 px-4">Points Awarded</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                    {% for r in referrals %}
+                    <tr>
+                        <td class="py-3 px-4 font-bold text-on-surface">{{ r.referred_email }}</td>
+                        <td class="py-3 px-4 text-slate-500">{{ r.created_at.strftime('%b %d, %Y') }}</td>
+                        <td class="py-3 px-4 font-extrabold text-primary">+{{ r.points_awarded }} PTS</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="py-8 text-center text-slate-400 text-xs">No referral invites recorded yet. Share your link above to start earning points!</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

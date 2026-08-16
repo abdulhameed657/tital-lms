@@ -1,0 +1,92 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Rewards Store | Titan LMS{% endblock %}
+
+{% block student_content %}
+<div class="max-w-container-max mx-auto px-gutter py-xl space-y-xl">
+    <!-- Header -->
+    <header class="bg-gradient-to-br from-primary to-primary-container text-white p-lg md:p-xl rounded-xl shadow-xl flex flex-col md:flex-row justify-between items-center gap-lg slide-from-top">
+        <div>
+            <h1 class="text-display-lg-mobile md:text-headline-lg font-headline-lg leading-tight">Titan Rewards Store</h1>
+            <p class="text-body-md opacity-90 mt-1">Convert your academic XP points into verified profile badges and cloud credits.</p>
+        </div>
+        <div class="bg-white/10 backdrop-blur-md border border-white/20 px-xl py-4 rounded-xl text-center shrink-0">
+            <span class="block text-label-sm opacity-80 uppercase tracking-widest font-bold">Your Balance</span>
+            <span class="text-display-lg-mobile md:text-headline-lg font-bold text-tertiary-fixed flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">stars</span>
+                {{ current_user.points }} pts
+            </span>
+        </div>
+    </header>
+
+    <!-- Reward Items Grid -->
+    <section class="space-y-md overflow-hidden">
+        <h2 class="text-headline-sm font-headline-md text-on-surface border-b border-outline-variant/10 pb-2">Academic Perks</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+            {% for item in items %}
+            {% set directions = ['slide-from-left', 'slide-from-right', 'slide-from-bottom'] %}
+            {% set anim_class = directions[loop.index0 % 3] %}
+            <div class="bg-white rounded-xl shadow-sm border border-outline-variant/20 p-lg hover:scale-[1.03] hover:shadow-lg hover:border-primary/30 transition-all duration-300 flex flex-col justify-between min-h-[220px] {{ anim_class }}" style="animation-delay: {{ 0.1 * loop.index0 }}s;">
+                <div class="flex justify-between items-start mb-md">
+                    <div class="w-12 h-12 bg-primary/10 text-primary rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">{{ item.icon or 'redeem' }}</span>
+                    </div>
+                    <span class="bg-surface-container px-3 py-1 rounded-full text-label-sm font-bold text-primary">{{ item.points_cost }} PTS</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-on-surface text-body-lg leading-tight mb-1">{{ item.name }}</h3>
+                    <p class="text-body-sm text-on-surface-variant line-clamp-2">{{ item.description }}</p>
+                </div>
+                <div class="pt-lg border-t border-outline-variant/10 mt-md">
+                    <form action="{{ url_for('student.rewards_store') }}" method="POST">
+                        <input type="hidden" name="reward_item_id" value="{{ item.id }}">
+                        <button type="submit" class="w-full bg-primary hover:bg-primary-container text-white py-2 rounded-lg font-bold text-label-sm transition-colors active:scale-95">
+                            Redeem Item
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Buyable Badges Grid -->
+    <section class="space-y-md overflow-hidden">
+        <h2 class="text-headline-sm font-headline-md text-on-surface border-b border-outline-variant/10 pb-2">Buyable Profile Badges</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
+            {% for badge in badges %}
+            {% set directions = ['slide-from-bottom', 'slide-from-top', 'slide-from-left', 'slide-from-right'] %}
+            {% set anim_class = directions[loop.index0 % 4] %}
+            <div class="bg-white rounded-xl shadow-sm border border-outline-variant/20 p-lg hover:scale-[1.03] hover:shadow-lg hover:border-tertiary/30 transition-all duration-300 text-center flex flex-col justify-between min-h-[240px] relative {{ anim_class }}" style="animation-delay: {{ 0.1 * loop.index0 }}s;">
+                
+                {% if badge.id in user_badges %}
+                <div class="absolute top-2 right-2 bg-tertiary text-on-tertiary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                    OWNED
+                </div>
+                {% endif %}
+
+                <div class="flex flex-col items-center gap-3">
+                    <div class="w-16 h-16 rounded-full bg-tertiary-fixed flex items-center justify-center border-4 border-tertiary shadow-md shrink-0">
+                        <span class="material-symbols-outlined text-on-tertiary-fixed text-3xl" style="font-variation-settings: 'FILL' 1;">{{ badge.icon or 'workspace_premium' }}</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-on-surface text-body-md leading-tight mb-1">{{ badge.name }}</h3>
+                        <p class="text-[11px] text-on-surface-variant leading-relaxed line-clamp-2">{{ badge.description }}</p>
+                    </div>
+                </div>
+                
+                <div class="pt-md border-t border-outline-variant/10 mt-md">
+                    <form action="{{ url_for('student.rewards_store') }}" method="POST">
+                        <input type="hidden" name="badge_id" value="{{ badge.id }}">
+                        <button type="submit" class="w-full border border-primary text-primary py-2 rounded-lg font-bold text-label-sm hover:bg-primary/5 active:scale-95 transition-colors"
+                                {% if badge.id in user_badges %}disabled{% endif %}>
+                            {% if badge.id in user_badges %}Already Owned{% else %}Acquire for {{ badge.points_cost }} PTS{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

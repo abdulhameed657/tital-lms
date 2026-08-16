@@ -1,0 +1,1594 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}Titan LMS | Master Your Future{% endblock %}
+
+{% block head %}
+<style>
+    .sparkline-bar {
+        transition: height 0.5s ease-out;
+    }
+
+    @keyframes flyLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-60px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes flyRight {
+        from {
+            opacity: 0;
+            transform: translateX(60px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes flyUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes flyDown {
+        from {
+            opacity: 0;
+            transform: translateY(-40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fly-left {
+        animation: flyLeft 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .fly-right {
+        animation: flyRight 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .fly-up {
+        animation: flyUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .fly-down {
+        animation: flyDown 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes slideFromBottom {
+        from {
+            opacity: 0;
+            transform: translateY(45px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideFromLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-45px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideFromRight {
+        from {
+            opacity: 0;
+            transform: translateX(45px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .animate-home-left {
+        animation: slideFromLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .animate-home-right {
+        animation: slideFromRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .animate-home-bg {
+        animation: slideFromBottom 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes floatSlow {
+
+        0%,
+        100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(-12px) rotate(0.5deg);
+        }
+    }
+
+    @keyframes floatDelayed {
+
+        0%,
+        100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(12px) rotate(-0.5deg);
+        }
+    }
+
+    @keyframes borderBeam {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* 3D Emerge from Side Animation */
+    @keyframes emerge3DRight {
+        0% {
+            opacity: 0;
+            transform: perspective(1200px) translateX(160px) rotateY(-30deg) rotateZ(5deg) scale(0.65);
+        }
+
+        70% {
+            opacity: 1;
+            transform: perspective(1200px) translateX(-15px) rotateY(6deg) rotateZ(-1deg) scale(1.04);
+        }
+
+        100% {
+            opacity: 1;
+            transform: perspective(1200px) translateX(0px) rotateY(0deg) rotateZ(0deg) scale(1);
+        }
+    }
+
+    /* Organic Liquid Morphing Shape Animation */
+    @keyframes liquidMorph {
+
+        0%,
+        100% {
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            transform: rotate(0deg) scale(1);
+        }
+
+        33% {
+            border-radius: 30% 60% 70% 30% / 50% 60% 30% 60%;
+            transform: rotate(120deg) scale(1.08);
+        }
+
+        66% {
+            border-radius: 70% 30% 50% 50% / 30% 40% 60% 70%;
+            transform: rotate(240deg) scale(0.92);
+        }
+    }
+
+    .animate-emerge-3d {
+        animation: emerge3DRight 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .animate-liquid-morph {
+        animation: liquidMorph 14s ease-in-out infinite;
+    }
+
+    /* True Crystal Glassmorphism Utility Classes */
+    .glass-frosted-amber {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(15, 23, 42, 0.45) 100%) !important;
+        backdrop-filter: blur(24px) saturate(200%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+        border: 1.5px solid rgba(245, 158, 11, 0.6) !important;
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4) !important;
+    }
+
+    .glass-frosted-emerald {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(15, 23, 42, 0.45) 100%) !important;
+        backdrop-filter: blur(24px) saturate(200%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+        border: 1.5px solid rgba(16, 185, 129, 0.6) !important;
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4) !important;
+    }
+
+    .glass-frosted-frame {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 58, 138, 0.4) 100%) !important;
+        backdrop-filter: blur(30px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+        border: 1.5px solid rgba(59, 130, 246, 0.45) !important;
+        box-shadow: 0 25px 80px 0 rgba(0, 0, 0, 0.65), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25) !important;
+    }
+
+    /* Inner Console Card Glassmorphism */
+    .glass-inner-card {
+        background: rgba(15, 23, 42, 0.45) !important;
+        backdrop-filter: blur(16px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .glass-inner-card-active {
+        background: linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(245, 158, 11, 0.2) 100%) !important;
+        backdrop-filter: blur(20px) saturate(200%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
+        border: 2px solid rgba(245, 158, 11, 0.75) !important;
+        box-shadow: 0 10px 35px 0 rgba(245, 158, 11, 0.3), inset 0 1px 1px 0 rgba(255, 255, 255, 0.35) !important;
+    }
+
+    .hero-bg-gradient {
+        background:
+            radial-gradient(circle at 20% 15%, rgba(2, 70, 179, 0.4) 0%, transparent 45%),
+            radial-gradient(circle at 85% 25%, rgba(70, 34, 154, 0.35) 0%, transparent 50%),
+            radial-gradient(circle at 50% 80%, rgba(255, 162, 0, 0.25) 0%, transparent 55%),
+            radial-gradient(ellipse at 50% 0%, rgba(30, 58, 138, 0.8) 0%, rgba(15, 23, 42, 0.98) 70%, rgba(2, 6, 23, 1) 100%);
+    }
+
+    .hero-grid-pattern {
+        background-image:
+            linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        background-size: 36px 36px;
+    }
+
+    .animate-float-slow {
+        animation: floatSlow 6s ease-in-out infinite;
+    }
+
+    .animate-float-delayed {
+        animation: floatDelayed 7s ease-in-out infinite 1.5s;
+    }
+
+    .glow-gold-lg {
+        box-shadow: 0 0 30px rgba(245, 158, 11, 0.5), 0 0 60px rgba(245, 158, 11, 0.25);
+    }
+
+    .glow-blue-lg {
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.4), 0 0 60px rgba(59, 130, 246, 0.15);
+    }
+</style>
+{% if tenant and tenant.primary_color %}
+<style>
+    .bg-primary {
+        background-color: {
+                {
+                tenant.primary_color
+            }
+        }
+
+        !important;
+    }
+
+    .text-primary {
+        color: {
+                {
+                tenant.primary_color
+            }
+        }
+
+        !important;
+    }
+
+    .border-primary {
+        border-color: {
+                {
+                tenant.primary_color
+            }
+        }
+
+        !important;
+    }
+</style>
+{% endif %}
+{% endblock %}
+
+{% block public_content %}
+<style>
+    @font-face {
+        font-family: 'Space Grotesk';
+        font-style: normal;
+    }
+
+    .font-space {
+        font-family: 'Space Grotesk', 'Outfit', sans-serif !important;
+    }
+
+    /* Animated Aurora Gradient Mesh Background */
+    @keyframes auroraShift {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    .aurora-bg {
+        background: linear-gradient(-45deg, #0f2484, #0f172a, #080073, #00008f, #0284c7, #0f172a);
+        background-size: 400% 400%;
+        animation: auroraShift 20s ease infinite;
+    }
+
+    /* Floating Animations for Tech Logos */
+    @keyframes floatTech1 {
+
+        0%,
+        100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(-14px) rotate(2deg);
+        }
+    }
+
+    @keyframes floatTech2 {
+
+        0%,
+        100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+
+        50% {
+            transform: translateY(16px) rotate(-3deg);
+        }
+    }
+
+    @keyframes floatTech3 {
+
+        0%,
+        100% {
+            transform: translateY(0px) scale(1);
+        }
+
+        50% {
+            transform: translateY(-10px) scale(1.05);
+        }
+    }
+
+    .animate-float-1 {
+        animation: floatTech1 5s ease-in-out infinite;
+    }
+
+    .animate-float-2 {
+        animation: floatTech2 6s ease-in-out infinite 1s;
+    }
+
+    .animate-float-3 {
+        animation: floatTech3 7s ease-in-out infinite 0.5s;
+    }
+
+    /* Button Hover Ripple & Glow Effects */
+    .btn-glow-gold {
+        box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), 0 0 50px rgba(245, 158, 11, 0.2);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-glow-gold:hover {
+        box-shadow: 0 0 35px rgba(245, 158, 11, 0.7), 0 0 70px rgba(245, 158, 11, 0.4);
+        transform: translateY(-3px) scale(1.02);
+    }
+
+    /* Continuous Gold Gradient Shine Animation for "Titan LMS" */
+    @keyframes amberShine {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    .text-amber-shine {
+        background: linear-gradient(90deg, #fbbf24, #f59e0b, #ffe088, #ffffff, #f59e0b, #fbbf24);
+        background-size: 250% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: amberShine 4s linear infinite;
+        filter: drop-shadow(0 4px 25px rgba(245, 158, 11, 0.45));
+    }
+
+    /* Line-by-Line Fade-Up Animations for Heading */
+    @keyframes lineFadeUp {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .anim-line-1 {
+        animation: lineFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s;
+    }
+
+    .anim-line-2 {
+        animation: lineFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
+    }
+
+    .anim-line-3 {
+        animation: lineFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.5s;
+    }
+
+    /* Deep 3D Glassmorphism Badges with Specular Highlight and Layered Shadow */
+    .badge-3d-depth {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.85));
+        backdrop-filter: blur(20px) saturate(200%);
+        -webkit-backdrop-filter: blur(20px) saturate(200%);
+        box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.3), inset 0 -2px 5px rgba(0, 0, 0, 0.5);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .badge-3d-depth:hover {
+        transform: translateY(-8px) scale(1.1);
+        box-shadow: 0 25px 45px -5px rgba(0, 0, 0, 0.85), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    }
+
+    /* Card Glassmorphic Parallax */
+    .glass-card-hero {
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(24px) saturate(190%);
+        -webkit-backdrop-filter: blur(24px) saturate(190%);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    }
+</style>
+
+<!-- World-Class 3D Hero Section -->
+<section
+    class="relative min-h-0 sm:min-h-[820px] aurora-bg flex items-center overflow-hidden py-10 sm:py-xxl text-white"
+    x-data="{ tiltX: 0, tiltY: 0 }"
+    @mousemove="tiltX = ($event.clientX - window.innerWidth/2) / 45; tiltY = ($event.clientY - window.innerHeight/2) / 45">
+
+    <!-- Background Grid & Glowing Orbs -->
+    <div class="absolute inset-0 hero-grid-pattern opacity-40 pointer-events-none"></div>
+    <div
+        class="absolute top-10 left-10 w-96 h-96 bg-blue-600/30 rounded-full blur-[120px] pointer-events-none animate-pulse">
+    </div>
+    <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-600/25 rounded-full blur-[120px] pointer-events-none">
+    </div>
+    <div class="absolute top-1/2 left-1/3 w-80 h-80 bg-amber-500/20 rounded-full blur-[100px] pointer-events-none">
+    </div>
+
+    <div class="relative z-10 max-w-container-max mx-auto px-gutter w-full space-y-xl pt-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-32 items-center">
+
+            <!-- Left Column: High-Impact Typography & Interactive Prompt -->
+            <div class="lg:col-span-5 space-y-lg text-left animate-home-left pr-0 lg:pr-4">
+                <!-- Pill Announcement Badge -->
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 border border-amber-400/40 backdrop-blur-xl shadow-xl hover:border-amber-400 transition-all cursor-pointer">
+                    <span class="flex h-2 w-2 relative">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+                    </span>
+                    <span class="text-xs font-bold tracking-wider uppercase text-slate-200 font-space">
+                        {% if tenant %}{{ tenant.name }} Enterprise Sub-Portal{% else %}✨ TITAN LMS 3.0 — AI ADAPTIVE
+                        LEARNING{% endif %}
+                    </span>
+                    <span class="material-symbols-outlined text-xs text-amber-400">arrow_forward</span>
+                </div>
+
+                <!-- 3-Line Animated Headline with Line-by-Line Fade Up & Yellow Gradient Shine -->
+                <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.15] tracking-tight font-space"
+                    style="font-family: 'Space Grotesk', sans-serif;">
+                    <span class="block anim-line-1">Master Tech</span>
+                    <span class="block anim-line-2 text-slate-100">Leadership With</span>
+                    <span class="block anim-line-3 text-amber-shine">
+                        {% if tenant %}{{ tenant.name }}{% else %}Titan LMS.{% endif %}
+                    </span>
+                </h1>
+
+                <!-- Subtitle in Inter -->
+                <p class="text-sm sm:text-lg text-slate-300 max-w-xl leading-relaxed font-normal">
+                    The world’s most advanced adaptive learning environment. Master System Architecture, AI Engineering
+                    & Fullstack Systems with 100% hands-on live labs.
+                </p>
+
+                <!-- Search Bar -->
+                <div
+                    class="bg-slate-900/90 border border-slate-700/80 p-2 sm:p-2.5 rounded-2xl shadow-2xl backdrop-blur-xl max-w-xl">
+                    <form action="{{ url_for('public.courses') }}" method="GET"
+                        class="flex flex-col sm:flex-row items-center gap-2">
+                        <div class="flex items-center w-full">
+                            <span class="material-symbols-outlined text-slate-400 ml-2 sm:ml-3 shrink-0">search</span>
+                            <input type="text" name="q" placeholder="What skill do you want to master today?..."
+                                class="bg-transparent text-white text-xs sm:text-sm focus:outline-none w-full placeholder-slate-400 py-2 font-medium">
+                        </div>
+                        <button type="submit"
+                            class="w-full sm:w-auto bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs px-5 py-3 rounded-xl transition-all shadow-md shrink-0 flex items-center justify-center gap-1 touch-target">
+                            Explore
+                            <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                        </button>
+                    </form>
+                    <!-- Quick Tag Pills -->
+                    <div
+                        class="flex items-center gap-2 px-2 sm:px-3 pt-2 pb-1 text-[11px] text-slate-400 overflow-x-auto">
+                        <span class="font-bold text-slate-400 shrink-0">Popular:</span>
+                        <a href="{{ url_for('public.courses') }}?q=System+Design"
+                            class="hover:text-amber-400 bg-slate-800/80 px-2.5 py-0.5 rounded border border-slate-700 shrink-0">System
+                            Design</a>
+                        <a href="{{ url_for('public.courses') }}?q=AI"
+                            class="hover:text-amber-400 bg-slate-800/80 px-2.5 py-0.5 rounded border border-slate-700 shrink-0">AI
+                            Engineering</a>
+                        <a href="{{ url_for('public.courses') }}?q=Python"
+                            class="hover:text-amber-400 bg-slate-800/80 px-2.5 py-0.5 rounded border border-slate-700 shrink-0">Python</a>
+                        <a href="{{ url_for('public.courses') }}?q=DevOps"
+                            class="hover:text-amber-400 bg-slate-800/80 px-2.5 py-0.5 rounded border border-slate-700 shrink-0">DevOps</a>
+                    </div>
+                </div>
+
+                <!-- CTAs -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-md pt-xs">
+                    <a href="{{ url_for('auth.login') }}?signup=true"
+                        class="w-full sm:w-auto bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 text-slate-950 font-black text-sm sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl btn-glow-gold flex items-center justify-center gap-2 shadow-2xl font-space touch-target"
+                        style="font-family: 'Space Grotesk', sans-serif;">
+                        <span class="material-symbols-outlined font-bold text-xl">rocket_launch</span>
+                        Join Titan LMS Now
+                    </a>
+                    <a href="{{ url_for('public.leaderboard') }}"
+                        class="w-full sm:w-auto bg-slate-800/80 hover:bg-slate-700/90 text-white font-bold text-sm sm:text-base px-6 sm:px-7 py-3.5 sm:py-4 rounded-xl border border-slate-600/60 backdrop-blur-md hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg font-space touch-target"
+                        style="font-family: 'Space Grotesk', sans-serif;">
+                        <span class="material-symbols-outlined text-amber-400"
+                            style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+                        Global Rankings
+                    </a>
+                </div>
+
+                <!-- Trust Metrics & Verified Rating -->
+                <div
+                    class="pt-md border-t border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+                    <div class="flex items-center gap-3">
+                        <div class="flex -space-x-3 overflow-hidden shrink-0">
+                            <img class="inline-block h-8 w-8 sm:h-10 sm:w-10 rounded-full ring-2 ring-slate-900 object-cover"
+                                src="/static/4.jpg" alt="Student 1">
+                            <img class="inline-block h-8 w-8 sm:h-10 sm:w-10 rounded-full ring-2 ring-slate-900 object-cover"
+                                src="/static/3.png" alt="Student 2">
+                            <img class="inline-block h-8 w-8 sm:h-10 sm:w-10 rounded-full ring-2 ring-slate-900 object-cover"
+                                src="/static/2.jpg" alt="Student 3">
+                            <img class="inline-block h-8 w-8 sm:h-10 sm:w-10 rounded-full ring-2 ring-slate-900 object-cover"
+                                src="/static/1.jpg" alt="Student 4">
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-1 text-amber-400 text-xs sm:text-sm">
+                                <span class="material-symbols-outlined text-sm"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-sm"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-sm"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-sm"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="material-symbols-outlined text-sm"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="font-black text-white ml-1 text-xs sm:text-sm font-space">4.95 / 5.0</span>
+                            </div>
+                            <p class="text-[11px] sm:text-xs text-slate-400 font-medium">Over 50,000+ Enrolled Students
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Enlarged Transparent 3D AI Robot Teacher & Floating Tech Logos -->
+            <div
+                class="lg:col-span-6 lg:col-start-7 relative mt-xl lg:mt-0 flex justify-center items-center pl-0 lg:pl-12 overflow-hidden">
+
+                <!-- Interactive 3D Card Container with Mouse Tilt -->
+                <div class="relative w-full max-w-xl flex items-center justify-center transition-transform duration-200 ease-out"
+                    :style="'transform: perspective(1000px) rotateY(' + tiltX + 'deg) rotateX(' + (-tiltY) + 'deg);'">
+
+                    <!-- Clean Full-Body 3D Standing AI Robot with Laptop PNG (From titan_lms/static/robot.png) -->
+                    <div
+                        class="relative z-10 w-full max-w-lg lg:max-w-xl h-auto flex items-center justify-center group">
+                        <img src="/static/robot.png" alt="3D AI Robot Teacher"
+                            class="w-full h-auto object-contain max-h-[400px] sm:max-h-[640px] drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] group-hover:scale-105 transition-transform duration-700">
+                    </div>
+
+                    <!-- FLOATING TECH LOGO BADGES AROUND ROBOT WITH 3D DEPTH EFFECT -->
+                    <!-- Badge 1: Python 3.12 (Top Left) -->
+                    <div
+                        class="absolute -top-2 left-0 sm:-top-4 sm:left-4 z-20 animate-float-1 badge-3d-depth border border-blue-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(59,130,246,0.6)]">🐍</span>
+                        <div>
+                            <p class="text-[10px] sm:text-xs font-bold font-space">Python 3.12</p>
+                            <p class="text-[8px] sm:text-[10px] text-blue-300 font-semibold">Core Stack</p>
+                        </div>
+                    </div>
+
+                    <!-- Badge 2: AI & Deep Learning (Top Right) -->
+                    <div
+                        class="absolute -top-3 right-0 sm:-top-6 sm:right-4 z-20 animate-float-2 badge-3d-depth border border-amber-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(245,158,11,0.6)]">🧠</span>
+                        <div>
+                            <p class="text-[10px] sm:text-xs font-bold font-space">AI & ML</p>
+                            <p class="text-[8px] sm:text-[10px] text-amber-300 font-semibold">Adaptive Path</p>
+                        </div>
+                    </div>
+
+                    <!-- Badge 3: TensorFlow / PyTorch (Mid Right) -->
+                    <div
+                        class="absolute top-1/2 -right-1 sm:right-2 z-20 animate-float-3 badge-3d-depth border border-orange-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(249,115,22,0.6)]">⚡</span>
+                        <div>
+                            <p class="text-[10px] sm:text-xs font-bold font-space">TensorFlow</p>
+                            <p class="text-[8px] sm:text-[10px] text-orange-300 font-semibold">Neural Labs</p>
+                        </div>
+                    </div>
+
+                    <!-- Badge 4: Docker & K8s (Bottom Left) -->
+                    <div
+                        class="absolute -bottom-3 left-0 sm:-bottom-6 sm:left-4 z-20 animate-float-2 badge-3d-depth border border-cyan-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(6,182,212,0.6)]">🐳</span>
+                        <div>
+                            <p class="text-[10px] sm:text-xs font-bold font-space">Docker & K8s</p>
+                            <p class="text-[8px] sm:text-[10px] text-cyan-300 font-semibold">DevOps Sandbox</p>
+                        </div>
+                    </div>
+
+                    <!-- Badge 5: AWS Cloud (Bottom Right) -->
+                    <div
+                        class="absolute -bottom-2 right-0 sm:-bottom-4 sm:right-4 z-20 animate-float-1 badge-3d-depth border border-emerald-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(16,185,129,0.6)]">☁️</span>
+                        <div>
+                            <p class="text-[10px] sm:text-xs font-bold font-space">AWS Cloud</p>
+                            <p class="text-[8px] sm:text-[10px] text-emerald-300 font-semibold">Architect Track</p>
+                        </div>
+                    </div>
+
+                    <!-- Badge 6: Flutter (Mid Left) -->
+                    <div
+                        class="absolute top-1/2 -left-1 sm:left-6 z-20 animate-float-3 badge-3d-depth border border-purple-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(168,85,247,0.6)]">📱</span>
+                        <div>
+                            <p class="text-[10px] sm:text-xs font-bold font-space">Flutter</p>
+                            <p class="text-[8px] sm:text-[10px] text-purple-300 font-semibold">Cross-Platform</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- High-Impact Live Platform Metrics & Value Propositions Bar (With Count-Up & Glow Cards) -->
+        <div class="pt-xl border-t border-slate-800/80"
+            x-data="{ countStudents: 0, countHours: 0, targetStudents: 50000, targetHours: 1240 }" x-init="
+            let duration = 2000;
+            let start = null;
+            function step(timestamp) {
+                if (!start) start = timestamp;
+                let progress = Math.min((timestamp - start) / duration, 1);
+                countStudents = Math.floor(progress * targetStudents);
+                countHours = Math.floor(progress * targetHours);
+                if (progress < 1) window.requestAnimationFrame(step);
+            }
+            window.requestAnimationFrame(step);
+        ">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-md md:gap-lg">
+                <!-- Metric Card 1: Active Learners -->
+                <div
+                    class="bg-slate-900/70 border border-slate-800 p-3 sm:p-5 rounded-2xl backdrop-blur-2xl hover:border-amber-400/60 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(245,158,11,0.3)] transition-all duration-300 group cursor-pointer overflow-hidden">
+                    <div class="flex items-center gap-2 sm:gap-3.5 min-w-0">
+                        <div
+                            class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0 group-hover:bg-amber-400 group-hover:text-slate-950 transition-all shadow-md">
+                            <span
+                                class="material-symbols-outlined text-amber-400 group-hover:text-slate-950 text-lg sm:text-2xl"
+                                style="font-variation-settings: 'FILL' 1;">groups</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm xs:text-base sm:text-2xl md:text-3xl font-black text-white font-space tracking-tight truncate"
+                                x-text="countStudents.toLocaleString() + '+'">50,000+</div>
+                            <p class="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug mt-0.5 truncate">
+                                Active Learners</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric Card 2: Interactive Labs -->
+                <div
+                    class="bg-slate-900/70 border border-slate-800 p-3 sm:p-5 rounded-2xl backdrop-blur-2xl hover:border-emerald-400/60 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all duration-300 group cursor-pointer overflow-hidden">
+                    <div class="flex items-center gap-2 sm:gap-3.5 min-w-0">
+                        <div
+                            class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center shrink-0 group-hover:bg-emerald-400 group-hover:text-slate-950 transition-all shadow-md">
+                            <span
+                                class="material-symbols-outlined text-emerald-400 group-hover:text-slate-950 text-lg sm:text-2xl"
+                                style="font-variation-settings: 'FILL' 1;">terminal</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div
+                                class="text-sm xs:text-base sm:text-2xl md:text-3xl font-black text-white font-space tracking-tight truncate">
+                                100% Live</div>
+                            <p class="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug mt-0.5 truncate">
+                                Docker Sandbox</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric Card 3: Hours Learned -->
+                <div
+                    class="bg-slate-900/70 border border-slate-800 p-3 sm:p-5 rounded-2xl backdrop-blur-2xl hover:border-blue-400/60 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-300 group cursor-pointer overflow-hidden">
+                    <div class="flex items-center gap-2 sm:gap-3.5 min-w-0">
+                        <div
+                            class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-400/10 border border-blue-400/30 flex items-center justify-center shrink-0 group-hover:bg-blue-400 group-hover:text-slate-950 transition-all shadow-md">
+                            <span
+                                class="material-symbols-outlined text-blue-400 group-hover:text-slate-950 text-lg sm:text-2xl"
+                                style="font-variation-settings: 'FILL' 1;">timer</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-sm xs:text-base sm:text-2xl md:text-3xl font-black text-white font-space tracking-tight truncate"
+                                x-text="countHours.toLocaleString() + '+ hrs'">1,240+ hrs</div>
+                            <p class="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug mt-0.5 truncate">
+                                Hands-On Practice</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric Card 4: Satisfaction Rate -->
+                <div
+                    class="bg-slate-900/70 border border-slate-800 p-3 sm:p-5 rounded-2xl backdrop-blur-2xl hover:border-purple-400/60 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all duration-300 group cursor-pointer overflow-hidden">
+                    <div class="flex items-center gap-2 sm:gap-3.5 min-w-0">
+                        <div
+                            class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-400/10 border border-purple-400/30 flex items-center justify-center shrink-0 group-hover:bg-purple-400 group-hover:text-slate-950 transition-all shadow-md">
+                            <span
+                                class="material-symbols-outlined text-purple-400 group-hover:text-slate-950 text-lg sm:text-2xl"
+                                style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div
+                                class="text-sm xs:text-base sm:text-2xl md:text-3xl font-black text-white font-space tracking-tight truncate">
+                                4.95 / 5.0</div>
+                            <p class="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug mt-0.5 truncate">
+                                Student Rating</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+</section>
+
+<!-- Course highlights section -->
+<section id="courses-section" class="py-xxl bg-surface-container-low border-b border-outline-variant/20">
+    <div class="max-w-container-max mx-auto px-gutter">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-xl gap-md">
+            <div>
+                <span class="text-primary text-label-lg font-bold tracking-widest uppercase">Academic Catalog</span>
+                <h2 class="font-headline-lg text-headline-lg text-on-surface mt-xs">Featured Professional Curriculums
+                </h2>
+            </div>
+            <a href="{{ url_for('public.leaderboard') }}"
+                class="text-primary font-bold hover:underline flex items-center gap-sm">
+                View Global Rankings <span class="material-symbols-outlined">chevron_right</span>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {% for course in courses %}
+            {% set anim_dirs = ['fly-left', 'fly-right', 'fly-up', 'fly-down'] %}
+            {% set anim = anim_dirs[loop.index0 % 4] %}
+            <div class="bg-white rounded-2xl shadow-sm border border-outline-variant/20 overflow-hidden hover:shadow-lg hover:-translate-y-1 hover:border-primary/40 transition-all duration-300 flex flex-col justify-between group {{ anim }}"
+                style="animation-delay: {{ 0.08 * loop.index0 }}s;">
+                <!-- Thumbnail Banner -->
+                <div class="h-32 sm:h-36 relative overflow-hidden shrink-0">
+                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        src="{{ course.thumbnail or 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600' }}"
+                        alt="{{ course.title }}">
+                    <span
+                        class="absolute top-2.5 left-2.5 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider shadow-sm">{{
+                        course.category }}</span>
+                </div>
+                <!-- Card Content -->
+                <div class="p-3.5 sm:p-4 flex-1 flex flex-col justify-between gap-2">
+                    <div class="space-y-1">
+                        <div
+                            class="flex justify-between items-center text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                            <span>Level: {{ course.level }}</span>
+                            <span>{{ course.lessons|length }} Modules</span>
+                        </div>
+                        <h3
+                            class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-primary transition-colors leading-snug line-clamp-1">
+                            {{ course.title }}
+                        </h3>
+                        <p class="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                            {{ course.description }}
+                        </p>
+                    </div>
+                    <!-- Integrated Footer -->
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 mt-1">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            <img class="w-6 h-6 rounded-full object-cover border border-slate-200 shrink-0"
+                                src="{{ course.instructor.avatar_url or 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}"
+                                alt="{{ course.instructor.name }}">
+                            <span class="text-[11px] font-semibold text-slate-700 truncate">{{ course.instructor.name
+                                }}</span>
+                        </div>
+                        <a href="{{ url_for('public.course_detail', course_id=course.id) }}"
+                            class="bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs shrink-0 flex items-center gap-1 touch-target">
+                            Enroll <span
+                                class="material-symbols-outlined text-[14px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Empty State Container (Design from reference code.html) -->
+            <div
+                class="col-span-full w-full bg-white rounded-2xl border border-outline-variant/30 shadow-xl overflow-hidden flex flex-col items-center justify-center py-xxl px-lg text-center min-h-[480px] relative group">
+                <!-- Atmospheric Radial Aura Background -->
+                <div
+                    class="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none">
+                </div>
+                <div
+                    class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none animate-pulse">
+                </div>
+
+                <!-- 3D Floating Illustration Container -->
+                <div class="relative mb-xl w-full max-w-md mx-auto aspect-video flex items-center justify-center">
+                    <div
+                        class="relative w-56 h-56 flex items-center justify-center group-hover:scale-105 transition-transform duration-700">
+                        <img class="w-full h-full object-contain drop-shadow-2xl" alt="Academic Ambition Illustration"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkiLkw2vFXI11ycCRrInwBSRc29tG6wRVJdtX3QAwn8p2R4kfRI1eZ_qGnDvp05FiA7BoXE5IiPKTmIDbltBIVoEkNe9zntYY-p1lbu8J5CQ-EKhu9yRTA1yMIBu6DhYXxptnCoVlSx4Kjamzph7n2enH0TzCz8ENTvgsnEI4hkZJ6Oych_bpmONQwlIOqm6aQEL4OgFeRR5eAA4YqgWDgJxLq0KC7NJIXiEAdVlWTLDmHMkwcI9e4">
+                    </div>
+                </div>
+
+                <!-- Empty State Typography -->
+                <div class="max-w-xl mx-auto space-y-md relative z-10">
+                    <div
+                        class="inline-flex items-center gap-xs px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-label-sm font-bold uppercase tracking-widest mb-xs">
+                        <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+                        Academic Journey Awaits
+                    </div>
+                    <h3
+                        class="font-headline-md text-headline-md md:text-headline-lg text-on-surface tracking-tight font-headline-lg">
+                        Your Journey Starts Here
+                    </h3>
+                    <p class="text-body-lg font-body-lg text-on-surface-variant max-w-md mx-auto leading-relaxed">
+                        No courses published yet. Check back soon or register to unlock enterprise-grade learning
+                        modules tailored for tech leaders.
+                    </p>
+                </div>
+
+                <!-- Call to Action Buttons -->
+                <div class="mt-xl flex flex-col sm:flex-row gap-md relative z-10">
+                    <a href="{{ url_for('auth.login') }}?signup=true"
+                        class="bg-primary text-on-primary px-xl py-md rounded-xl font-label-lg text-label-lg transition-all duration-300 shadow-xl shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-sm font-bold">
+                        <span class="material-symbols-outlined text-[22px]">how_to_reg</span>
+                        Join Titan LMS
+                    </a>
+                    <a href="{{ url_for('public.leaderboard') }}"
+                        class="border-2 border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary px-xl py-md rounded-xl font-label-lg text-label-lg transition-all duration-300 hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-sm font-bold">
+                        <span class="material-symbols-outlined text-[22px]"
+                            style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+                        View Global Leaderboard
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Bento Grid Features Section -->
+<section class="py-xxl max-w-container-max mx-auto px-gutter relative">
+    <div class="text-center mb-xxl space-y-xs">
+        <span
+            class="text-xs font-bold text-primary tracking-widest uppercase bg-primary/10 px-3.5 py-1 rounded-full border border-primary/20">Enterprise
+            Grade Features</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight mt-sm">Engineered for Peak
+            Performance</h2>
+        <p class="text-on-surface-variant max-w-md mx-auto text-sm">Discover why top tech professionals choose Titan LMS
+            to accelerate their career.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+        <!-- Large Feature 1: Adaptive AI -->
+        <div
+            class="md:col-span-8 group bg-white rounded-3xl p-xl shadow-lg border border-outline-variant/30 hover:shadow-2xl hover:-translate-y-1 hover:border-primary/40 transition-all duration-500 overflow-hidden relative">
+            <div
+                class="absolute -right-10 -bottom-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none group-hover:bg-primary/15 transition-all">
+            </div>
+            <div class="relative z-10 space-y-md">
+                <div
+                    class="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                    <span class="material-symbols-outlined text-3xl">psychology</span>
+                </div>
+                <div>
+                    <h3 class="text-xl md:text-2xl font-bold text-on-surface mb-xs">Adaptive AI Learning Engine</h3>
+                    <p class="text-body-md text-on-surface-variant max-w-lg leading-relaxed">
+                        Our proprietary algorithm analyzes your quiz speed, code efficiency, and retention rates in
+                        real-time, dynamically tailoring course difficulty and content paths to your unique learning
+                        velocity.
+                    </p>
+                </div>
+                <div class="flex items-center gap-sm text-xs font-bold text-primary pt-xs">
+                    <span>99.2% Personalization Accuracy</span>
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Small Feature 2: Industry Credentials -->
+        <div
+            class="md:col-span-4 bg-gradient-to-br from-primary via-indigo-950 to-slate-950 text-white rounded-3xl p-xl flex flex-col justify-between hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/30 transition-all duration-500 group border border-blue-400/20 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl pointer-events-none">
+            </div>
+            <div
+                class="w-14 h-14 rounded-2xl bg-amber-400/20 border border-amber-400/30 flex items-center justify-center text-amber-400 group-hover:rotate-12 transition-transform duration-300 shadow-md">
+                <span class="material-symbols-outlined text-3xl"
+                    style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+            </div>
+            <div class="space-y-xs pt-lg">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Verified Credentials</span>
+                <h3 class="text-xl font-bold text-white">Global Industry Certificates</h3>
+                <p class="text-xs text-blue-200/80 leading-relaxed">Earn blockchain-verified credentials recognized by
+                    Fortune 500 tech enterprises worldwide.</p>
+            </div>
+        </div>
+
+        <!-- Grid Row 2 Feature 3: Global Cohorts -->
+        <div
+            class="md:col-span-4 bg-white rounded-3xl p-xl shadow-lg border border-outline-variant/30 hover:shadow-xl hover:-translate-y-1 hover:border-primary/40 transition-all duration-300 group">
+            <div
+                class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 mb-md group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-2xl">groups</span>
+            </div>
+            <h3 class="text-lg font-bold text-on-surface mb-xs">Global Peer Cohorts</h3>
+            <p class="text-xs text-on-surface-variant leading-relaxed mb-md">Collaborate & compete with thousands of
+                ambitious engineers from over 45+ countries.</p>
+            <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>Active 24/7 Community Hub</span>
+            </div>
+        </div>
+
+        <!-- Grid Row 2 Feature 4: Analytics -->
+        <div
+            class="md:col-span-8 bg-white rounded-3xl p-xl shadow-lg border border-outline-variant/30 flex flex-col md:flex-row gap-lg items-center hover:shadow-xl hover:-translate-y-1 hover:border-primary/40 transition-all duration-300 group">
+            <div class="md:w-1/2 space-y-xs">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-600 mb-xs">
+                    <span class="material-symbols-outlined text-2xl">analytics</span>
+                </div>
+                <h3 class="text-lg font-bold text-on-surface">Deep Skill Analytics</h3>
+                <p class="text-xs text-on-surface-variant leading-relaxed">Visualize your growth with granular
+                    competency heatmaps, skill gap analysis, and weakness diagnosis.</p>
+            </div>
+            <div
+                class="md:w-1/2 w-full h-36 bg-slate-950 rounded-2xl p-md border border-slate-800 flex flex-col justify-between shadow-inner">
+                <div class="flex justify-between items-center text-[11px] font-mono text-slate-400">
+                    <span class="text-amber-400 font-bold">Skill Mastery Vector</span>
+                    <span>94.8%</span>
+                </div>
+                <div class="flex items-end justify-between h-20 gap-1.5 pt-xs">
+                    <div
+                        class="bg-blue-500/30 w-full rounded-t-md h-[40%] sparkline-bar group-hover:h-[55%] transition-all duration-500">
+                    </div>
+                    <div
+                        class="bg-blue-500/50 w-full rounded-t-md h-[60%] sparkline-bar group-hover:h-[75%] transition-all duration-500">
+                    </div>
+                    <div
+                        class="bg-blue-500/40 w-full rounded-t-md h-[50%] sparkline-bar group-hover:h-[65%] transition-all duration-500">
+                    </div>
+                    <div
+                        class="bg-amber-400/80 w-full rounded-t-md h-[80%] sparkline-bar group-hover:h-[95%] transition-all duration-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]">
+                    </div>
+                    <div
+                        class="bg-emerald-400 w-full rounded-t-md h-[100%] sparkline-bar transition-all duration-500 shadow-[0_0_10px_rgba(52,211,153,0.5)]">
+                    </div>
+                    <div
+                        class="bg-blue-500/70 w-full rounded-t-md h-[70%] sparkline-bar group-hover:h-[85%] transition-all duration-500">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Us Teaser -->
+<section class="relative py-8 sm:py-14 md:py-xxl overflow-hidden bg-slate-50 border-t border-b border-slate-100">
+    <div class="max-w-container-max mx-auto px-gutter relative z-10">
+        <div class="grid lg:grid-cols-2 gap-6 lg:gap-14 items-center">
+            <!-- Left: Text Content -->
+            <div>
+                <span
+                    class="inline-flex items-center gap-1.5 bg-[#0D1FA8]/10 border border-[#0D1FA8]/20 text-[#0D1FA8] text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3">
+                    <span class="material-symbols-outlined text-xs">info</span>
+                    About Titan LMS
+                </span>
+                <h2 class="text-2xl sm:text-3xl md:text-headline-lg font-bold text-on-surface mb-2 leading-tight">
+                    Who We Are &amp; <br class="hidden sm:inline">
+                    <span
+                        class="bg-gradient-to-r from-[#0D1FA8] to-[#0054cb] bg-clip-text text-transparent font-extrabold">Why
+                        We Built Titan</span>
+                </h2>
+                <p class="text-xs sm:text-sm md:text-body-lg text-on-surface-variant mb-3 leading-relaxed">
+                    Titan LMS was born from a simple belief — that world-class education shouldn't be a privilege.
+                    We're a team of passionate educators, engineers, and dreamers building South Asia's most engaging
+                    learning platform.
+                </p>
+                <p class="text-xs sm:text-sm text-on-surface-variant mb-4 leading-relaxed">
+                    From AI skill paths to gamified leaderboards, every feature is designed for <strong
+                        class="text-[#0D1FA8]">your success</strong>.
+                </p>
+                <!-- Quick Value Points -->
+                <div class="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6">
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[#F4B400] text-base"
+                            style="font-variation-settings:'FILL' 1;">check_circle</span>
+                        <span class="text-xs text-on-surface font-semibold">Industry-Recognized Certs</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[#F4B400] text-base"
+                            style="font-variation-settings:'FILL' 1;">check_circle</span>
+                        <span class="text-xs text-on-surface font-semibold">AI Learning Paths</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[#F4B400] text-base"
+                            style="font-variation-settings:'FILL' 1;">check_circle</span>
+                        <span class="text-xs text-on-surface font-semibold">Expert Instructors</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[#F4B400] text-base"
+                            style="font-variation-settings:'FILL' 1;">check_circle</span>
+                        <span class="text-xs text-on-surface font-semibold">24/7 Support</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('public.about') }}"
+                    class="inline-flex items-center gap-2 bg-[#0D1FA8] hover:bg-[#004bb5] text-white font-bold px-4 py-2.5 rounded-xl shadow-md shadow-[#0D1FA8]/20 hover:scale-105 active:scale-95 transition-all duration-300 text-xs sm:text-sm touch-target">
+                    <span class="material-symbols-outlined text-base">info</span>
+                    Learn More About Us
+                    <span class="material-symbols-outlined text-base">arrow_forward</span>
+                </a>
+            </div>
+            <!-- Right: Stats Grid + Brand Card -->
+            <div class="space-y-3 sm:space-y-4">
+                <!-- Stats grid -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div
+                        class="bg-white/80 backdrop-blur-md p-3 sm:p-4 rounded-xl border border-[#0D1FA8]/10 text-center hover:-translate-y-0.5 hover:border-[#F4B400] transition-all duration-300 shadow-xs">
+                        <div class="text-xl sm:text-2xl text-[#0D1FA8] font-black mb-0.5">{{ stats.students_count }}+
+                        </div>
+                        <div class="text-[11px] text-on-surface-variant font-semibold">Active Students</div>
+                    </div>
+                    <div
+                        class="bg-white/80 backdrop-blur-md p-3 sm:p-4 rounded-xl border border-[#0D1FA8]/10 text-center hover:-translate-y-0.5 hover:border-[#F4B400] transition-all duration-300 shadow-xs">
+                        <div class="text-xl sm:text-2xl text-[#0D1FA8] font-black mb-0.5">{{ stats.courses_count }}+
+                        </div>
+                        <div class="text-[11px] text-on-surface-variant font-semibold">Expert Courses</div>
+                    </div>
+                    <div
+                        class="bg-white/80 backdrop-blur-md p-3 sm:p-4 rounded-xl border border-[#0D1FA8]/10 text-center hover:-translate-y-0.5 hover:border-[#F4B400] transition-all duration-300 shadow-xs">
+                        <div class="text-xl sm:text-2xl text-[#d89a00] font-black mb-0.5">{{ stats.satisfaction_rate }}
+                        </div>
+                        <div class="text-[11px] text-on-surface-variant font-semibold">Satisfaction Rate</div>
+                    </div>
+                    <div
+                        class="bg-white/80 backdrop-blur-md p-3 sm:p-4 rounded-xl border border-[#0D1FA8]/10 text-center hover:-translate-y-0.5 hover:border-[#F4B400] transition-all duration-300 shadow-xs">
+                        <div class="text-xl sm:text-2xl text-[#0D1FA8] font-black mb-0.5">2023</div>
+                        <div class="text-[11px] text-on-surface-variant font-semibold">Founded</div>
+                    </div>
+                </div>
+                <!-- Mission card -->
+                <div
+                    class="bg-white/90 backdrop-blur-md p-3.5 sm:p-4 rounded-xl border border-[#0D1FA8]/15 hover:border-[#F4B400]/40 transition-all duration-300 shadow-xs">
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="w-9 h-9 shrink-0 rounded-lg bg-[#0D1FA8]/10 border border-[#0D1FA8]/20 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[#0D1FA8] text-lg">flag</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-xs sm:text-sm mb-0.5">Our Mission</h4>
+                            <p class="text-[11px] sm:text-xs text-on-surface-variant leading-relaxed">
+                                To deliver practical learning experiences that transform students into confident
+                                professionals — regardless of background.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Vision card -->
+                <div
+                    class="bg-white/90 backdrop-blur-md p-3.5 sm:p-4 rounded-xl border border-[#F4B400]/25 hover:border-[#0D1FA8]/40 transition-all duration-300 shadow-xs">
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="w-9 h-9 shrink-0 rounded-lg bg-[#F4B400]/10 border border-[#F4B400]/25 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[#d89a00] text-lg">visibility</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-xs sm:text-sm mb-0.5">Our Vision</h4>
+                            <p class="text-[11px] sm:text-xs text-on-surface-variant leading-relaxed">
+                                To become South Asia's #1 premium LMS — where ambition meets opportunity and
+                                certificates open real doors.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Campuses Network (Real-time DB) -->
+<section class="relative py-xxl bg-white border-t border-slate-100 overflow-hidden">
+    <div class="max-w-container-max mx-auto px-gutter relative z-10">
+        <!-- Title & Intro -->
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span
+                class="inline-flex items-center gap-2 bg-[#0D1FA8]/10 border border-[#0D1FA8]/20 text-[#0D1FA8] text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-4">
+                <span class="material-symbols-outlined text-sm">domain</span>
+                National Learning Nodes
+            </span>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface leading-tight"
+                style="font-family:'Montserrat',sans-serif;">
+                Our Nationwide <span
+                    class="bg-gradient-to-r from-[#0D1FA8] to-[#0054cb] bg-clip-text text-transparent font-extrabold">Smart
+                    Campuses</span>
+            </h2>
+            <p class="text-body-lg text-on-surface-variant mt-4">
+                Step into state-of-the-art computational facilities, high-performance programming labs, and
+                collaborative coworking hubs close to you.
+            </p>
+        </div>
+
+        <!-- Campus Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for campus in campuses %}
+            <div class="bg-slate-50/50 rounded-3xl border border-slate-200/60 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between group animate-home-bg"
+                style="animation-delay: {{ 0.1 * loop.index0 }}s;">
+                <!-- Banner Image -->
+                <div class="h-52 relative overflow-hidden shrink-0">
+                    <img src="{{ campus.image_url or 'https://images.unsplash.com/photo-1562774053-701939374585?w=600' }}"
+                        alt="{{ campus.title }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <span
+                        class="absolute top-4 left-4 bg-primary text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
+                        📍 {{ campus.city }}
+                    </span>
+                </div>
+
+                <!-- Info Body -->
+                <div class="p-6 flex-grow flex flex-col justify-between gap-4">
+                    <div class="space-y-2">
+                        <span class="text-[10px] text-primary font-extrabold uppercase tracking-widest">{{ campus.region
+                            or 'Academic Node' }}</span>
+                        <h3 class="font-bold text-slate-900 text-lg group-hover:text-primary transition-colors line-clamp-1"
+                            style="font-family:'Montserrat',sans-serif;">
+                            {{ campus.title }}
+                        </h3>
+                        <p class="text-xs text-gray-500 font-medium line-clamp-3 leading-relaxed">
+                            {{ campus.description }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-1.5 pt-4 border-t border-slate-100 text-xs text-gray-600 font-semibold">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm text-primary">location_on</span>
+                            <span class="truncate">{{ campus.address }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[11px] pt-1">
+                            <span class="flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px] text-emerald-600">groups</span>
+                                {{ campus.active_students }}+ Active Students
+                            </span>
+                            <span class="text-primary font-bold hover:underline">
+                                {{ campus.phone }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-span-full text-center py-12 text-slate-400">
+                <span class="material-symbols-outlined text-4xl">domain_disabled</span>
+                <p class="text-sm font-semibold mt-2">No active campus nodes available.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- View All link -->
+        <div class="text-center mt-12">
+            <a href="{{ url_for('public.campuses') }}"
+                class="inline-flex items-center gap-1.5 text-xs font-extrabold text-primary hover:text-[#004bb5] hover:underline">
+                Explore Full Interactive Map &amp; Branches
+                <span class="material-symbols-outlined text-xs">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="bg-surface-container py-xxl overflow-hidden">
+    <div class="max-w-container-max mx-auto px-gutter mb-xl">
+        <div class="flex flex-col md:flex-row justify-between items-end gap-md">
+            <div>
+                <h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">What Our Graduates Say</h2>
+                <p class="text-body-md text-on-surface-variant">Join {{ stats.students_count * 1000 + 45000 }}+
+                    graduates leading the tech revolution.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Infinite Marquee Track -->
+    <div
+        class="relative w-full overflow-hidden py-4 before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-20 before:bg-gradient-to-r before:from-surface-container before:to-transparent after:absolute after:right-0 after:top-0 after:z-10 after:h-full after:w-20 after:bg-gradient-to-l after:from-surface-container after:to-transparent">
+        <div class="flex w-max gap-lg animate-marquee hover:[animation-play-state:paused] cursor-pointer">
+            <!-- Review Card 1 -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"The AI-driven curriculum in Titan LMS was
+                    a game-changer. I went from a junior dev to a senior systems architect in under 12 months thanks to
+                    the precise skill paths."</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20" src="/static/1.jpg"
+                        alt="Zohaib">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Zohaib</h4>
+                        <p class="text-label-md text-primary font-semibold">Senior Architect @ CloudScale</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Card 2 -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"The quality of the video content and the
+                    interactivity of the labs are unmatched. Titan LMS feels like a high-performance workspace, not just
+                    a learning site."</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20" src="/static/2.jpg"
+                        alt="Abdul Hameed">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Abdul Hameed</h4>
+                        <p class="text-label-md text-primary font-semibold">AI Engineer</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Card 3 -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"What impressed me most was the global
+                    leaderboard and community. I was able to network with industry giants while mastering Data Science
+                    fundamentals."</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20" src="/static/4.jpg"
+                        alt="Ammar Mughal">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Ammar Mughal</h4>
+                        <p class="text-label-md text-primary font-semibold">Lead Data Scientist @ MetaData</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Card 4 (New) -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"Titan LMS transformed my daily learning
+                    routine. The gamified streak rewards and live battle quizzes made mastering Full-Stack Next.js
+                    effortless."</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
+                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" alt="Sara Khan">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Sara Khan</h4>
+                        <p class="text-label-md text-primary font-semibold">Full Stack Developer @ TechMatrix</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Card 5 (New) -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"The hands-on cloud labs and automated code
+                    grading gave me real production confidence. Passed my CKA Kubernetes exam on the first attempt!"</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
+                        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" alt="Hassan Ali">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Hassan Ali</h4>
+                        <p class="text-label-md text-primary font-semibold">DevOps Engineer @ CyberShield</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Card 6 (New) -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"The UI aesthetics are insanely smooth and
+                    modern. Studying on Titan LMS feels like operating a state-of-the-art interactive workstation."</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
+                        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Fatima Zahra">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Fatima Zahra</h4>
+                        <p class="text-label-md text-primary font-semibold">Lead Product Designer @ CreativeHub</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DUPLICATE TRACK FOR INFINITE SCROLL -->
+            <!-- Review Card 1 -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"The AI-driven curriculum in Titan LMS was
+                    a game-changer. I went from a junior dev to a senior systems architect in under 12 months thanks to
+                    the precise skill paths."</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20" src="/static/1.jpg"
+                        alt="Zohaib">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Zohaib</h4>
+                        <p class="text-label-md text-primary font-semibold">Senior Architect @ CloudScale</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Card 2 -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"The quality of the video content and the
+                    interactivity of the labs are unmatched. Titan LMS feels like a high-performance workspace, not just
+                    a learning site."</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20" src="/static/2.jpg"
+                        alt="Abdul Hameed">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Abdul Hameed</h4>
+                        <p class="text-label-md text-primary font-semibold">AI Engineer</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Card 3 -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"What impressed me most was the global
+                    leaderboard and community. I was able to network with industry giants while mastering Data Science
+                    fundamentals."</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20" src="/static/4.jpg"
+                        alt="Ammar Mughal">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Ammar Mughal</h4>
+                        <p class="text-label-md text-primary font-semibold">Lead Data Scientist @ MetaData</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Card 4 (New) -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"Titan LMS transformed my daily learning
+                    routine. The gamified streak rewards and live battle quizzes made mastering Full-Stack Next.js
+                    effortless."</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
+                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" alt="Sara Khan">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Sara Khan</h4>
+                        <p class="text-label-md text-primary font-semibold">Full Stack Developer @ TechMatrix</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Card 5 (New) -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"The hands-on cloud labs and automated code
+                    grading gave me real production confidence. Passed my CKA Kubernetes exam on the first attempt!"</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
+                        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" alt="Hassan Ali">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Hassan Ali</h4>
+                        <p class="text-label-md text-primary font-semibold">DevOps Engineer @ CyberShield</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Card 6 (New) -->
+            <div
+                class="glass-card p-xl rounded-2xl shadow-md border border-white/50 w-[360px] md:w-[420px] shrink-0 hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
+                <div class="flex gap-1 text-amber-500 mb-md">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+                </div>
+                <p class="text-body-md italic text-on-surface-variant mb-xl">"The UI aesthetics are insanely smooth and
+                    modern. Studying on Titan LMS feels like operating a state-of-the-art interactive workstation."</p>
+                <div class="flex items-center gap-md">
+                    <img class="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
+                        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Fatima Zahra">
+                    <div>
+                        <h4 class="font-bold text-on-surface">Fatima Zahra</h4>
+                        <p class="text-label-md text-primary font-semibold">Lead Product Designer @ CreativeHub</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CSS Keyframes for smooth infinite marquee -->
+<style>
+    @keyframes marquee {
+        0% {
+            transform: translateX(0%);
+        }
+
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    .animate-marquee {
+        animation: marquee 35s linear infinite;
+    }
+</style>
+
+
+<!-- CTA Final -->
+<section
+    class="py-xxl bg-gradient-to-r from-[#00008C] via-[#0000B3] to-[#000066] text-white text-center shadow-2xl relative overflow-hidden">
+    <div class="max-w-2xl mx-auto px-gutter relative z-10 space-y-md">
+        <h2 class="text-headline-lg md:text-headline-xl font-headline-lg font-extrabold text-white">Ready to Define Your
+            Future?</h2>
+        <p class="text-body-lg text-blue-100/90 font-medium max-w-xl mx-auto">Join the thousands of leaders who chose
+            excellence over average.</p>
+        <div class="flex justify-center pt-sm">
+            <a href="{{ url_for('public.enroll') }}"
+                class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-headline-sm px-10 py-4 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-xl font-bold">rocket_launch</span>
+                Enroll Now
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Add Intersection Observer for fade-in animations on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
+                } else {
+                    // Triggers the animation again when scrolling up and down
+                    entry.target.classList.remove('opacity-100', 'translate-y-0');
+                    entry.target.classList.add('opacity-0', 'translate-y-10');
+                }
+            });
+        }, { threshold: 0.05 });
+
+        document.querySelectorAll('section > div').forEach(el => {
+            el.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+            observer.observe(el);
+        });
+    });
+</script>
+{% endblock %}

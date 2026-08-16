@@ -1,0 +1,128 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Issue & Award Certificates | Instructor Portal{% endblock %}
+
+{% block head %}
+<style>
+    .hover-card-effect {
+        transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .hover-card-effect:hover {
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 20px 40px rgba(0, 84, 203, 0.12);
+    }
+</style>
+{% endblock %}
+
+{% block instructor_content %}
+<div class="max-w-container-max mx-auto px-gutter py-xl space-y-xl">
+    <!-- Header (Slide From Top) -->
+    <div class="flex justify-between items-end slide-from-top">
+        <div>
+            <span class="inline-flex items-center gap-xs px-3 py-1 rounded-full bg-tertiary/10 text-tertiary text-label-sm font-bold uppercase tracking-widest mb-2">
+                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                Faculty Certification Management
+            </span>
+            <h1 class="text-display-lg-mobile md:text-headline-lg font-headline-lg text-on-surface font-bold">Issue Official Course Certificate</h1>
+            <p class="text-body-md text-on-surface-variant">Manually award verified completion certificates to your enrolled students.</p>
+        </div>
+    </div>
+
+    <!-- Form & Enrolled Students Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+        <!-- Certificate Award Form (Slide From Left) -->
+        <div class="lg:col-span-5 bg-white p-xl rounded-2xl border border-outline-variant/20 shadow-xl space-y-lg slide-from-left hover-card-effect">
+            <h3 class="font-headline-sm text-headline-sm text-primary font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                Award Certificate Form
+            </h3>
+            
+            <form action="{{ url_for('instructor.issue_certificate') }}" method="POST" class="space-y-md">
+                <div>
+                    <label class="block text-label-lg font-bold text-on-surface mb-2">Select Course</label>
+                    <select name="course_id" required class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant/30 rounded-xl font-body-md focus:border-primary focus:outline-none cursor-pointer">
+                        {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.title }} ({{ course.enrollments|length }} Enrolled)</option>
+                        {% else %}
+                        <option value="">No courses created yet</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-label-lg font-bold text-on-surface mb-2">Select Enrolled Student</label>
+                    <select name="student_id" required class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant/30 rounded-xl font-body-md focus:border-primary focus:outline-none cursor-pointer">
+                        {% for enrollment in enrollments %}
+                            <option value="{{ enrollment.user.id }}">{{ enrollment.user.name }} ({{ enrollment.user.email }}) — {{ enrollment.course.title }}</option>
+                        {% else %}
+                            <option value="">No students enrolled yet</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="p-md rounded-xl bg-surface-container-low border border-outline-variant/20 space-y-xs text-body-sm text-on-surface-variant">
+                    <p class="font-bold text-on-surface flex items-center gap-1">
+                        <span class="material-symbols-outlined text-primary text-sm">info</span>
+                        Award Impact:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1 text-label-md">
+                        <li>Advances student progress to <strong>100% Complete</strong></li>
+                        <li>Awards <strong>+200 XP points</strong> to student profile</li>
+                        <li>Generates a verified <strong>Blockchain Certificate</strong></li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="w-full bg-primary text-white py-3.5 rounded-xl font-label-lg font-bold hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                    Issue & Verify Certificate
+                </button>
+            </form>
+        </div>
+
+        <!-- Issued Certificates History Table (Slide From Right) -->
+        <div class="lg:col-span-7 bg-white p-xl rounded-2xl border border-outline-variant/20 shadow-xl space-y-lg slide-from-right hover-card-effect">
+            <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">history</span>
+                Recently Issued Certificates
+            </h3>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-surface-container-low text-label-md font-bold uppercase tracking-wider text-on-surface-variant">
+                            <th class="px-4 py-3">Student</th>
+                            <th class="px-4 py-3">Course</th>
+                            <th class="px-4 py-3">Issued Date</th>
+                            <th class="px-4 py-3 text-right">Status</th>
+                            <th class="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant/10 text-body-sm">
+                        {% for cert in recent_certificates %}
+                        <tr class="hover:bg-surface-container-low transition-colors">
+                            <td class="px-4 py-3 font-bold text-on-surface">{{ cert.user.name }}</td>
+                            <td class="px-4 py-3 text-on-surface-variant">{{ cert.course.title }}</td>
+                            <td class="px-4 py-3 text-on-surface-variant font-mono text-xs">{{ cert.issued_at.strftime('%b %d, %Y') }}</td>
+                            <td class="px-4 py-3 text-right">
+                                <span class="px-2.5 py-1 bg-green-500/10 text-green-600 text-xs font-bold rounded-full">Issued</span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <form action="{{ url_for('instructor.delete_certificate', cert_id=cert.id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to revoke/delete this certificate?');">
+                                    <button type="submit" class="p-1.5 text-error hover:bg-error/10 rounded-lg transition-colors inline-flex items-center justify-center align-middle" title="Revoke Certificate">
+                                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="px-4 py-6 text-center text-on-surface-variant">No certificates issued yet. Select a student above to issue one.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

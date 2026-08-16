@@ -1,0 +1,182 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Student Leaves Management | Titan LMS Admin{% endblock %}
+
+{% block admin_content %}
+<div class="max-w-7xl mx-auto space-y-6 sm:space-y-8 animate-fade-in pb-12 px-2 sm:px-4">
+    <!-- Header Hero Banner -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-[#0041a3] to-blue-950 text-white p-6 sm:p-8 shadow-xl">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-amber-300 text-xs font-extrabold uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-sm">event_busy</span> Administrative Control
+                </div>
+                <h1 class="text-2xl sm:text-4xl font-black tracking-tight" style="font-family: 'Space Grotesk', sans-serif;">
+                    Student <span class="text-amber-400">Leaves Management</span>
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-200 max-w-xl font-medium leading-relaxed">
+                    Review, approve, or manage student absence applications across all enrolled courses and campuses in real-time.
+                </p>
+            </div>
+            <!-- Quick Stat Pills -->
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3.5 sm:p-4 text-center min-w-[95px] sm:min-w-[105px]">
+                    <span class="block text-xl sm:text-2xl font-black text-amber-300">{{ leaves|length }}</span>
+                    <span class="text-[10px] text-slate-300 uppercase font-bold tracking-wider">Total</span>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3.5 sm:p-4 text-center min-w-[95px] sm:min-w-[105px]">
+                    <span class="block text-xl sm:text-2xl font-black text-emerald-400">
+                        {{ leaves|selectattr('status', 'equalto', 'Approved')|list|length }}
+                    </span>
+                    <span class="text-[10px] text-slate-300 uppercase font-bold tracking-wider">Approved</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Action Bar -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <!-- Status Filter Tabs -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+            <a href="{{ url_for('admin.leaves', status='all') }}" class="px-4 py-2 rounded-xl text-xs font-extrabold transition-all border {% if request.args.get('status', 'all') == 'all' %}bg-[#0054cb] text-white border-[#0054cb] shadow-sm{% else %}bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100{% endif %}">
+                All Applications ({{ leaves|length }})
+            </a>
+            <a href="{{ url_for('admin.leaves', status='Approved') }}" class="px-4 py-2 rounded-xl text-xs font-extrabold transition-all border {% if request.args.get('status') == 'Approved' %}bg-emerald-600 text-white border-emerald-600 shadow-sm{% else %}bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100{% endif %}">
+                ✅ Approved
+            </a>
+            <a href="{{ url_for('admin.leaves', status='Pending') }}" class="px-4 py-2 rounded-xl text-xs font-extrabold transition-all border {% if request.args.get('status') == 'Pending' %}bg-amber-500 text-white border-amber-500 shadow-sm{% else %}bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100{% endif %}">
+                ⏳ Pending
+            </a>
+        </div>
+
+        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider text-right">
+            Real-Time Sync Active
+        </div>
+    </div>
+
+    <!-- Student Leaves Master Table -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        <th class="py-4 px-6">Student Details</th>
+                        <th class="py-4 px-6">Course</th>
+                        <th class="py-4 px-6">Leave Category</th>
+                        <th class="py-4 px-6">Leave Dates</th>
+                        <th class="py-4 px-6">Reason / Description</th>
+                        <th class="py-4 px-6">Status</th>
+                        <th class="py-4 px-6 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                    {% for l in leaves %}
+                    <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
+                        <!-- Student Avatar & Name -->
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0054cb] to-blue-500 text-white font-extrabold flex items-center justify-center text-sm shadow-sm shrink-0 uppercase">
+                                    {{ l.user.name[0] if l.user and l.user.name else 'S' }}
+                                </div>
+                                <div>
+                                    <h4 class="font-extrabold text-slate-900 dark:text-white text-sm">{{ l.user.name if l.user else 'Student' }}</h4>
+                                    <p class="text-[11px] text-slate-400 font-medium">{{ l.user.email if l.user else '' }}</p>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Course -->
+                        <td class="py-4 px-6">
+                            <span class="font-bold text-slate-700 dark:text-slate-300">
+                                {{ l.course.title if l.course else 'All Enrolled Courses' }}
+                            </span>
+                        </td>
+
+                        <!-- Leave Category -->
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+                                {{ l.leave_type }}
+                            </span>
+                        </td>
+
+                        <!-- Leave Dates -->
+                        <td class="py-4 px-6 whitespace-nowrap">
+                            <div class="font-extrabold text-[#0054cb] dark:text-blue-400">
+                                {{ l.start_date }}
+                            </div>
+                            <div class="text-[10px] text-slate-400 font-semibold">to {{ l.end_date }}</div>
+                        </td>
+
+                        <!-- Reason -->
+                        <td class="py-4 px-6 max-w-xs">
+                            <p class="text-slate-600 dark:text-slate-300 text-xs font-medium leading-relaxed line-clamp-2" title="{{ l.reason }}">
+                                {{ l.reason }}
+                            </p>
+                        </td>
+
+                        <!-- Status Badge -->
+                        <td class="py-4 px-6 whitespace-nowrap">
+                            {% if l.status == 'Approved' %}
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-700 border border-emerald-300">
+                                ✅ Approved
+                            </span>
+                            {% elif l.status == 'Pending' %}
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase bg-amber-100 text-amber-700 border border-amber-300">
+                                ⏳ Pending
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase bg-red-100 text-red-700 border border-red-300">
+                                ❌ {{ l.status }}
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="py-4 px-6 text-right whitespace-nowrap">
+                            <div class="flex items-center justify-end gap-1.5">
+                                {% if l.status != 'Approved' %}
+                                <form action="{{ url_for('admin.leaves') }}" method="POST" class="inline">
+                                    <input type="hidden" name="action" value="approve">
+                                    <input type="hidden" name="leave_id" value="{{ l.id }}">
+                                    <button type="submit" title="Approve Leave" class="p-2 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all font-bold text-xs flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-base">check_circle</span>
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                {% if l.status != 'Rejected' %}
+                                <form action="{{ url_for('admin.leaves') }}" method="POST" class="inline">
+                                    <input type="hidden" name="action" value="reject">
+                                    <input type="hidden" name="leave_id" value="{{ l.id }}">
+                                    <button type="submit" title="Reject Leave" class="p-2 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white transition-all font-bold text-xs flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-base">cancel</span>
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                <form action="{{ url_for('admin.leaves') }}" method="POST" class="inline" onsubmit="return confirm('Delete this leave application record?');">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="leave_id" value="{{ l.id }}">
+                                    <button type="submit" title="Delete Record" class="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all font-bold text-xs flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-base">delete</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="py-12 text-center text-slate-400">
+                            <span class="material-symbols-outlined text-4xl block mb-2">event_available</span>
+                            <p class="font-bold text-sm">No student leave applications found.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

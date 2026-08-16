@@ -1,0 +1,277 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Manage Campuses | Titan LMS{% endblock %}
+
+{% block admin_content %}
+<div class="p-lg md:p-xl space-y-xl max-w-container-max mx-auto">
+    
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-xxl slide-from-top">
+        <div>
+            <h1 class="text-display-lg font-display-lg text-on-surface mb-xs font-bold">Campus Network Management</h1>
+            <p class="text-body-lg text-on-surface-variant">Add, edit, or remove physical campuses across Pakistan. Upload photos, virtual tour videos, address, phone numbers & descriptions.</p>
+        </div>
+        <button type="button" onclick="document.getElementById('addCampusModal').classList.remove('hidden')" class="inline-flex items-center gap-2 bg-[#0054cb] hover:bg-[#0040a0] text-white px-6 py-3.5 rounded-xl font-bold text-sm transition-all shadow-md shrink-0 whitespace-nowrap">
+            <span class="material-symbols-outlined text-xl">domain_add</span>
+            <span>Add New Campus</span>
+        </button>
+    </div>
+
+    <!-- Campuses Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+        {% for c in campuses %}
+        <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/10 overflow-hidden flex flex-col justify-between group hover:border-primary/30 transition-all">
+            
+            <div class="relative w-full h-48 bg-surface-container overflow-hidden">
+                {% if c.image_url %}
+                    <img src="{{ c.image_url }}" alt="{{ c.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-outline">
+                        <span class="material-symbols-outlined text-4xl">domain</span>
+                    </div>
+                {% endif %}
+                <span class="absolute top-3 left-3 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+                    {{ c.city }}
+                </span>
+                {% if c.video_url %}
+                <span class="absolute top-3 right-3 bg-amber-500 text-slate-950 text-xs font-extrabold px-2.5 py-1 rounded-full shadow flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">videocam</span> Virtual Tour
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="p-lg space-y-md flex-1 flex flex-col justify-between">
+                <div class="space-y-xs">
+                    <span class="text-label-sm font-bold text-primary uppercase tracking-wider">{{ c.region or 'Main Campus Node' }}</span>
+                    <h3 class="text-headline-sm font-bold text-on-surface">{{ c.title }}</h3>
+                    <p class="text-body-sm text-on-surface-variant line-clamp-2">{{ c.address }}</p>
+                </div>
+
+                <div class="space-y-xs text-xs text-on-surface-variant pt-xs border-t border-outline-variant/10">
+                    {% if c.phone %}
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-xs text-primary">call</span>
+                        <span>{{ c.phone }}</span>
+                    </div>
+                    {% endif %}
+                    {% if c.email %}
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-xs text-primary">mail</span>
+                        <span>{{ c.email }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-xs text-primary">groups</span>
+                        <span><strong>{{ c.active_students }}</strong> Active Students</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-md border-t border-outline-variant/10 text-xs">
+                    <a href="{{ url_for('public.city_campuses', city_name=c.city|lower|replace(' ', '-')) }}" target="_blank" class="text-primary font-bold hover:underline flex items-center gap-1">
+                        View Public List <span class="material-symbols-outlined text-xs">open_in_new</span>
+                    </a>
+                    <div class="flex items-center gap-sm">
+                        <button onclick="editCampusModal('{{ c.id }}', '{{ c.title|e }}', '{{ c.city|e }}', '{{ (c.region or '')|e }}', '{{ c.address|e }}', '{{ (c.phone or '')|e }}', '{{ (c.email or '')|e }}', '{{ (c.description or '')|e }}', '{{ c.active_students }}', '{{ c.video_url or '' }}')" class="p-sm text-primary hover:bg-primary/10 rounded-lg transition-colors">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                        </button>
+                        <form action="{{ url_for('admin.delete_campus', campus_id=c.id) }}" method="POST" onsubmit="return confirm('Delete this campus?');">
+                            <button type="submit" class="p-sm text-error hover:bg-error/10 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-full bg-surface-container-lowest p-xxl text-center rounded-xl border border-outline-variant/10">
+            <span class="material-symbols-outlined text-4xl text-outline mb-sm">domain_disabled</span>
+            <h3 class="text-headline-sm font-bold">No Custom Campuses Created Yet</h3>
+            <p class="text-body-md text-on-surface-variant mt-xs">Click "Add New Campus" to populate custom campus locations with photos, videos & contact details.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- Modal: Add Campus -->
+<div id="addCampusModal" class="fixed inset-0 z-50 bg-on-surface/50 backdrop-blur-sm flex items-center justify-center p-md hidden">
+    <div class="bg-surface-container-lowest max-w-xl w-full rounded-2xl p-xl shadow-xl space-y-lg border border-outline-variant/20 animate-fade-in-up max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-outline-variant/10 pb-md">
+            <h2 class="text-headline-md font-bold">Add New Campus</h2>
+            <button onclick="document.getElementById('addCampusModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form action="{{ url_for('admin.admin_campuses') }}" method="POST" enctype="multipart/form-data" class="space-y-md">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">Campus Title *</label>
+                    <input type="text" name="title" required placeholder="e.g. Titan Main Clifton Campus" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">City Name *</label>
+                    <select name="city" required class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                        <option value="Karachi">Karachi</option>
+                        <option value="Lahore">Lahore</option>
+                        <option value="Islamabad">Islamabad</option>
+                        <option value="Rawalpindi">Rawalpindi</option>
+                        <option value="Faisalabad">Faisalabad</option>
+                        <option value="Peshawar">Peshawar</option>
+                        <option value="Quetta">Quetta</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Gujranwala">Gujranwala</option>
+                        <option value="Sukkur">Sukkur</option>
+                        <option value="Multan">Multan</option>
+                        <option value="Abbottabad">Abbottabad</option>
+                        <option value="Ghotki">Ghotki</option>
+                        <option value="Turbat">Turbat</option>
+                        <option value="Waziristan">Waziristan</option>
+                        <option value="Balochistan">Balochistan</option>
+                        <option value="Lakki Marwat">Lakki Marwat</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">Region / Tag</label>
+                    <input type="text" name="region" placeholder="e.g. TITAN HQ NODE" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">Active Students Count</label>
+                    <input type="number" name="active_students" value="1200" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Full Location Address *</label>
+                <input type="text" name="address" required placeholder="e.g. Block 5, Clifton, Main Shahrah-e-Faisal, Karachi" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">Phone / Mobile</label>
+                    <input type="text" name="phone" placeholder="+92 21 3587 0099" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">Email Address</label>
+                    <input type="email" name="email" placeholder="karachi.campus@titanlms.com" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Upload Campus Cover Photo</label>
+                <input type="file" name="image" accept="image/*" class="w-full bg-surface border border-outline-variant rounded-lg p-sm text-body-sm text-on-surface-variant">
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Upload Virtual Tour Video (MP4)</label>
+                <input type="file" name="video" accept="video/*" class="w-full bg-surface border border-outline-variant rounded-lg p-sm text-body-sm text-on-surface-variant">
+                <p class="text-body-sm text-on-surface-variant mt-xs">Or provide external video URL below:</p>
+                <input type="url" name="video_link" placeholder="https://example.com/tour.mp4" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary mt-xs">
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Description & Facilities</label>
+                <textarea name="description" rows="3" placeholder="Facilities, labs, library & virtual tour details..." class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-md pt-md border-t border-outline-variant/10">
+                <button type="button" onclick="document.getElementById('addCampusModal').classList.add('hidden')" class="px-md py-sm bg-surface-container rounded-lg font-bold">Cancel</button>
+                <button type="submit" class="px-lg py-sm bg-primary text-white rounded-lg font-bold">Save Campus</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Edit Campus -->
+<div id="editCampusModal" class="fixed inset-0 z-50 bg-on-surface/50 backdrop-blur-sm flex items-center justify-center p-md hidden">
+    <div class="bg-surface-container-lowest max-w-xl w-full rounded-2xl p-xl shadow-xl space-y-lg border border-outline-variant/20 animate-fade-in-up max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-outline-variant/10 pb-md">
+            <h2 class="text-headline-md font-bold">Edit Campus Details</h2>
+            <button onclick="document.getElementById('editCampusModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="editCampusForm" method="POST" enctype="multipart/form-data" class="space-y-md">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">Campus Title *</label>
+                    <input type="text" id="edit_title" name="title" required class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">City Name *</label>
+                    <input type="text" id="edit_city" name="city" required class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">Region / Tag</label>
+                    <input type="text" id="edit_region" name="region" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">Active Students Count</label>
+                    <input type="number" id="edit_active_students" name="active_students" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Full Address *</label>
+                <input type="text" id="edit_address" name="address" required class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">Phone Number</label>
+                    <input type="text" id="edit_phone" name="phone" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="text-label-md font-bold block mb-xs">Email Address</label>
+                    <input type="email" id="edit_email" name="email" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Replace Cover Photo (Optional)</label>
+                <input type="file" name="image" accept="image/*" class="w-full bg-surface border border-outline-variant rounded-lg p-sm text-body-sm text-on-surface-variant">
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Replace Virtual Tour Video (Optional File or Link)</label>
+                <input type="file" name="video" accept="video/*" class="w-full bg-surface border border-outline-variant rounded-lg p-sm text-body-sm text-on-surface-variant">
+                <input type="url" id="edit_video_link" name="video_link" placeholder="Video link..." class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary mt-xs">
+            </div>
+
+            <div>
+                <label class="text-label-md font-bold block mb-xs">Description & Facilities</label>
+                <textarea id="edit_description" name="description" rows="3" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-md pt-md border-t border-outline-variant/10">
+                <button type="button" onclick="document.getElementById('editCampusModal').classList.add('hidden')" class="px-md py-sm bg-surface-container rounded-lg font-bold">Cancel</button>
+                <button type="submit" class="px-lg py-sm bg-primary text-white rounded-lg font-bold">Update Campus</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function editCampusModal(id, title, city, region, address, phone, email, description, activeStudents, videoUrl) {
+    document.getElementById('editCampusForm').action = "/admin/campuses/" + id + "/edit";
+    document.getElementById('edit_title').value = title;
+    document.getElementById('edit_city').value = city;
+    document.getElementById('edit_region').value = region;
+    document.getElementById('edit_address').value = address;
+    document.getElementById('edit_phone').value = phone;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_description').value = description;
+    document.getElementById('edit_active_students').value = activeStudents;
+    document.getElementById('edit_video_link').value = videoUrl;
+    document.getElementById('editCampusModal').classList.remove('hidden');
+}
+</script>
+{% endblock %}

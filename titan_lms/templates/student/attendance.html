@@ -1,0 +1,721 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Attendance & Class Timetable Portal | Titan LMS{% endblock %}
+
+{% block student_content %}
+<div class="p-gutter max-w-container-max mx-auto w-full space-y-xl animate-fade-in-up">
+    <!-- Header Section with Student ID Profile Card -->
+    <div
+        class="flex flex-col md:flex-row md:items-center justify-between gap-md slide-from-top bg-white dark:bg-slate-900/90 p-lg rounded-2xl border border-outline-variant/30 shadow-md">
+        <div class="flex items-center gap-md">
+            <div
+                class="w-16 h-16 rounded-2xl overflow-hidden shadow-md border-2 border-blue-500/40 shrink-0 bg-slate-100">
+                <img src="{{ current_user.avatar_url or 'https://api.dicebear.com/7.x/bottts/svg?seed=' + current_user.name }}"
+                    alt="{{ current_user.name }}" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <span
+                        class="px-3 py-1 bg-[#000096] text-amber-400 font-mono text-xs font-extrabold rounded-lg shadow-sm border border-[#000096]/30">
+                        Roll No: {{ current_user.get_roll_number() }}
+                    </span>
+                    <span
+                        class="px-3 py-1 rounded-full text-[11px] font-extrabold uppercase border bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border-emerald-300">
+                        💳 Fee Payment: PAID 🟢
+                    </span>
+                </div>
+                <h1 class="text-headline-md font-bold text-on-surface">{{ current_user.name }}</h1>
+                <p class="text-xs text-on-surface-variant font-medium">Real-time attendance telemetry, course schedules
+                    & PIN check-ins.</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 shrink-0 flex-wrap">
+            {% if reg and reg.status == 'approved' %}
+            <button
+                onclick="openStudentIdCard('{{ reg.course_name or 'Python Programming' }}', '{{ current_user.get_roll_number() }}')"
+                class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 shadow-md transition-all">
+                <span class="material-symbols-outlined text-sm text-amber-400">qr_code_2</span>
+                <span>My QR Pass</span>
+            </button>
+            {% else %}
+            <span
+                class="px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold text-xs flex items-center gap-2 shadow-xs">
+                <span class="material-symbols-outlined text-sm text-amber-500">pending</span>
+                <span>ID Card Pending Approval</span>
+            </span>
+            {% endif %}
+            <span
+                class="px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-bold text-xs flex items-center gap-2 shadow-xs">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                Attendance Rate: {{ overall_rate }}%
+            </span>
+        </div>
+    </div>
+
+    <!-- 4-Stat Attendance Overview Bento Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md slide-from-bottom">
+        <!-- Total Classes -->
+        <div
+            class="bg-white dark:bg-slate-900/90 p-lg rounded-2xl border border-outline-variant/30 shadow-md relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-1 bg-blue-600"></div>
+            <div class="flex justify-between items-start mb-2">
+                <span
+                    class="p-3 bg-blue-500/10 text-blue-600 rounded-xl material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">school</span>
+                <span
+                    class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">Scheduled</span>
+            </div>
+            <p class="text-xs font-extrabold text-outline uppercase tracking-wider">Total Classes</p>
+            <h2 class="text-display-lg font-bold text-on-surface mt-1">{{ total_classes }}</h2>
+            <p class="text-[11px] text-outline mt-1 font-medium">Lectures & Practical Labs</p>
+        </div>
+
+        <!-- Total Present -->
+        <div
+            class="bg-white dark:bg-slate-900/90 p-lg rounded-2xl border border-emerald-500/30 shadow-md relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+            <div class="flex justify-between items-start mb-2">
+                <span
+                    class="p-3 bg-emerald-500/10 text-emerald-600 rounded-xl material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">check_circle</span>
+                <span
+                    class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300">+15
+                    XP / Class</span>
+            </div>
+            <p class="text-xs font-extrabold text-outline uppercase tracking-wider">Present</p>
+            <h2 class="text-display-lg font-bold text-emerald-600 dark:text-emerald-400 mt-1">{{ total_present }}</h2>
+            <p class="text-[11px] text-outline mt-1 font-medium">{{ total_present * 15 }} XP Earned Points</p>
+        </div>
+
+        <!-- Total Absent -->
+        <div
+            class="bg-white dark:bg-slate-900/90 p-lg rounded-2xl border border-red-500/30 shadow-md relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-1 bg-red-500"></div>
+            <div class="flex justify-between items-start mb-2">
+                <span
+                    class="p-3 bg-red-500/10 text-red-600 rounded-xl material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">cancel</span>
+                <span
+                    class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300">Missed</span>
+            </div>
+            <p class="text-xs font-extrabold text-outline uppercase tracking-wider">Absent</p>
+            <h2 class="text-display-lg font-bold text-red-600 dark:text-red-400 mt-1">{{ total_absent }}</h2>
+            <p class="text-[11px] text-outline mt-1 font-medium">Unexcused Missed Sessions</p>
+        </div>
+
+        <!-- Total Leave / Excused -->
+        <div
+            class="bg-white dark:bg-slate-900/90 p-lg rounded-2xl border border-amber-500/30 shadow-md relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+            <div class="flex justify-between items-start mb-2">
+                <span
+                    class="p-3 bg-amber-500/10 text-amber-600 rounded-xl material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">event_busy</span>
+                <span
+                    class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300">Approved</span>
+            </div>
+            <p class="text-xs font-extrabold text-outline uppercase tracking-wider">Leave / Excused</p>
+            <h2 class="text-display-lg font-bold text-amber-600 dark:text-amber-400 mt-1">{{ total_leave }}</h2>
+            <p class="text-[11px] text-outline mt-1 font-medium">Approved Medical / Medical Leave</p>
+        </div>
+    </div>
+
+    <!-- Live PIN Check-in Banner & Active Sessions -->
+    <div
+        class="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white p-lg rounded-2xl border border-blue-400/30 shadow-xl relative overflow-hidden">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-lg relative z-10">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                    <span
+                        class="p-1.5 bg-amber-400 text-slate-950 rounded-lg material-symbols-outlined text-sm font-bold">pin</span>
+                    <h3 class="font-extrabold text-xl font-space text-white">Live Classroom PIN Check-In</h3>
+                </div>
+                <p class="text-xs text-slate-300">Got a 6-digit PIN code from your live lecture or classroom screen?
+                    Enter it below for instant verification:</p>
+            </div>
+
+            <form action="{{ url_for('student.attendance') }}" method="POST"
+                class="flex gap-2 w-full md:w-auto shrink-0">
+                <input type="text" name="pin_code" placeholder="PIN (e.g. 849201)" maxlength="10" required
+                    class="px-4 py-2.5 rounded-xl bg-slate-800/90 border border-slate-600 text-white text-sm font-mono tracking-widest focus:outline-none focus:border-amber-400 w-full md:w-56">
+                <button type="submit"
+                    class="bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 px-5 py-2.5 rounded-xl font-extrabold text-xs hover:scale-105 active:scale-95 transition-all shadow-md shrink-0">
+                    Submit PIN
+                </button>
+            </form>
+        </div>
+
+        {% if open_sessions %}
+        <div class="mt-lg pt-md border-t border-white/10">
+            <p class="text-xs font-bold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                Active Open Lecture Sessions Right Now:
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-sm">
+                {% for s in open_sessions %}
+                <div
+                    class="p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-between">
+                    <div>
+                        <p class="font-bold text-sm text-white">{{ s.title }}</p>
+                        <p class="text-[11px] text-slate-300">{{ s.course.title }}</p>
+                    </div>
+                    <form action="{{ url_for('student.attendance') }}" method="POST">
+                        <input type="hidden" name="session_id" value="{{ s.id }}">
+                        <button type="submit"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition-all">
+                            Mark Present
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Course Schedules & Specific Attendance Breakdowns -->
+    <div class="space-y-md">
+        <div class="flex items-center justify-between">
+            <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">calendar_month</span>
+                Course Schedules & Individual Attendance Breakdowns
+            </h3>
+            <span class="text-label-sm font-bold text-outline">{{ course_schedules|length }} Enrolled Courses</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+            {% for cs in course_schedules %}
+            <div
+                class="bg-white dark:bg-slate-900/90 p-lg rounded-2xl border border-outline-variant/30 shadow-md space-y-md hover:-translate-y-1.5 hover:shadow-2xl hover:border-primary/50 transition-all duration-300 group">
+                <!-- Course Header & Timetable Slot -->
+                <div class="flex items-start justify-between border-b border-outline-variant/20 pb-3">
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap mb-1">
+                            <span
+                                class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-extrabold uppercase tracking-wider inline-block">
+                                {{ cs.course.category or 'Course' }}
+                            </span>
+                            <span
+                                class="px-2.5 py-0.5 rounded-full bg-[#000096] text-amber-400 font-mono text-[10px] font-extrabold inline-block border border-[#000096]/30">
+                                Roll No: {{ current_user.get_roll_number(cs.course) }}
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-on-surface text-base">{{ cs.course.title }}</h4>
+                        <p class="text-xs text-outline flex items-center gap-1 mt-1">
+                            <span class="material-symbols-outlined text-sm text-primary">schedule</span>
+                            Schedule: <strong class="text-on-surface font-semibold">{{ cs.schedule_slot }}</strong>
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <span
+                            class="text-lg font-extrabold {% if cs.rate >= 80 %}text-emerald-600{% elif cs.rate >= 60 %}text-amber-600{% else %}text-red-600{% endif %}">
+                            {{ cs.rate }}%
+                        </span>
+                        <p class="text-[10px] text-outline font-bold">Attendance Rate</p>
+                    </div>
+                </div>
+
+                <!-- Attendance Progress Ring / Bar -->
+                <div class="space-y-1">
+                    <div class="flex justify-between text-xs font-bold text-outline">
+                        <span>Course Progress</span>
+                        <span>{{ cs.present_count }} / {{ cs.total_classes }} Classes Attended</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                        {% set p_pct = (cs.present_count / cs.total_classes * 100) if cs.total_classes > 0 else 100 %}
+                        {% set a_pct = (cs.absent_count / cs.total_classes * 100) if cs.total_classes > 0 else 0 %}
+                        {% set l_pct = (cs.leave_count / cs.total_classes * 100) if cs.total_classes > 0 else 0 %}
+                        <div style="width: {{ p_pct }}%" class="bg-emerald-500 h-full" title="Present"></div>
+                        <div style="width: {{ a_pct }}%" class="bg-red-500 h-full" title="Absent"></div>
+                        <div style="width: {{ l_pct }}%" class="bg-amber-500 h-full" title="Leave"></div>
+                    </div>
+                </div>
+
+                <!-- Mini Stat Badges -->
+                <div class="grid grid-cols-3 gap-2 pt-1">
+                    <div
+                        class="bg-emerald-50 dark:bg-emerald-950/40 p-2 rounded-xl text-center border border-emerald-200/50">
+                        <span
+                            class="text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-400 block">Present</span>
+                        <span class="text-base font-extrabold text-emerald-800 dark:text-emerald-300">{{
+                            cs.present_count }}</span>
+                    </div>
+                    <div class="bg-red-50 dark:bg-red-950/40 p-2 rounded-xl text-center border border-red-200/50">
+                        <span class="text-[10px] font-bold uppercase text-red-700 dark:text-red-400 block">Absent</span>
+                        <span class="text-base font-extrabold text-red-800 dark:text-red-300">{{ cs.absent_count
+                            }}</span>
+                    </div>
+                    <div class="bg-amber-50 dark:bg-amber-950/40 p-2 rounded-xl text-center border border-amber-200/50">
+                        <span
+                            class="text-[10px] font-bold uppercase text-amber-700 dark:text-amber-400 block">Leave</span>
+                        <span class="text-base font-extrabold text-amber-800 dark:text-amber-300">{{ cs.leave_count
+                            }}</span>
+                    </div>
+                </div>
+                <!-- View Course ID Card Button -->
+                {% if reg and reg.status == 'approved' %}
+                <button type="button"
+                    onclick="openStudentIdCard('{{ cs.course.title }}', '{{ current_user.get_roll_number(cs.course) }}')"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2 mt-3 transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-sm text-amber-400">badge</span>
+                    <span>View Course ID Card</span>
+                </button>
+                {% else %}
+                <div class="w-full bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-2 mt-3 border border-dashed border-slate-200 dark:border-slate-700/50 select-none">
+                    <span class="material-symbols-outlined text-sm text-amber-500 animate-pulse">lock</span>
+                    <span>ID Card Locked (Pending Approval)</span>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="col-span-2 bg-white p-xl text-center rounded-2xl text-outline border border-outline-variant/30">
+                You are not enrolled in any courses yet. Enroll in courses from the catalog to see class schedules!
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Complete Class Timetable & Attendance History List -->
+    <div class="bg-white dark:bg-slate-900/90 rounded-2xl border border-outline-variant/30 shadow-lg overflow-hidden">
+        <div
+            class="p-lg bg-surface-container-low dark:bg-slate-950/60 border-b border-outline-variant/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+            <div>
+                <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">format_list_bulleted</span>
+                    All Scheduled Classes & Attendance Log List
+                </h3>
+                <p class="text-xs text-outline">Complete chronological history of all lectures, PIN check-ins, and
+                    absences.</p>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 bg-primary/10 text-primary rounded-full uppercase tracking-wider">
+                {{ class_list|length }} Total Classes Recorded
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-body-sm">
+                <thead>
+                    <tr
+                        class="bg-slate-50 dark:bg-slate-800/80 text-outline border-b border-outline-variant/20 uppercase text-[11px] tracking-wider font-bold">
+                        <th class="p-md">Class / Lecture Title</th>
+                        <th class="p-md">Course Name</th>
+                        <th class="p-md">Class Date & Time</th>
+                        <th class="p-md">Verification Method</th>
+                        <th class="p-md text-right">Attendance Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/15 text-on-surface font-medium">
+                    {% for item in class_list %}
+                    <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                        <td class="p-md">
+                            <span class="font-bold text-on-surface block">{{ item.session.title }}</span>
+                            <span class="text-[11px] text-outline font-mono">PIN: {{ item.session.pin_code or 'N/A'
+                                }}</span>
+                        </td>
+                        <td class="p-md text-on-surface-variant font-semibold">
+                            {{ item.session.course.title }}
+                        </td>
+                        <td class="p-md text-on-surface-variant font-mono text-xs">
+                            {{ item.session.session_date.strftime('%b %d, %Y') }}
+                        </td>
+                        <td class="p-md">
+                            <span
+                                class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700">
+                                {{ item.method.replace('_', ' ') if item.method != 'N/A' else 'Self Check-In' }}
+                            </span>
+                        </td>
+                        <td class="p-md text-right">
+                            {% if item.status == 'PRESENT' %}
+                            <span
+                                class="px-3 py-1 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 rounded-full font-bold text-[11px] uppercase">
+                                ✓ Present (+15 XP)
+                            </span>
+                            {% elif item.status == 'EXCUSED' or item.status == 'LEAVE' %}
+                            <span
+                                class="px-3 py-1 bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 rounded-full font-bold text-[11px] uppercase">
+                                Leave / Excused
+                            </span>
+                            {% elif item.status == 'LIVE_NOW' %}
+                            <form action="{{ url_for('student.attendance') }}" method="POST" class="inline">
+                                <input type="hidden" name="session_id" value="{{ item.session.id }}">
+                                <button type="submit"
+                                    class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-[11px] uppercase shadow-md animate-pulse">
+                                    ⚡ Check In Now
+                                </button>
+                            </form>
+                            {% else %}
+                            <span
+                                class="px-3 py-1 bg-red-100 dark:bg-red-950/80 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-700 rounded-full font-bold text-[11px] uppercase">
+                                ✗ Absent
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="p-xl text-center text-outline">
+                            No class records found. Check back once your instructors launch live class sessions!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Student Digital QR Pass Modal -->
+    <style>
+        #studentQrPassModal {
+            transition: opacity 0.25s ease-out;
+            opacity: 0;
+        }
+        #studentQrPassModal.active {
+            opacity: 1;
+        }
+        #studentQrPassModal .modal-content-container {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(0.9) translateY(20px);
+        }
+        #studentQrPassModal.active .modal-content-container {
+            transform: scale(1) translateY(0);
+        }
+    </style>
+    <div id="studentQrPassModal" tabindex="-1"
+        class="fixed inset-0 bg-black/90 backdrop-blur-md z-[99999] flex items-start justify-center hidden p-md overflow-y-auto outline-none">
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@500;600;700&display=swap"
+            rel="stylesheet">
+        <div
+            class="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-6 shadow-2xl relative modal-content-container my-8">
+
+            <div class="flex flex-row items-center justify-between border-b border-slate-800 pb-3 mb-6 gap-4">
+                <span
+                    class="text-xs font-black text-white uppercase flex items-center gap-1.5 tracking-wider whitespace-nowrap">
+                    <span class="material-symbols-outlined text-sm text-[#F4B400]">badge</span> Titan Student ID Card
+                </span>
+                <div class="flex items-center gap-2 shrink-0">
+                    <!-- Download PDF Button -->
+                    <button onclick="downloadIdCardPDF(event)"
+                        class="text-xs font-bold text-white hover:text-white/80 flex items-center gap-1 bg-white/10 px-3 py-1.5 rounded-lg border border-white/20 transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-xs">download</span>
+                        <span>Download PDF</span>
+                    </button>
+                    <button onclick="closeStudentIdCard()"
+                        class="text-slate-400 hover:text-white transition-colors">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Print Area with White background wrapper for premium PDF output -->
+            <div id="id-card-print-area"
+                class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 py-6 px-8 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/50">
+                <!-- FRONT SIDE -->
+                <div class="relative w-[290px] h-[450px] bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 shrink-0 flex flex-col items-center select-none"
+                    style="width: 290px; height: 450px; font-family: 'Poppins', sans-serif;">
+
+                    <!-- Lanyard Punch Slot -->
+                    <div class="absolute top-2.5 left-[135px] w-5 h-2.5 rounded-full bg-slate-800/20 z-10"></div>
+
+                    <!-- Background Curve Watermarks -->
+                    <svg width="290" height="450" viewBox="0 0 290 450" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        class="absolute inset-0 w-full h-full z-0 pointer-events-none">
+                        <path d="M 140,0 C 200,0 290,40 290,110 L 290,0 Z" fill="#F4F6F8" />
+                        <path d="M 290,110 C 240,160 215,220 290,270 Z" fill="#F4F6F8" />
+                    </svg>
+
+                    <!-- Header Area -->
+                    <div class="absolute top-6 left-[65px] right-4 flex items-center gap-2 z-10 text-left">
+                        <img src="/static/logo.png" alt="Titan Logo" class="w-[36px] h-[36px] object-contain">
+                        <div class="flex flex-col">
+                            <span
+                                class="text-[13px] font-black text-[#0D1FA8] tracking-wider uppercase font-sans leading-none"
+                                style="font-family: 'Montserrat', sans-serif; font-weight: 800;">TITAN</span>
+                            <span
+                                class="text-[7.5px] font-bold text-slate-500 uppercase font-sans mt-0.5 tracking-normal leading-none"
+                                style="font-family: 'Poppins', sans-serif; font-weight: 600;">STUDENT PASS</span>
+                        </div>
+                    </div>
+
+                    <!-- Left Vertical Bar -->
+                    <div
+                        class="absolute top-[80px] left-0 w-[50px] h-[370px] bg-[#0D1FA8] border-r-[3px] border-[#F4B400] flex flex-col items-center justify-center space-y-2.5 text-white font-extrabold text-sm tracking-wider select-none z-10 rounded-bl-2xl">
+                        <span>S</span>
+                        <span>T</span>
+                        <span>U</span>
+                        <span>D</span>
+                        <span>E</span>
+                        <span>N</span>
+                        <span>T</span>
+                    </div>
+
+                    <!-- Profile Photo (Squircle Frame!) -->
+                    <div
+                        class="absolute top-[80px] left-[78px] z-10 w-[156px] h-[156px] bg-[#0D1FA8] rounded-[30px] flex items-center justify-center shadow-lg">
+                        <div
+                            class="w-[124px] h-[124px] bg-white rounded-[22px] overflow-hidden border-4 border-[#F4B400]">
+                            <img class="w-full h-full object-cover block"
+                                src="{{ current_user.avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}"
+                                alt="Avatar">
+                        </div>
+                    </div>
+
+                    <!-- Logo Watermark Background -->
+                    <img src="/static/logo.png"
+                        class="absolute bottom-8 right-2 w-[115px] h-[115px] object-contain opacity-[0.06] pointer-events-none z-0">
+
+                    <!-- Name & Info Block -->
+                    <div class="absolute top-[252px] left-[65px] right-4 text-left z-10">
+                        <h3 class="text-[20px] font-black text-[#0D1FA8] tracking-wide uppercase leading-tight"
+                            style="font-family: 'Montserrat', sans-serif; font-weight: 800;">{{ current_user.name }}
+                        </h3>
+
+                        <div class="mt-2.5 space-y-1 font-sans">
+                            <div class="flex flex-col">
+                                <span class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">ID
+                                    Number:</span>
+                                <span id="id_card_roll_front"
+                                    class="text-[12px] font-bold text-[#0D1FA8] font-mono leading-none mt-0.5">{{
+                                    current_user.get_roll_number() }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span
+                                    class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">Course:</span>
+                                <span id="id_card_course_front"
+                                    class="text-[12px] font-bold text-slate-700 leading-none mt-0.5 uppercase truncate max-w-[210px]">{{
+                                    reg.course_name or 'Python Programming' }}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">Father
+                                    Name:</span>
+                                <span
+                                    class="text-[12px] font-bold text-slate-700 leading-none mt-0.5 uppercase truncate max-w-[210px]">{{
+                                    reg.father_name or 'N/A' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Right Accent -->
+                    <div class="absolute bottom-0 right-0 w-[80px] h-[80px] overflow-hidden rounded-br-2xl z-0">
+                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            class="w-full h-full">
+                            <path d="M 80,0 C 35,45 35,80 80,80 Z" fill="#F4B400" />
+                            <path d="M 80,8 C 43,45 43,80 80,80 Z" fill="#0D1FA8" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- DOTTED SPLIT SEPARATOR (Hidden on Mobile) -->
+                <div id="id_card_separator"
+                    class="hidden md:block w-px h-[380px] border-l-2 border-dashed border-slate-300 dark:border-slate-600">
+                </div>
+
+                <!-- BACK SIDE -->
+                <div class="relative w-[290px] h-[450px] bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 shrink-0 flex flex-col select-none"
+                    style="width: 290px; height: 450px; font-family: 'Poppins', sans-serif;">
+
+                    <!-- Lanyard Punch Slot -->
+                    <div class="absolute top-2.5 left-[135px] w-5 h-2.5 rounded-full bg-slate-800/20 z-10"></div>
+
+                    <!-- Background Curve Watermarks -->
+                    <svg width="290" height="450" viewBox="0 0 290 450" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        class="absolute inset-0 w-full h-full z-0 pointer-events-none">
+                        <path d="M 140,0 C 200,0 290,40 290,110 L 290,0 Z" fill="#F4F6F8" />
+                        <path d="M 290,110 C 240,160 215,220 290,270 Z" fill="#F4F6F8" />
+                    </svg>
+
+                    <!-- Header Area -->
+                    <div class="absolute top-6 left-[65px] right-4 flex items-center gap-2 z-10 text-left">
+                        <img src="/static/logo.png" alt="Titan Logo" class="w-[36px] h-[36px] object-contain">
+                        <div class="flex flex-col">
+                            <span
+                                class="text-[13px] font-black text-[#0D1FA8] tracking-wider uppercase font-sans leading-none"
+                                style="font-family: 'Montserrat', sans-serif; font-weight: 800;">TITAN</span>
+                            <span
+                                class="text-[7.5px] font-bold text-slate-500 uppercase font-sans mt-0.5 tracking-normal leading-none"
+                                style="font-family: 'Poppins', sans-serif; font-weight: 600;">STUDENT PASS</span>
+                        </div>
+                    </div>
+
+                    <!-- Left Vertical Bar -->
+                    <div
+                        class="absolute top-[80px] left-0 w-[50px] h-[370px] bg-[#0D1FA8] border-r-[3px] border-[#F4B400] flex flex-col items-center justify-center space-y-2.5 text-white font-extrabold text-sm tracking-wider select-none z-10 rounded-bl-2xl">
+                        <span>S</span>
+                        <span>T</span>
+                        <span>U</span>
+                        <span>D</span>
+                        <span>E</span>
+                        <span>N</span>
+                        <span>T</span>
+                    </div>
+
+                    <!-- QR Code (Squircle Frame!) -->
+                    <div
+                        class="absolute top-[80px] left-[78px] z-10 w-[156px] h-[156px] bg-[#0D1FA8] rounded-[30px] flex items-center justify-center shadow-lg">
+                        <div
+                            class="w-[124px] h-[124px] bg-white rounded-[22px] overflow-hidden p-2.5 border-4 border-[#F4B400]">
+                            <img id="id_card_qr_img"
+                                src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={{ current_user.get_roll_number() }}"
+                                alt="Student QR Pass" class="w-full h-full object-contain block">
+                        </div>
+                    </div>
+
+                    <!-- Logo Watermark Background -->
+                    <img src="/static/logo.png"
+                        class="absolute bottom-8 right-2 w-[115px] h-[115px] object-contain opacity-[0.06] pointer-events-none z-0">
+
+                    <!-- Name & Info Block -->
+                    <div class="absolute top-[252px] left-[65px] right-4 text-left z-10 space-y-2.5 font-sans">
+                        <div class="border-b border-slate-200 pb-1 flex flex-col">
+                            <span class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">CNIC / ID
+                                Number:</span>
+                            <span class="text-[12px] font-bold text-slate-700 mt-0.5 leading-none">{{ reg.id_number or
+                                'N/A' }}</span>
+                        </div>
+                        <div class="border-b border-slate-200 pb-1 flex flex-col">
+                            <span class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">Registered
+                                Email:</span>
+                            <span class="text-[12px] font-bold text-slate-700 mt-0.5 leading-none truncate">{{ reg.email
+                                or 'N/A' }}</span>
+                        </div>
+                        <div class="border-b border-slate-200 pb-1 flex flex-col">
+                            <span class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">Premises
+                                Rule:</span>
+                            <span id="id_card_course_back"
+                                class="text-[10px] font-black text-[#0D1FA8] mt-0.5 uppercase tracking-wide leading-none">For
+                                Titan premises only.</span>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Right Accent -->
+                    <div class="absolute bottom-0 right-0 w-[80px] h-[80px] overflow-hidden rounded-br-2xl z-0">
+                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            class="w-full h-full">
+                            <path d="M 80,0 C 35,45 35,80 80,80 Z" fill="#F4B400" />
+                            <path d="M 80,8 C 43,45 43,80 80,80 Z" fill="#0D1FA8" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- html2pdf.js Dependency -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    function openStudentIdCard(courseName, rollNumber) {
+        document.getElementById('id_card_course_front').textContent = courseName;
+        document.getElementById('id_card_course_back').textContent = courseName;
+        document.getElementById('id_card_roll_front').textContent = rollNumber;
+
+        // Update QR Code
+        const qrImg = document.getElementById('id_card_qr_img');
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(rollNumber)}`;
+
+        // Show Modal & Focus with CSS transition trigger
+        const modal = document.getElementById('studentQrPassModal');
+        
+        // Portal positioning: Move modal to body root to avoid transformed parent containing block issues
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+
+        modal.classList.remove('hidden');
+        modal.offsetHeight; // Force browser layout recalculation
+        modal.classList.add('active');
+        modal.scrollTop = 0; // Scroll modal container itself to top
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll window to top
+        document.body.style.overflow = 'hidden'; // Lock background body scroll
+        modal.focus();
+    }
+
+    function closeStudentIdCard() {
+        const modal = document.getElementById('studentQrPassModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = ''; // Unlock background body scroll
+        // Wait for opacity/scale transition to complete before hiding element
+        setTimeout(() => {
+            if (!modal.classList.contains('active')) {
+                modal.classList.add('hidden');
+            }
+        }, 250);
+    }
+
+    function downloadIdCardPDF(event) {
+        const originalElement = document.getElementById('id-card-print-area');
+        const roll = document.getElementById('id_card_roll_front').textContent.trim();
+
+        // Clone original print element
+        const clone = originalElement.cloneNode(true);
+
+        // Style clone to guarantee side-by-side card layout in PDF regardless of screen sizes
+        clone.style.position = 'absolute';
+        clone.style.top = '0px';
+        clone.style.left = '0px';
+        clone.style.zIndex = '-9999';
+        clone.style.opacity = '1';
+        clone.style.width = '652px';
+        clone.style.height = '490px';
+        clone.style.boxSizing = 'border-box';
+        clone.style.display = 'flex';
+        clone.style.flexDirection = 'row';
+        clone.style.alignItems = 'center';
+        clone.style.justifyContent = 'center';
+        clone.style.gap = '24px';
+        clone.style.padding = '20px';
+        clone.style.backgroundColor = '#ffffff';
+        clone.style.borderRadius = '0px';
+        clone.style.border = 'none';
+
+        // Force show dotted separator in landscape output
+        const separator = clone.querySelector('#id_card_separator');
+        if (separator) {
+            separator.classList.remove('hidden');
+            separator.style.display = 'block';
+            separator.style.height = '380px';
+            separator.style.borderColor = '#cbd5e1'; // Force light grey color in PDF
+        }
+
+        // Keep cards aligned and prevent stretching
+        const cards = clone.querySelectorAll('.relative.w-\\[290px\\]');
+        cards.forEach(card => {
+            card.style.setProperty('width', '290px', 'important');
+            card.style.setProperty('height', '450px', 'important');
+            card.style.flexShrink = '0';
+        });
+
+        document.body.appendChild(clone);
+
+        const opt = {
+            margin: 0,
+            filename: `Titan_ID_Card_${roll}.pdf`,
+            image: { type: 'png' },
+            html2canvas: {
+                scale: 4, // Upgraded to 4x scale for crisp Ultra-HD (300 DPI equivalent) output
+                useCORS: true,
+                logging: false,
+                width: 652,
+                height: 490,
+                scrollX: 0,
+                scrollY: 0
+            },
+            jsPDF: { unit: 'px', format: [652, 490], orientation: 'landscape', hotfixes: ['px_scaling'] },
+            pagebreak: { mode: 'avoid' }
+        };
+
+        // Loading Feedback
+        const btn = event.currentTarget;
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = `<span class="material-symbols-outlined text-xs animate-spin">sync</span><span>Generating...</span>`;
+        btn.disabled = true;
+
+        html2pdf().set(opt).from(clone).save().then(() => {
+            document.body.removeChild(clone);
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        }).catch(err => {
+            console.error(err);
+            if (clone.parentNode) {
+                document.body.removeChild(clone);
+            }
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        });
+    }
+</script>
+{% endblock %}

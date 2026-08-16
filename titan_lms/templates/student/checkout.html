@@ -1,0 +1,177 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Enrollment Verification | {{ course.title }}{% endblock %}
+
+{% block head %}
+<style>
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .step-card {
+        animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+</style>
+{% endblock %}
+
+{% block student_content %}
+<div class="max-w-3xl mx-auto px-gutter py-xl space-y-xl" x-data="{ isUnlocked: false, keyText: '', loading: false, errorMsg: '', successMsg: '' }" x-init="
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeParam = urlParams.get('code');
+    if (codeParam) {
+        keyText = codeParam;
+        verifyAccessKey();
+    }
+">
+    
+    <!-- Step 1: Verification Lock Screen -->
+    <div x-show="!isUnlocked" class="step-card bg-white p-10 rounded-3xl border-2 border-slate-200 shadow-2xl space-y-lg text-center">
+        <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mx-auto">
+            <span class="material-symbols-outlined text-3xl">lock</span>
+        </div>
+        <div class="space-y-xs">
+            <h2 class="text-headline-md font-bold text-on-surface">Restricted Course Enrollment</h2>
+            <p class="text-body-md text-slate-500 max-w-md mx-auto">This course requires a valid, unique seat access activation key. Please enter your code to unlock registration.</p>
+        </div>
+
+        <div class="max-w-md mx-auto space-y-md">
+            <div>
+                <input type="text" x-model="keyText" placeholder="Enter Access Key (e.g. CSC-A8B9-XYZ)" 
+                    class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-5 py-4 text-center font-mono font-black text-lg uppercase focus:border-primary focus:bg-white focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-sans placeholder:font-normal">
+            </div>
+
+            <!-- Error banner -->
+            <div x-show="errorMsg" x-text="errorMsg" class="text-xs font-bold text-red-700 bg-red-50 border border-red-200 p-3.5 rounded-xl text-left" style="display: none;"></div>
+
+            <button type="button" @click="verifyAccessKey()" :disabled="loading"
+                class="w-full bg-[#0054cb] hover:bg-[#0040a0] disabled:bg-slate-300 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-xs text-sm">
+                <span x-show="loading" class="animate-spin border-2 border-white border-t-transparent w-4 h-4 rounded-full mr-2"></span>
+                <span class="material-symbols-outlined text-lg" x-show="!loading">vpn_key</span>
+                Verify & Unlock Registration
+            </button>
+        </div>
+    </div>
+
+    <!-- Step 2: Unlocked Student Details Registration Form -->
+    <div x-show="isUnlocked" class="step-card bg-white rounded-3xl border border-outline-variant/20 shadow-2xl overflow-hidden space-y-lg" style="display: none;">
+        <!-- Header Strip -->
+        <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-6 text-white flex justify-between items-center">
+            <div>
+                <p class="text-[10px] uppercase font-mono tracking-widest text-emerald-100">Verification Success</p>
+                <h3 class="text-headline-sm font-bold text-white leading-none mt-1">Course Unlocked</h3>
+            </div>
+            <span class="material-symbols-outlined text-3xl text-emerald-100">lock_open</span>
+        </div>
+
+        <form action="{{ url_for('student.enroll_course', course_id=course.id) }}" method="POST" class="p-8 space-y-xl">
+            <input type="hidden" name="confirm_checkout" value="1">
+            <input type="hidden" name="coupon_code" :value="keyText">
+
+            <!-- Course details overview snippet -->
+            <div class="flex items-center gap-md p-md bg-slate-50 border border-slate-200/50 rounded-2xl">
+                <div class="w-20 h-14 rounded-lg overflow-hidden shrink-0 border border-slate-300/40">
+                    <img src="{{ course.thumbnail or 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600' }}" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h4 class="font-bold text-on-surface leading-tight text-body-md">{{ course.title }}</h4>
+                    <span class="text-[10px] text-primary uppercase font-bold tracking-wider">{{ course.category }} &bull; {{ course.level }}</span>
+                </div>
+            </div>
+
+            <!-- Student Registration Form -->
+            <div class="space-y-md">
+                <h3 class="text-label-lg font-black text-on-surface uppercase tracking-wider border-b border-slate-100 pb-2">Student Profile Registration Details</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 uppercase tracking-wider mb-2">Full Name</label>
+                        <input type="text" name="student_name" value="{{ current_user.name }}" required
+                            class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 uppercase tracking-wider mb-2">Email Address</label>
+                        <input type="email" value="{{ current_user.email }}" disabled
+                            class="w-full bg-slate-100 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold text-slate-500 cursor-not-allowed">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 uppercase tracking-wider mb-2">Phone Number</label>
+                        <input type="text" name="phone_number" placeholder="e.g. +92 300 1234567" required
+                            class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-600 uppercase tracking-wider mb-2">Student ID / Roll Number</label>
+                        <input type="text" name="roll_number" placeholder="e.g. CS-2026-981" required
+                            class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-600 uppercase tracking-wider mb-2">Campus / Branch Location</label>
+                    <select name="campus" required
+                        class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-bold cursor-pointer focus:outline-none focus:border-primary focus:bg-white transition-all">
+                        <option value="">-- Select Campus --</option>
+                        {% for c in campuses %}
+                        <option value="{{ c.title }}">{{ c.title }}</option>
+                        {% else %}
+                        <option value="Main Campus">Main Campus</option>
+                        <option value="City Campus">City Campus</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Submit buttons -->
+            <div class="pt-sm space-y-md">
+                <button type="submit"
+                    class="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold py-4 rounded-xl shadow-xl shadow-emerald-100 hover:scale-[1.01] active:scale-95 transition-all text-center text-sm flex items-center justify-center gap-xs">
+                    <span class="material-symbols-outlined">how_to_reg</span>
+                    Complete Registration & Start Learning
+                </button>
+                <button type="button" @click="isUnlocked = false; errorMsg = ''; keyText = ''" class="w-full text-center text-xs text-slate-400 font-bold hover:text-slate-600">
+                    Use a different Access Key
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+function verifyAccessKey() {
+    const scope = Alpine.find(document.querySelector('[x-data]'));
+    const code = scope.keyText.trim();
+    
+    if (!code) {
+        scope.errorMsg = "Please enter an enrollment access key.";
+        return;
+    }
+    
+    scope.loading = true;
+    scope.errorMsg = "";
+    
+    fetch('/student/api/apply_coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code, course_id: {{ course.id }} })
+    })
+    .then(res => res.json())
+    .then(data => {
+        scope.loading = false;
+        if (data.success) {
+            scope.isUnlocked = true;
+            scope.errorMsg = "";
+        } else {
+            scope.errorMsg = data.message;
+            scope.isUnlocked = false;
+        }
+    })
+    .catch(err => {
+        scope.loading = false;
+        scope.errorMsg = "Error verifying course access code.";
+    });
+}
+</script>
+{% endblock %}

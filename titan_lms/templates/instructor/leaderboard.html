@@ -1,0 +1,211 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Student Leaderboard | Instructor Portal{% endblock %}
+
+{% block head %}
+<style>
+    /* 2.5 Second Entrance & Staggered Row Transitions */
+    @keyframes rowFromLeft {
+        from { opacity: 0; transform: translateX(-40px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes rowFromRight {
+        from { opacity: 0; transform: translateX(40px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes headerFromLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes headerFromRight {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes headerFromTop {
+        from { opacity: 0; transform: translateY(-40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-row-left {
+        animation: rowFromLeft 2.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .animate-row-right {
+        animation: rowFromRight 2.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .animate-header {
+        animation: headerFromTop 2.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .animate-header-left {
+        animation: headerFromLeft 2.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .animate-header-right {
+        animation: headerFromRight 2.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .shimmer-gold {
+        background: linear-gradient(135deg, #735c00 0%, #cba72f 50%, #735c00 100%);
+        background-size: 200% 200%;
+        animation: shimmer 3s infinite linear;
+    }
+    @keyframes shimmer {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .podium-card {
+        transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        animation: headerFromTop 2.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .podium-card:hover {
+        transform: translateY(-10px) scale(1.04);
+        box-shadow: 0 20px 40px rgba(0, 84, 203, 0.18);
+    }
+</style>
+{% endblock %}
+
+{% block instructor_content %}
+<div class="max-w-container-max mx-auto px-gutter py-xl space-y-xl">
+    <!-- Header Banner (2.5s Effect) -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md bg-white p-xl rounded-2xl border border-outline-variant/20 shadow-xl animate-header">
+        <div>
+            <span class="inline-flex items-center gap-xs px-3 py-1 rounded-full bg-primary/10 text-primary text-label-sm font-bold uppercase tracking-widest mb-1">
+                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+                Student Honor Roll
+            </span>
+            <h1 class="font-headline-lg text-headline-lg text-on-surface font-bold">Global Student Leaderboard</h1>
+            <p class="text-body-md text-on-surface-variant">Track academic progress, XP scores, and study streak rankings for enrolled students.</p>
+        </div>
+    </div>
+
+    <!-- Top 3 Podium (2.5s Effect - Students Only) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-lg items-end max-w-4xl mx-auto pt-lg">
+        <!-- Rank 2 -->
+        {% if podium|length > 1 %}
+        <div class="podium-card bg-white border border-outline-variant/20 rounded-2xl p-lg shadow-sm text-center flex flex-col items-center justify-between min-h-[230px] md:order-1 order-2" style="animation-delay: 0.2s;">
+            <div class="flex flex-col items-center gap-2">
+                <span class="text-label-sm font-bold text-outline-variant uppercase">Rank #2</span>
+                <div class="w-18 h-18 rounded-full overflow-hidden border-4 border-slate-300 shadow-md">
+                    <img src="{{ podium[1].avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}" class="w-full h-full object-cover" alt="Student 2">
+                </div>
+                <h3 class="font-bold text-on-surface text-body-md leading-tight mt-1">{{ podium[1].name }}</h3>
+                <p class="text-label-sm text-on-surface-variant">Student</p>
+            </div>
+            <div class="mt-md font-bold text-primary text-headline-sm">{{ podium[1].points or 0 }} XP</div>
+        </div>
+        {% endif %}
+
+        <!-- Rank 1 (Gold Winner Banner - Student Only) -->
+        {% if podium|length > 0 %}
+        <div class="podium-card bg-white border-2 border-tertiary rounded-2xl p-xl shadow-xl text-center flex flex-col items-center justify-between min-h-[270px] md:order-2 order-1 relative transform md:-translate-y-4" style="animation-delay: 0.4s;">
+            <div class="absolute -top-4 shimmer-gold text-white font-bold text-label-sm px-4 py-1 rounded-full uppercase shadow-lg flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">emoji_events</span> #1 TOP SCHOLAR
+            </div>
+            <div class="flex flex-col items-center gap-2 mt-2">
+                <div class="w-22 h-22 rounded-full overflow-hidden border-4 border-tertiary shadow-xl">
+                    <img src="{{ podium[0].avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}" class="w-full h-full object-cover" alt="Student 1">
+                </div>
+                <h3 class="font-headline-sm font-bold text-on-surface text-headline-sm mt-1">{{ podium[0].name }}</h3>
+                <p class="text-label-sm text-tertiary font-bold">Top Ranked Student</p>
+            </div>
+            <div class="mt-md font-bold text-tertiary text-headline-md">{{ podium[0].points or 0 }} XP</div>
+        </div>
+        {% endif %}
+
+        <!-- Rank 3 -->
+        {% if podium|length > 2 %}
+        <div class="podium-card bg-white border border-outline-variant/20 rounded-2xl p-lg shadow-sm text-center flex flex-col items-center justify-between min-h-[210px] md:order-3 order-3" style="animation-delay: 0.6s;">
+            <div class="flex flex-col items-center gap-2">
+                <span class="text-label-sm font-bold text-amber-700 uppercase">Rank #3</span>
+                <div class="w-18 h-18 rounded-full overflow-hidden border-4 border-amber-600/40 shadow-md">
+                    <img src="{{ podium[2].avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}" class="w-full h-full object-cover" alt="Student 3">
+                </div>
+                <h3 class="font-bold text-on-surface text-body-md leading-tight mt-1">{{ podium[2].name }}</h3>
+                <p class="text-label-sm text-on-surface-variant">Student</p>
+            </div>
+            <div class="mt-md font-bold text-primary text-headline-sm">{{ podium[2].points or 0 }} XP</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Complete Student Standings Table (Matching Screenshot Colors & 2.5s Effects) -->
+    <div class="bg-white rounded-2xl border border-outline-variant/20 shadow-xl overflow-hidden animate-header" style="animation-delay: 0.8s;">
+        <div class="p-lg border-b border-outline-variant/10">
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Global Leaderboard Rankings</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-[#f8f6f0] border-b border-outline-variant/30 text-on-surface-variant">
+                    <tr>
+                        <th class="px-lg py-4 text-label-md font-bold uppercase tracking-wider text-left">
+                            <div class="animate-header-left">RANK</div>
+                        </th>
+                        <th class="px-lg py-4 text-label-md font-bold uppercase tracking-wider text-left">
+                            <div class="animate-header-left">STUDENT NAME</div>
+                        </th>
+
+                        <th class="px-lg py-4 text-label-md font-bold uppercase tracking-wider text-right">
+                            <div class="animate-header-right">TOTAL XP</div>
+                        </th>
+                        <th class="px-lg py-4 text-label-md font-bold uppercase tracking-wider text-right">
+                            <div class="animate-header-right">DETAILS</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10 text-on-surface">
+                    <!-- Top 3 Podium Users (Light Blue Highlight bg-[#f0f6ff]) -->
+                    {% for student in podium %}
+                    <tr class="bg-[#f0f6ff] hover:bg-primary/10 transition-all duration-300 hover:translate-x-1 group animate-row-left" style="animation-delay: {{ 0.8 + (loop.index0 * 0.15) }}s;">
+                        <td class="px-lg py-lg text-left font-bold text-on-surface">#{{ loop.index }}</td>
+                        <td class="px-lg py-lg text-left">
+                            <div class="flex items-center gap-md">
+                                <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/30 shrink-0">
+                                    <img src="{{ student.avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}" class="w-full h-full object-cover" alt="Avatar">
+                                </div>
+                                <span class="font-bold text-on-surface text-body-md">{{ student.name }}</span>
+                            </div>
+                        </td>
+
+                        <td class="px-lg py-lg text-right font-bold text-primary text-label-lg">
+                            {{ student.points or 0 }} XP
+                        </td>
+                        <td class="px-lg py-lg text-right">
+                            <span class="text-xs text-on-surface-variant block">Assignments: <span class="font-bold text-primary">{{ student.assignment_points or 0 }}</span></span>
+                            <span class="text-xs text-on-surface-variant block">Quizzes: <span class="font-bold text-tertiary">{{ student.quiz_points or 0 }}</span></span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    <!-- Remaining Students -->
+                    {% for student in remaining %}
+                    {% set rank = podium|length + loop.index %}
+                    <tr class="bg-white hover:bg-surface-container-low transition-all duration-300 hover:translate-x-1 group animate-row-right" style="animation-delay: {{ 0.8 + ((podium|length + loop.index0) * 0.15) }}s;">
+                        <td class="px-lg py-lg text-left font-bold text-on-surface-variant">#{{ rank }}</td>
+                        <td class="px-lg py-lg text-left">
+                            <div class="flex items-center gap-md">
+                                <div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/30 shrink-0">
+                                    <img src="{{ student.avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}" class="w-full h-full object-cover" alt="Avatar">
+                                </div>
+                                <span class="font-bold text-on-surface text-body-md">{{ student.name }}</span>
+                            </div>
+                        </td>
+
+                        <td class="px-lg py-lg text-right font-bold text-primary text-label-lg">
+                            {{ student.points or 0 }} XP
+                        </td>
+                        <td class="px-lg py-lg text-right">
+                            <span class="text-xs text-on-surface-variant block">Assignments: <span class="font-bold text-primary">{{ student.assignment_points or 0 }}</span></span>
+                            <span class="text-xs text-on-surface-variant block">Quizzes: <span class="font-bold text-tertiary">{{ student.quiz_points or 0 }}</span></span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="px-lg py-6 text-center text-on-surface-variant text-body-sm">Top 3 students listed above in podium rankings.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

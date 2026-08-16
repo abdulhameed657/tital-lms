@@ -1,0 +1,16 @@
+{
+  "name": "Titan LMS Enterprise",
+  "short_name": "Titan LMS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF8F5",
+  "theme_color": "#0054CB",
+  "description": "Next-Gen Enterprise Learning Management System",
+  "icons": [
+    {
+      "src": "/static/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

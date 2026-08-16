@@ -1,0 +1,219 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Certificate of Completion - {{ certificate.course.title }} | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    .certificate-border {
+        position: relative;
+        background: #ffffff;
+        padding: 44px;
+        box-shadow: 0px 10px 40px rgba(10, 17, 40, 0.08);
+    }
+
+    .certificate-border::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        border: 4px double #D4AF37;
+        pointer-events: none;
+    }
+
+    @media print {
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+
+        body {
+            background: #ffffff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        aside,
+        header,
+        nav,
+        button,
+        a,
+        .lg\:col-span-4 {
+            display: none !important;
+        }
+
+        #printable-certificate {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            padding: 20px !important;
+            box-sizing: border-box !important;
+            background: #ffffff !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block student_content %}
+<div class="max-w-container-max mx-auto px-gutter py-xl space-y-xl">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+        <div>
+            <div
+                class="inline-flex items-center gap-xs px-3 py-1 rounded-full bg-tertiary/10 text-tertiary text-label-sm font-bold uppercase tracking-widest mb-2">
+                <span class="material-symbols-outlined text-sm"
+                    style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                Verified Academic Credential
+            </div>
+            <h1 class="text-headline-lg font-headline-lg text-on-surface">Certificate of Completion</h1>
+            <p class="text-body-md text-on-surface-variant">Official completion credential issued by Titan LMS & Lead
+                Faculty.</p>
+        </div>
+        <a href="{{ url_for('student.my_certificates') }}"
+            class="bg-surface-container-high text-primary px-4 py-2 rounded-lg font-label-lg flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            All Certificates
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+        <!-- Left Side: Certificate Canvas (Design from reference code.html) -->
+        <div class="lg:col-span-8 flex flex-col gap-lg" id="printable-certificate">
+            <div class="certificate-border rounded-xl overflow-hidden relative group border border-outline-variant/30">
+                <!-- Subtle Background Texture Grid -->
+                <div class="absolute inset-0 opacity-5 pointer-events-none"
+                    style="background-image: radial-gradient(#D4AF37 1px, transparent 1px); background-size: 20px 20px;">
+                </div>
+
+                <div class="relative z-10 flex flex-col items-center text-center py-xl">
+                    <!-- Logo & Title -->
+                    <div class="mb-lg">
+                        <div
+                            class="w-20 h-20 mx-auto mb-md rounded-xl overflow-hidden shadow-lg border-2 border-[#D4AF37]/40">
+                            <img src="/static/logo.png" alt="Titan Logo" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-headline-sm font-bold text-primary block tracking-wider uppercase mb-1">Titan
+                            LMS</span>
+                        <h2
+                            class="font-headline-sm text-tertiary-fixed-dim uppercase tracking-[0.2em] mb-xs font-bold text-sm text-[#735c00]">
+                            Certificate of Completion</h2>
+                        <div class="w-32 h-0.5 bg-[#D4AF37] mx-auto"></div>
+                    </div>
+
+                    <!-- Main Content Body -->
+                    <div class="flex flex-col gap-md max-w-2xl mx-auto px-md">
+                        <p class="font-body-md text-on-surface-variant italic">This high-performance academic credential
+                            is proudly awarded to</p>
+                        <h1
+                            class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary font-bold py-sm tracking-tight">
+                            {{ certificate.user.name }}
+                        </h1>
+                        <p class="font-body-md text-on-surface-variant">for successfully mastering the advanced
+                            curriculum and requirements for</p>
+                        <h3 class="font-headline-md text-headline-md text-on-surface font-bold text-primary-container">
+                            {{ certificate.course.title }}
+                        </h3>
+                        <p class="text-label-md text-outline py-md font-bold">
+                            Completed on {{ certificate.issued_at.strftime('%B %d, %Y') }} • Verified Academic
+                            Credential
+                        </p>
+                    </div>
+
+                    <!-- Footer Details -->
+                    <div
+                        class="w-full mt-xl grid grid-cols-1 sm:grid-cols-3 items-end gap-md px-md sm:px-xl border-t border-outline-variant/10 pt-lg">
+                        <!-- Verification QR -->
+                        <div class="text-center sm:text-left flex flex-col items-center sm:items-start gap-xs">
+                            <div class="w-20 h-20 p-1 bg-white border border-[#D4AF37]/50 rounded-lg shadow-sm">
+                                <img class="w-full h-full object-contain" alt="Verification QR Code"
+                                    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://titanlms.edu/verify/{{ certificate.id }}">
+                            </div>
+                            <span class="text-[10px] text-outline font-bold uppercase tracking-wider">Scan to
+                                Verify</span>
+                        </div>
+
+                        <!-- Blockchain Badge -->
+                        <div class="flex flex-col items-center justify-center gap-sm">
+                            <div
+                                class="bg-surface-container-highest/60 px-md py-xs rounded-full flex items-center gap-xs border border-[#D4AF37]/30 shadow-sm">
+                                <span class="material-symbols-outlined text-tertiary text-lg"
+                                    style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                                <span class="text-[11px] font-bold text-on-surface tracking-wider uppercase">Blockchain
+                                    Verified</span>
+                            </div>
+                            <p class="text-[9px] font-mono text-outline uppercase font-bold">TXID: 8v93n{{
+                                certificate.id }}...392kf0</p>
+                        </div>
+
+                        <!-- Signature -->
+                        <div class="text-center sm:text-right flex flex-col items-center sm:items-end">
+                            <div class="w-32 h-12 relative mb-xs">
+                                <img class="w-full h-full object-contain" alt="Faculty Signature"
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH7l3VgrfK82HsXft7ZM6QZyZUACXha5dlUIoBvaEvHlvSccXWsB3sSYuhy_M8onA3FfgzDln6WMhp2br5kpxSRVAcxV0PM04ESKr_JqPuOLIH53Ld25zORRr-EfufEt9pGmbXzKhGZJ1ok6sXHsC-1nB3jUpFA4btrz7Zm9In8AedEUsbHDZhEprwNzDacgqA9m966XQqE1rTImEf7astXA-4FAnaXRVqXNhlQgMKLWa6fDUDU2e4">
+                            </div>
+                            <div class="w-36 h-[1px] bg-outline-variant mb-xs"></div>
+                            <p class="font-bold text-label-md text-on-surface">{{ certificate.course.instructor.name }}
+                            </p>
+                            <p class="text-[11px] text-outline">Lead Faculty, Titan LMS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Action Card & Course Performance Info (Design from code.html) -->
+        <div class="lg:col-span-4 flex flex-col gap-lg">
+            <!-- Share & Download Actions Card -->
+            <div class="bg-white p-lg rounded-xl shadow-sm border border-outline-variant/20 flex flex-col gap-md">
+                <h4 class="font-headline-sm text-headline-sm text-on-surface font-bold">Share & Download</h4>
+                <p class="text-body-sm text-on-surface-variant">Your accomplishment is verified with QR code
+                    authentication and ready to be downloaded as a PDF document.</p>
+                <div class="flex flex-col gap-sm mt-md">
+                    <button onclick="window.print()"
+                        class="flex items-center justify-center gap-md bg-primary text-white py-md rounded-lg font-label-lg hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] transition-all active:scale-95 font-bold shadow-md">
+                        <span class="material-symbols-outlined text-xl">download</span>
+                        Download Verified PDF Certificate
+                    </button>
+                    <a href="https://www.linkedin.com" target="_blank"
+                        class="flex items-center justify-center gap-md border border-secondary text-secondary py-md rounded-lg font-label-lg hover:bg-secondary/5 transition-all font-bold">
+                        <span class="material-symbols-outlined"
+                            style="font-variation-settings: 'FILL' 1;">add_box</span>
+                        Add to LinkedIn Profile
+                    </a>
+                    <a href="{{ url_for('student.view_certificate', course_id=certificate.course_id) }}"
+                        onclick="navigator.clipboard.writeText(window.location.href); alert('Certificate verification link copied to clipboard!'); return false;"
+                        class="flex items-center justify-center gap-md text-on-surface-variant border border-outline-variant/30 py-md rounded-lg font-label-lg hover:bg-surface-variant transition-all font-bold">
+                        <span class="material-symbols-outlined">link</span>
+                        Copy Verification Link
+                    </a>
+                </div>
+            </div>
+
+            <!-- Course Performance Summary Card -->
+            <div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant/30 space-y-md">
+                <h4 class="font-label-lg text-on-surface-variant uppercase tracking-wider font-bold mb-md">Course
+                    Performance Summary</h4>
+                <div class="flex flex-col gap-md">
+                    <div class="flex justify-between items-center pb-2 border-b border-outline-variant/10">
+                        <span class="text-body-sm text-on-surface font-medium">Final Completion Grade</span>
+                        <span class="font-bold text-headline-sm text-primary">100%</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2 border-b border-outline-variant/10">
+                        <span class="text-body-sm text-on-surface font-medium">Curriculum Modules</span>
+                        <span class="font-bold text-label-lg text-on-surface">{{ certificate.course.lessons|length }}
+                            Modules</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-body-sm text-on-surface font-medium">Earned XP Reward</span>
+                        <span class="font-bold text-label-lg text-tertiary flex items-center gap-1">+200 XP</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

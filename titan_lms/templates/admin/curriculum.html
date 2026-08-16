@@ -1,0 +1,218 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Course Curriculum Timeline & Modules | Admin Panel{% endblock %}
+
+{% block admin_content %}
+<div class="max-w-6xl mx-auto px-4 py-8 space-y-6 pb-12">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+        <div class="flex items-center gap-4">
+            <a href="{{ url_for('admin.courses') }}" class="w-10 h-10 rounded-2xl bg-slate-50 hover:bg-primary/10 text-slate-700 hover:text-primary transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-xl md:text-2xl font-black text-[#1c1c17] tracking-tight" style="font-family:'Montserrat',sans-serif;">
+                    Manage Course Curriculum
+                </h1>
+                <p class="text-xs text-gray-500 font-medium">Add, delete, update timeline lessons, or upload video materials for <span class="text-primary font-bold">{{ course.title }}</span>.</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+            <a href="{{ url_for('admin.edit_course', course_id=course.id) }}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">tune</span>
+                Edit Course Details
+            </a>
+            {% if course.status == 'draft' %}
+            <form action="{{ url_for('admin.publish_course', course_id=course.id) }}" method="POST" class="inline">
+                <button type="submit" class="px-4 py-2 bg-primary hover:bg-[#004bb5] active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">publish</span>
+                    Publish Course
+                </button>
+            </form>
+            {% else %}
+            <span class="px-3.5 py-1.5 text-[10px] font-black uppercase rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Live & Published
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bento Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Left: Modules Timeline List -->
+        <div class="lg:col-span-7 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-6">
+            <h3 class="text-base font-black text-[#1c1c17] flex items-center gap-2" style="font-family:'Montserrat',sans-serif;">
+                <span class="material-symbols-outlined text-primary">view_list</span>
+                Curriculum Timeline ({{ course.lessons|length }} Modules)
+            </h3>
+
+            <!-- Modules Timeline List -->
+            <div class="space-y-3">
+                {% for lesson in course.lessons %}
+                <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-xl bg-primary text-white font-bold text-xs flex items-center justify-center shrink-0">
+                            {{ lesson.order }}
+                        </span>
+                        <span class="material-symbols-outlined text-slate-500">
+                            {% if lesson.content_type == 'video' %}play_circle{% elif lesson.content_type == 'quiz' %}quiz{% elif lesson.content_type == 'lab' %}science{% else %}description{% endif %}
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-slate-900 text-sm">{{ lesson.title }}</h4>
+                                <span class="px-2 py-0.5 bg-slate-200 text-slate-800 text-[9px] font-extrabold uppercase rounded-md">{{ lesson.content_type }}</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 font-mono truncate max-w-sm mt-0.5">{{ lesson.content or 'No content URL specified' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 shrink-0">
+                        <!-- Edit Module Trigger -->
+                        <button onclick="openEditModuleModal({{ lesson.id }}, '{{ lesson.title }}', '{{ lesson.content_type }}', '{{ lesson.content|escape }}', {{ lesson.duration }})" class="p-2 bg-white text-primary border border-slate-200 rounded-xl hover:bg-primary/10 transition-all active:scale-95" title="Edit Module">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                        </button>
+                        <!-- Delete Module Form -->
+                        <form action="{{ url_for('admin.delete_lesson', lesson_id=lesson.id) }}" method="POST" onsubmit="return confirm('Delete module {{ lesson.title }}?');">
+                            <button type="submit" class="p-2 bg-white text-rose-600 border border-slate-200 rounded-xl hover:bg-rose-50 transition-all active:scale-95" title="Delete Module">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-slate-400 space-y-2">
+                    <span class="material-symbols-outlined text-4xl">timeline</span>
+                    <p class="text-xs font-semibold">No syllabus modules configured for this course yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Right: Add Lesson Module wizard forms -->
+        <div class="lg:col-span-5 space-y-6">
+            <!-- Add Module Box -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+                <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">playlist_add</span>
+                    Add Lesson Module
+                </h4>
+                <form action="{{ url_for('admin.curriculum', course_id=course.id) }}" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Module Title</label>
+                        <input type="text" name="title" placeholder="e.g. Lesson 1: Introduction to Python Variables" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-xs font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all" required>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Format</label>
+                            <select name="content_type" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-xs font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all cursor-pointer">
+                                <option value="video">Video Lecture (YouTube Link)</option>
+                                <option value="text">Reading Document / Notes</option>
+                                <option value="quiz">Interactive Quiz</option>
+                                <option value="lab">Interactive Code Sandbox Lab</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Duration (Min)</label>
+                            <input type="number" name="duration" value="15" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-xs font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Video URL / Material Content</label>
+                        <input type="text" name="content" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-xs font-mono focus:outline-none focus:border-primary focus:bg-white transition-all">
+                    </div>
+
+                    <button type="submit" class="w-full bg-primary hover:bg-[#004bb5] active:scale-95 text-white font-bold py-3 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 text-xs">
+                        <span class="material-symbols-outlined">add</span> Create Module
+                    </button>
+                </form>
+            </div>
+
+            <!-- Bulk Video links Box -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+                <h4 class="font-bold text-[#0054cb] text-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined">video_library</span>
+                    Bulk Video Upload (Bulk Lectures)
+                </h4>
+                <p class="text-[11px] text-gray-500 font-semibold leading-relaxed">Paste multiple YouTube URLs (one link per line). This will create separate sequential lectures for each URL inside the curriculum timeline instantly.</p>
+                <form action="{{ url_for('admin.edit_course', course_id=course.id) }}" method="POST" class="space-y-4">
+                    <input type="hidden" name="action" value="add_module">
+                    <input type="hidden" name="module_content_type" value="video">
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Common Lectures Title Prefix</label>
+                        <input type="text" name="module_title" placeholder="e.g. Chapter 2: Routing Protocols" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-xs font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">YouTube URLs (One Link Per Line)</label>
+                        <textarea name="bulk_video_urls" rows="4" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-xs font-mono focus:outline-none focus:border-primary focus:bg-white transition-all" placeholder="https://www.youtube.com/watch?v=1&#10;https://www.youtube.com/watch?v=2&#10;https://www.youtube.com/watch?v=3" required></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 text-xs">
+                        <span class="material-symbols-outlined text-base">video_call</span> Bulk Import Videos
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Module Modal -->
+<div id="edit-module-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-8 max-w-lg w-full border border-slate-200/80 shadow-2xl space-y-6 relative animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+            <h3 class="text-base font-black text-[#1c1c17] flex items-center gap-2" style="font-family:'Montserrat',sans-serif;">
+                <span class="material-symbols-outlined text-primary">edit_note</span> Edit Curriculum Module
+            </h3>
+            <button onclick="closeEditModuleModal()" class="text-slate-400 hover:text-slate-700">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="edit-module-form" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Module Title</label>
+                <input type="text" id="edit-mod-title" name="title" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-xs font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all" required>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Format</label>
+                    <select id="edit-mod-type" name="content_type" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-xs font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all cursor-pointer">
+                        <option value="video">Video</option>
+                        <option value="text">Text / Article</option>
+                        <option value="quiz">Quiz</option>
+                        <option value="lab">Lab</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Duration (Min)</label>
+                    <input type="number" id="edit-mod-duration" name="duration" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-xs font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">YouTube URL / Material Content</label>
+                <input type="text" id="edit-mod-content" name="content" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-xs font-mono focus:outline-none focus:border-primary focus:bg-white transition-all">
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button type="button" onclick="closeEditModuleModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Cancel</button>
+                <button type="submit" class="px-5 py-2 bg-primary hover:bg-[#004bb5] active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all">Save Module</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditModuleModal(id, title, type, content, duration) {
+    const modal = document.getElementById('edit-module-modal');
+    const form = document.getElementById('edit-module-form');
+    form.action = `/admin/lessons/${id}/edit`;
+    document.getElementById('edit-mod-title').value = title;
+    document.getElementById('edit-mod-type').value = type;
+    document.getElementById('edit-mod-content').value = content;
+    document.getElementById('edit-mod-duration').value = duration;
+    modal.classList.remove('hidden');
+}
+
+function closeEditModuleModal() {
+    document.getElementById('edit-module-modal').classList.add('hidden');
+}
+</script>
+{% endblock %}

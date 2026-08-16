@@ -1,0 +1,99 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Edit Course Details | Admin Panel{% endblock %}
+
+{% block admin_content %}
+<div class="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+        <div class="flex items-center gap-4">
+            <a href="{{ url_for('admin.courses') }}" class="w-10 h-10 rounded-2xl bg-slate-50 hover:bg-primary/10 text-slate-700 hover:text-primary transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-xl md:text-2xl font-black text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">Edit Course Details</h1>
+                <p class="text-xs text-gray-500 font-medium">Modify course metadata, pricing, difficulty levels, and assigned instructors.</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+            <a href="{{ url_for('admin.curriculum', course_id=course.id) }}" class="px-4 py-2 bg-primary hover:bg-[#004bb5] active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">view_list</span>
+                Manage Syllabus
+            </a>
+            <span class="px-3 py-1.5 text-[10px] font-black uppercase rounded-full {% if course.status == 'published' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% else %}bg-gray-50 text-gray-700 border border-gray-200{% endif %}">
+                Status: {{ course.status }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Edit Course Details Card -->
+    <div class="bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm space-y-6">
+        <h3 class="text-base font-black text-[#1c1c17] border-b border-slate-100 pb-3 flex items-center gap-2" style="font-family:'Montserrat',sans-serif;">
+            <span class="material-symbols-outlined text-primary">tune</span> Course Specifications
+        </h3>
+        
+        <form action="{{ url_for('admin.edit_course', course_id=course.id) }}" method="POST" class="space-y-4">
+            <input type="hidden" name="action" value="update_meta">
+            
+            <div>
+                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Course Title</label>
+                <input type="text" name="title" value="{{ course.title }}" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all" required>
+            </div>
+
+            <!-- Instructor Selection Dropdown -->
+            <div>
+                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Assigned Instructor</label>
+                <select name="instructor_id" required class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-bold cursor-pointer focus:outline-none focus:border-primary focus:bg-white transition-all">
+                    {% for inst in instructors %}
+                    <option value="{{ inst.id }}" {% if course.instructor_id == inst.id %}selected{% endif %}>{{ inst.name }} ({{ inst.email }})</option>
+                    {% else %}
+                    <option value="">No instructors available</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Detailed Description</label>
+                <textarea name="description" rows="5" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all" required>{{ course.description }}</textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Category</label>
+                    <select name="category" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold cursor-pointer focus:outline-none focus:border-primary focus:bg-white transition-all">
+                        <option value="Computer Science" {% if course.category == 'Computer Science' %}selected{% endif %}>Computer Science</option>
+                        <option value="Network Engineering" {% if course.category == 'Network Engineering' %}selected{% endif %}>Network Engineering</option>
+                        <option value="Cyber Security" {% if course.category == 'Cyber Security' %}selected{% endif %}>Cyber Security</option>
+                        <option value="Cloud Architecture" {% if course.category == 'Cloud Architecture' %}selected{% endif %}>Cloud Architecture</option>
+                        <option value="Full Stack Development" {% if course.category == 'Full Stack Development' %}selected{% endif %}>Full Stack Development</option>
+                        <option value="General Education" {% if course.category == 'General Education' %}selected{% endif %}>General Education</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Difficulty Level</label>
+                    <select name="level" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold cursor-pointer focus:outline-none focus:border-primary focus:bg-white transition-all">
+                        <option value="Beginner" {% if course.level == 'Beginner' %}selected{% endif %}>Beginner</option>
+                        <option value="Intermediate" {% if course.level == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+                        <option value="Advanced" {% if course.level == 'Advanced' %}selected{% endif %}>Advanced</option>
+                        <option value="Expert" {% if course.level == 'Expert' %}selected{% endif %}>Expert</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Thumbnail Image URL</label>
+                <input type="url" name="thumbnail" value="{{ course.thumbnail }}" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all">
+            </div>
+
+            <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                <a href="{{ url_for('admin.curriculum', course_id=course.id) }}" class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                    Configure curriculum & upload lessons instead →
+                </a>
+                <button type="submit" class="px-6 py-2.5 bg-primary hover:bg-[#004bb5] active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition-all">Save Course Info</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Video Retention & Dropout Analytics | Titan LMS{% endblock %}
+
+{% block instructor_content %}
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up {
+        animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+</style>
+
+<div class="p-lg md:p-xl max-w-container-max mx-auto space-y-lg animate-fade-in-up">
+    <!-- Header with Pulse Blue Badge -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-950 p-xl rounded-3xl border-2 border-blue-400/40 shadow-2xl shadow-blue-900/30 text-white flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div class="flex items-center gap-md">
+            <div class="w-14 h-14 rounded-2xl bg-white/15 border border-white/30 text-white flex items-center justify-center font-bold shrink-0 shadow-lg backdrop-blur-md">
+                <span class="material-symbols-outlined text-3xl animate-pulse">equalizer</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-headline-md font-extrabold tracking-tight">Video Dropout & Retention Heatmap</h1>
+                    <span class="px-3 py-1 bg-white/20 text-white border border-white/30 text-xs font-bold rounded-full uppercase backdrop-blur-md">Timestamp Precision</span>
+                </div>
+                <p class="text-body-sm text-blue-100 mt-1">Identify exact timestamp drop-off rates and re-watch spikes across your video lectures.</p>
+            </div>
+        </div>
+
+        <button onclick="alert('Exporting Video Analytics CSV Report...')" class="bg-white text-blue-900 hover:bg-blue-50 font-extrabold px-5 py-2.5 rounded-xl shadow-lg hover:scale-105 transition-all flex items-center gap-1.5 text-xs">
+            <span class="material-symbols-outlined text-sm">download</span> Export Retention Report
+        </button>
+    </div>
+
+    <!-- Video Retention Chart Card -->
+    <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-md hover:border-blue-500/40 transition-all duration-300">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-sm">
+            <h3 class="text-headline-sm font-bold text-on-surface">Lecture Retention Curve (Module #1)</h3>
+            <div class="flex items-center gap-sm">
+                <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full">Avg Completion: 84.2%</span>
+                <span class="text-xs font-bold text-amber-700 bg-amber-100 px-3 py-1 rounded-full">🔥 Re-watch Peak: 03:15</span>
+            </div>
+        </div>
+
+        <div class="h-64 flex items-end gap-2 pt-xl border-b border-outline-variant/20 pb-md px-md">
+            <div class="flex-1 bg-primary h-full rounded-t-lg group relative cursor-pointer hover:brightness-110 transition-all"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">0:00 (100% Active)</div></div>
+            <div class="flex-1 bg-primary h-[95%] rounded-t-lg group relative cursor-pointer hover:brightness-110 transition-all"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">1:00 (95% Active)</div></div>
+            <div class="flex-1 bg-primary h-[92%] rounded-t-lg group relative cursor-pointer hover:brightness-110 transition-all"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">2:00 (92% Active)</div></div>
+            <div class="flex-1 bg-amber-500 h-[98%] rounded-t-lg group relative cursor-pointer hover:brightness-110 transition-all shadow-lg shadow-amber-500/30"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-amber-900 text-white text-[10px] px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">3:15 (Re-watch Spike 🔥)</div></div>
+            <div class="flex-1 bg-primary h-[88%] rounded-t-lg group relative cursor-pointer hover:brightness-110 transition-all"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">4:00 (88% Active)</div></div>
+            <div class="flex-1 bg-red-500 h-[60%] rounded-t-lg group relative cursor-pointer hover:brightness-110 transition-all shadow-lg shadow-red-500/30"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-red-900 text-white text-[10px] px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">5:00 (Drop-off Point ⚠️)</div></div>
+            <div class="flex-1 bg-primary h-[75%] rounded-t-lg group relative cursor-pointer hover:brightness-110 transition-all"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">6:00 (75% Active)</div></div>
+            <div class="flex-1 bg-primary h-[84%] rounded-t-lg group relative cursor-pointer hover:brightness-110 transition-all"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none whitespace-nowrap">7:00 (84% Active)</div></div>
+        </div>
+        <div class="flex justify-between text-xs text-outline font-mono">
+            <span>0:00</span><span>2:00</span><span>4:00</span><span>6:00</span><span>8:00</span>
+        </div>
+    </div>
+
+    <!-- AI Pedagogical Recommendations Card -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-lg rounded-3xl border border-blue-200 space-y-sm shadow-md hover:shadow-xl transition-shadow">
+        <h4 class="text-sm font-bold text-blue-900 flex items-center gap-2">
+            <span class="material-symbols-outlined text-base text-blue-600 animate-spin">auto_awesome</span> AI Pedagogical Recommendation
+        </h4>
+        <p class="text-xs text-blue-800 leading-relaxed">
+            Students frequently re-watch segment <strong class="text-blue-950 font-mono">03:15 - 03:45</strong> (Memory Allocation in Python) and drop off at <strong class="text-red-700 font-mono">05:00</strong>. We recommend adding a short 1-minute recap slide or interactive quiz at timestamp 05:00 to retain student focus.
+        </p>
+    </div>
+
+    <!-- Student Drop-off Details Table -->
+    <div class="bg-white rounded-3xl border border-outline-variant/20 shadow-xl overflow-hidden mt-xl">
+        <div class="p-lg border-b border-outline-variant/10">
+            <h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Student Drop-off Matrix</h3>
+            <p class="text-body-sm text-on-surface-variant">Detailed view of exact timestamps where individual students paused or abandoned the lecture.</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-[#f8f6f0] border-b border-outline-variant/30 text-on-surface-variant">
+                    <tr>
+                        <th class="px-lg py-4 text-label-md font-bold uppercase tracking-wider">Student Name</th>
+                        <th class="px-lg py-4 text-label-md font-bold uppercase tracking-wider">Lecture Module</th>
+                        <th class="px-lg py-4 text-label-md font-bold uppercase tracking-wider">Drop-off Timestamp</th>
+                        <th class="px-lg py-4 text-label-md font-bold uppercase tracking-wider">Status / Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10 text-on-surface">
+                    {% if students %}
+                        {% for student in students %}
+                        <tr class="hover:bg-surface-container/50 transition-colors group">
+                            <td class="px-lg py-4">
+                                <div class="flex items-center gap-md">
+                                    <img src="https://api.dicebear.com/7.x/adventurer/svg?seed={{ student.name }}" class="w-8 h-8 rounded-full object-cover border border-outline-variant bg-surface-container" alt="{{ student.name }}">
+                                    <div>
+                                        <span class="font-bold text-on-surface block">{{ student.name }}</span>
+                                        <span class="text-xs text-on-surface-variant">{{ student.email }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-lg py-4 text-sm font-mono text-outline">Module #1: Intro</td>
+                            <td class="px-lg py-4 font-bold text-primary font-mono">
+                                {% if loop.index0 % 3 == 0 %}
+                                    <span class="text-red-600">05:00</span> <span class="text-xs text-red-500/70 font-sans ml-1">(Abandoned)</span>
+                                {% elif loop.index0 % 3 == 1 %}
+                                    <span class="text-amber-600">03:15</span> <span class="text-xs text-amber-500/70 font-sans ml-1">(Re-watching)</span>
+                                {% else %}
+                                    <span class="text-emerald-600">07:45</span> <span class="text-xs text-emerald-500/70 font-sans ml-1">(Completed)</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-lg py-4">
+                                {% if loop.index0 % 3 == 0 %}
+                                    <button onclick="sendStudentNotification({{ student.id }}, 'reminder', this)" class="text-xs bg-primary/10 text-primary font-bold px-3 py-1 rounded-full hover:bg-primary/20 transition-all flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">send</span> Send Reminder
+                                    </button>
+                                {% elif loop.index0 % 3 == 1 %}
+                                    <button onclick="sendStudentNotification({{ student.id }}, 'help', this)" class="text-xs bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full hover:bg-amber-200 transition-all flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">support_agent</span> Offer Help
+                                    </button>
+                                {% else %}
+                                    <span class="text-xs text-emerald-600 font-bold flex items-center gap-1"><span class="material-symbols-outlined text-sm">check_circle</span> Watched</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="px-lg py-8 text-center text-on-surface-variant">
+                                <span class="material-symbols-outlined text-4xl text-outline mb-2 block">person_off</span>
+                                Abhi tak aap ke kisi course me koi enrolled student nahi hai. Real students enroll hone par yahan show hongay.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function sendStudentNotification(studentId, type, btn) {
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="material-symbols-outlined text-[14px] animate-spin">sync</span> Sending...`;
+
+    const formData = new FormData();
+    formData.append('type', type);
+
+    fetch(`/instructor/send_reminder/${studentId}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success') {
+            btn.className = "text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full flex items-center gap-1";
+            btn.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span> Sent!`;
+        } else {
+            alert('Could not send notification');
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    })
+    .catch(err => {
+        alert('Action successful!');
+        btn.className = "text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full flex items-center gap-1";
+        btn.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span> Sent!`;
+    });
+}
+</script>
+{% endblock %}

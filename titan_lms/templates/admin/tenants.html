@@ -1,0 +1,163 @@
+{% extends "layouts/superadmin.html" %}
+
+{% block title %}Enterprise Multi-Tenancy Hub | Titan LMS{% endblock %}
+
+{% block admin_content %}
+<div class="p-lg md:p-xl max-w-container-max mx-auto space-y-lg">
+    <!-- Header -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-xl rounded-3xl border-2 border-indigo-500/30 shadow-2xl text-white flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div class="flex items-center gap-md">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 text-indigo-400 flex items-center justify-center font-bold shrink-0 shadow-lg shadow-indigo-500/20">
+                <span class="material-symbols-outlined text-3xl animate-pulse">corporate_fare</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-headline-md font-extrabold tracking-tight">Enterprise Multi-Tenancy Hub</h1>
+                    <span class="px-3 py-1 bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 text-xs font-bold rounded-full uppercase">Isolated Sub-Domains</span>
+                </div>
+                <p class="text-body-sm text-indigo-200/80 mt-1">Provision isolated corporate client sub-domains and white-labeled LMS portals.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Provision & List Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+        <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-md h-fit">
+            <h3 class="text-headline-sm font-bold text-on-surface">Provision Enterprise Sub-Tenant</h3>
+            <form method="POST" class="space-y-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Company / Organization Name</label>
+                    <input type="text" id="tenant-name-input" onkeyup="updateTenantPreview()" name="name" placeholder="e.g. Acme Corporation" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary font-bold" required>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Subdomain Prefix</label>
+                    <div class="flex items-center gap-1">
+                        <input type="text" id="tenant-sub-input" onkeyup="updateTenantPreview()" name="subdomain" placeholder="acme" class="flex-1 bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-mono font-bold focus:outline-none focus:border-primary" required>
+                        <span class="text-xs font-mono font-bold text-outline">.titanlms.com</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Brand Theme Primary Accent</label>
+                    <input type="color" id="tenant-color-picker" name="primary_color" onchange="updateTenantPreview()" value="#00008c" class="w-full h-10 rounded-xl cursor-pointer">
+                </div>
+
+                <div class="pt-2 border-t border-outline-variant/30 mt-4">
+                    <h4 class="text-label-md font-bold text-primary mb-3 flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">admin_panel_settings</span> Tenant Admin Credentials</h4>
+                    <div class="space-y-sm">
+                        <div>
+                            <input type="text" name="admin_name" placeholder="Admin Full Name" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-3 py-2 text-body-sm focus:outline-none focus:border-primary" required>
+                        </div>
+                        <div>
+                            <input type="email" name="admin_email" placeholder="admin@acme.titan.edu" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-3 py-2 text-body-sm focus:outline-none focus:border-primary" required>
+                        </div>
+                        <div>
+                            <input type="password" name="admin_password" placeholder="Admin Password" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-3 py-2 text-body-sm focus:outline-none focus:border-primary" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Preview Card -->
+                <div class="p-md rounded-xl border border-gray-200 bg-gray-50 space-y-1">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">Live Portal Preview</span>
+                    <div id="preview-brand-header" class="p-sm rounded-lg text-white font-bold text-xs flex justify-between items-center bg-[#00008c]">
+                        <span id="preview-brand-name">Acme Corp Portal</span>
+                        <span class="text-[9px] uppercase font-mono bg-white/20 px-2 py-0.5 rounded">White-Labeled</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:shadow-lg hover:scale-[1.01] active:scale-95 transition-all">
+                    Initialize Tenant Portal
+                </button>
+            </form>
+        </div>
+
+        <div class="lg:col-span-2 bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-md">
+            <h3 class="text-headline-sm font-bold text-on-surface">Active Corporate Sub-Portals</h3>
+            <div class="space-y-sm">
+                {% for t in tenants %}
+                <div class="p-lg bg-surface-container-low rounded-2xl border border-outline-variant/20 flex flex-col sm:flex-row sm:items-center justify-between gap-md shadow-sm hover:shadow-md transition-shadow">
+                    <div>
+                        <h4 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                            <span class="w-4 h-4 rounded-full border border-white shadow-sm shrink-0 inline-block" style="background-color: {{ t.primary_color or '#00008c' }};"></span> {{ t.name }}
+                        </h4>
+                        <p class="text-xs font-mono text-primary font-bold mt-0.5">{{ t.subdomain }}.titanlms.com</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-sm">
+                        <span class="px-3 py-1 bg-emerald-500/10 text-emerald-600 font-bold text-xs rounded-full">ACTIVE TENANT</span>
+                        <a href="{{ url_for('public.view_tenant_portal', subdomain=t.subdomain) }}" target="_blank" class="px-3.5 py-2 bg-primary text-white font-bold text-xs rounded-xl hover:bg-primary-container transition-all flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-outlined text-sm">open_in_new</span> Launch Portal
+                        </a>
+                        <button type="button" onclick="openEditTenantModal({{ t.id }}, '{{ t.name }}', '{{ t.subdomain }}', '{{ t.primary_color or '#00008c' }}')" class="px-3 py-2 bg-amber-500 text-white font-bold text-xs rounded-xl hover:bg-amber-600 transition-colors shadow-sm" title="Edit Sub-Tenant">
+                            ✏️ Edit
+                        </button>
+                        <form action="{{ url_for('admin.delete_tenant', tenant_id=t.id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete corporate portal {{ t.name }}?');">
+                            <button type="submit" class="px-3 py-2 bg-red-600 text-white font-bold text-xs rounded-xl hover:bg-red-700 transition-colors shadow-sm" title="Delete Sub-Tenant">
+                                🗑️ Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-body-md text-on-surface-variant text-center py-xl">No corporate multi-tenant portals configured yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Tenant Modal -->
+<div id="editTenantModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center hidden">
+    <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/30 shadow-2xl max-w-md w-full mx-4 space-y-md">
+        <div class="flex items-center justify-between border-b border-outline-variant/10 pb-3">
+            <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">edit</span> Edit Corporate Sub-Tenant
+            </h3>
+            <button type="button" onclick="closeEditTenantModal()" class="text-outline hover:text-on-surface">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="editTenantForm" method="POST" class="space-y-md">
+            <div>
+                <label class="block text-xs font-bold text-on-surface mb-1">Company / Organization Name</label>
+                <input type="text" name="name" id="edit_tenant_name" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-on-surface mb-1">Subdomain Prefix</label>
+                <div class="flex items-center gap-1">
+                    <input type="text" name="subdomain" id="edit_tenant_subdomain" required class="flex-1 bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm font-mono font-bold focus:outline-none focus:border-primary">
+                    <span class="text-xs font-mono font-bold text-outline">.titanlms.com</span>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-on-surface mb-1">Brand Theme Accent Color</label>
+                <input type="color" name="primary_color" id="edit_tenant_color" required class="w-full h-10 rounded-xl cursor-pointer">
+            </div>
+            <div class="flex items-center justify-end gap-md pt-2">
+                <button type="button" onclick="closeEditTenantModal()" class="px-md py-2 text-xs font-bold text-outline hover:text-on-surface">Cancel</button>
+                <button type="submit" class="px-lg py-2 bg-primary text-white font-bold text-xs rounded-xl shadow-md hover:bg-primary-container transition-all">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function updateTenantPreview() {
+    const name = document.getElementById('tenant-name-input').value || 'Acme Corp Portal';
+    const color = document.getElementById('tenant-color-picker').value;
+    document.getElementById('preview-brand-name').innerText = name;
+    document.getElementById('preview-brand-header').style.backgroundColor = color;
+}
+
+function openEditTenantModal(id, name, subdomain, color) {
+    document.getElementById('editTenantForm').action = "/admin/tenants/" + id + "/edit";
+    document.getElementById('edit_tenant_name').value = name;
+    document.getElementById('edit_tenant_subdomain').value = subdomain;
+    document.getElementById('edit_tenant_color').value = color;
+    document.getElementById('editTenantModal').classList.remove('hidden');
+}
+
+function closeEditTenantModal() {
+    document.getElementById('editTenantModal').classList.add('hidden');
+}
+</script>
+{% endblock %}

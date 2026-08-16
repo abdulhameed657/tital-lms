@@ -1,0 +1,161 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Course Resources & Study Materials | Titan LMS{% endblock %}
+
+{% block student_content %}
+<div class="max-w-7xl mx-auto space-y-6 sm:space-y-8 animate-fade-in pb-16 px-2 sm:px-4" x-data="{ searchQuery: '' }">
+    <!-- Header Hero Banner -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#003884] via-[#0054cb] to-indigo-900 text-white p-6 sm:p-8 shadow-xl">
+        <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-sky-400/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-sky-300/40 text-sky-200 text-xs font-extrabold uppercase tracking-wider shadow-sm">
+                    <span class="material-symbols-outlined text-sm text-sky-300">folder_open</span> Learning Material Library
+                </div>
+                <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-white" style="font-family: 'Space Grotesk', sans-serif;">
+                    Course <span class="text-sky-300">Resources</span> & Downloads
+                </h1>
+                <p class="text-xs sm:text-sm text-blue-100 max-w-xl font-medium leading-relaxed">
+                    Access lecture slides, source code starter kits, reference notes, cheat sheets, and books shared by your course instructors.
+                </p>
+            </div>
+
+            <!-- Quick Stats Pills -->
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 sm:p-4 text-center min-w-[95px] sm:min-w-[105px]">
+                    <span class="block text-xl sm:text-2xl font-black text-sky-300">{{ "%02d"|format(resources|length) }}</span>
+                    <span class="text-[10px] text-blue-100 uppercase font-bold tracking-wider">Available</span>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 sm:p-4 text-center min-w-[95px] sm:min-w-[105px]">
+                    <span class="block text-xl sm:text-2xl font-black text-cyan-300">
+                        {{ "%02d"|format(resources|map(attribute='downloads_count')|sum) }}
+                    </span>
+                    <span class="text-[10px] text-blue-100 uppercase font-bold tracking-wider">Downloads</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter & Search Controls -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <!-- Search Bar -->
+            <div class="relative flex-1">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+                <input type="text" x-model="searchQuery" placeholder="Search resources by title, description..." class="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#0054cb] transition-all">
+            </div>
+
+            <!-- Course Selector Filter -->
+            <form action="{{ url_for('student.resources') }}" method="GET" class="flex items-center gap-2">
+                <input type="hidden" name="type" value="{{ selected_type }}">
+                <select name="course_id" onchange="this.form.submit()" class="px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-[#0054cb] transition-all">
+                    <option value="">All My Enrolled Courses</option>
+                    {% for e in enrollments %}
+                    {% if e.course %}
+                    <option value="{{ e.course.id }}" {% if selected_course_id == e.course.id %}selected{% endif %}>{{ e.course.title }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        <!-- Resource Type Tabs -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 pt-2 border-t border-slate-100 dark:border-slate-800 no-scrollbar">
+            {% set types = [('all', 'All Types', 'folder_zip'), ('PDF', 'PDFs & Notes', 'description'), ('Code', 'Source Code', 'code'), ('Slide', 'Lecture Slides', 'slideshow'), ('Book', 'E-Books', 'menu_book'), ('Link', 'External Links', 'link')] %}
+            {% for t_val, t_label, t_icon in types %}
+            <a href="{{ url_for('student.resources', type=t_val, course_id=selected_course_id) }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold shrink-0 transition-all {% if selected_type == t_val %}bg-[#0054cb] text-white shadow-md{% else %}bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700{% endif %}">
+                <span class="material-symbols-outlined text-base">{{ t_icon }}</span>
+                <span>{{ t_label }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Resource Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for r in resources %}
+        <div x-show="!searchQuery || '{{ r.title|lower }}'.includes(searchQuery.toLowerCase()) || '{{ r.description|lower }}'.includes(searchQuery.toLowerCase())" class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between space-y-4 hover:border-blue-400/40 hover:shadow-md transition-all group">
+            <div class="space-y-3">
+                <!-- Header: Resource Type Badge & Size -->
+                <div class="flex items-center justify-between">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold 
+                        {% if r.resource_type == 'PDF' %}bg-rose-50 text-rose-600 dark:bg-rose-900/30 border border-rose-200/50
+                        {% elif r.resource_type == 'Code' %}bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 border border-emerald-200/50
+                        {% elif r.resource_type == 'Slide' %}bg-amber-50 text-amber-600 dark:bg-amber-900/30 border border-amber-200/50
+                        {% elif r.resource_type == 'Book' %}bg-purple-50 text-purple-600 dark:bg-purple-900/30 border border-purple-200/50
+                        {% else %}bg-blue-50 text-blue-600 dark:bg-blue-900/30 border border-blue-200/50{% endif %}">
+                        <span class="material-symbols-outlined text-sm">
+                            {% if r.resource_type == 'PDF' %}description
+                            {% elif r.resource_type == 'Code' %}code
+                            {% elif r.resource_type == 'Slide' %}slideshow
+                            {% elif r.resource_type == 'Book' %}menu_book
+                            {% else %}link{% endif %}
+                        </span>
+                        {{ r.resource_type }}
+                    </span>
+                    <span class="text-[11px] font-bold text-slate-400">{{ r.file_size or '1.5 MB' }}</span>
+                </div>
+
+                <!-- Resource Title -->
+                <h3 class="font-extrabold text-base text-slate-900 dark:text-white leading-snug group-hover:text-[#0054cb] transition-colors">
+                    {{ r.title }}
+                </h3>
+
+                <!-- Course Badge -->
+                <div class="inline-block text-[11px] font-extrabold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg">
+                    📚 {{ r.course.title if r.course else 'General Resource' }}
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed line-clamp-3">
+                    {{ r.description or 'No additional description provided.' }}
+                </p>
+            </div>
+
+            <!-- Card Footer: Downloads & Action Button -->
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                <span class="text-[11px] font-bold text-slate-400 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">download</span>
+                    {{ r.downloads_count }} Downloads
+                </span>
+
+                <a href="{{ url_for('student.download_resource', resource_id=r.id) }}" target="_blank" class="inline-flex items-center gap-1.5 bg-[#0054cb] hover:bg-blue-700 text-white font-extrabold px-4 py-2 rounded-xl text-xs shadow-sm active:scale-95 transition-all">
+                    <span class="material-symbols-outlined text-sm">
+                        {% if r.resource_type == 'Link' %}open_in_new{% else %}download{% endif %}
+                    </span>
+                    {% if r.resource_type == 'Link' %}Open Link{% else %}Download{% endif %}
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-full py-16 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+            <span class="material-symbols-outlined text-4xl text-slate-400">folder_off</span>
+            <h4 class="font-extrabold text-base text-slate-800 dark:text-white">No Course Resources Found</h4>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto">There are no study files or resources uploaded for the selected category yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    (function() {
+        let currentDlSum = {{ resources|map(attribute='downloads_count')|sum or 0 }};
+        let currentCount = {{ resources|length or 0 }};
+
+        function checkResourceUpdates() {
+            fetch('/api/heartbeat')
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.authenticated) return;
+                    if (data.total_resources !== currentCount || data.total_downloads !== currentDlSum) {
+                        console.log('⚡ Real-time Resource Event: Auto refreshing table data...');
+                        window.location.reload();
+                    }
+                })
+                .catch(e => console.debug(e));
+        }
+
+        setInterval(checkResourceUpdates, 5000);
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,418 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}AI Innovation Hub & Voice Tutor | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    .pulse-ring-anim {
+        animation: pulse-ring-anim 3s infinite;
+    }
+    @keyframes pulse-ring-anim {
+        0% { transform: scale(0.3); opacity: 0.8; }
+        100% { transform: scale(1.5); opacity: 0; }
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up {
+        animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes ai-eye-blink {
+        0%, 90%, 100% { transform: scaleY(1); }
+        95% { transform: scaleY(0.1); }
+    }
+    .animate-ai-eye {
+        animation: ai-eye-blink 4s infinite ease-in-out;
+    }
+    @keyframes eye-glow-pulse {
+        0%, 100% { box-shadow: 0 0 12px #00f0ff, 0 0 25px #0054cb; }
+        50% { box-shadow: 0 0 22px #00f0ff, 0 0 40px #0054cb; }
+    }
+    .eye-glow {
+        animation: eye-glow-pulse 2s infinite ease-in-out;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% endblock %}
+
+{% block student_content %}
+<div class="max-w-container-max mx-auto px-gutter py-xl min-h-[calc(100vh-120px)] flex flex-col space-y-lg animate-fade-in-up">
+    <!-- Hub Toggles Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-outline-variant/10 pb-md gap-md shrink-0">
+        <div>
+            <div class="flex items-center gap-2">
+                <svg class="w-7 h-7 shrink-0" viewBox="0 0 200 200" fill="none">
+                    <path d="M100 10C50.3 10 10 50.3 10 100C10 121.2 17.4 140.7 29.8 156.1L15 185C13.2 188.5 16.5 191.8 20 190L48.9 175.2C64.3 187.6 83.8 195 105 195C154.7 195 195 154.7 195 105C195 55.3 154.7 10 100 10Z" fill="#2563EB"/>
+                    <rect x="45" y="65" width="110" height="70" rx="30" fill="white"/>
+                    <rect x="42" y="55" width="6" height="15" rx="3" fill="white"/>
+                    <rect x="152" y="55" width="6" height="15" rx="3" fill="white"/>
+                    <circle cx="72" cy="98" r="10" fill="#2563EB"/>
+                    <circle cx="128" cy="98" r="10" fill="#2563EB"/>
+                    <path d="M85 110Q100 120 115 110" stroke="#2563EB" stroke-width="6" stroke-linecap="round" fill="none"/>
+                </svg>
+                <h1 class="text-headline-md font-extrabold text-on-surface">Gemini AI Co-Pilot Hub</h1>
+                <span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full uppercase">Titan AI Engine</span>
+            </div>
+            <p class="text-body-sm text-on-surface-variant mt-1">Interactive academic voice & code tutor for technical query resolution.</p>
+        </div>
+        <div class="flex bg-surface-container rounded-xl p-1 border border-outline-variant/20">
+            <a href="{{ url_for('student.ai_hub', mode='tutor') }}" class="px-lg py-2 rounded-lg font-bold text-xs transition-all {% if mode == 'tutor' %}bg-white text-primary shadow-sm{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">
+                🎙️ AI Voice & Code Tutor
+            </a>
+            <a href="{{ url_for('student.ai_hub', mode='hub') }}" class="px-lg py-2 rounded-lg font-bold text-xs transition-all {% if mode == 'hub' %}bg-white text-primary shadow-sm{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">
+                🚀 Innovation Pitcher
+            </a>
+        </div>
+    </div>
+
+    <!-- Mode 1: AI Voice Tutor -->
+    {% if mode == 'tutor' %}
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg flex-1 border-2 border-outline-variant/20 rounded-3xl bg-white shadow-xl overflow-hidden min-h-[600px]">
+        
+        <!-- Left: Voice Orb & AI Eyes Panel (Span 4) -->
+        <div class="lg:col-span-4 p-xl bg-surface-container-low/40 border-r border-outline-variant/10 flex flex-col justify-between space-y-lg">
+            <div class="space-y-md text-center">
+                <!-- High-Definition Blue AI Chatbot Badge -->
+                <div class="relative flex items-center justify-center w-48 h-48 mx-auto my-md">
+                    <div class="absolute inset-0 rounded-full border-2 border-blue-500/30 pulse-ring-anim"></div>
+                    <div class="absolute inset-0 rounded-full border-2 border-blue-400/20 pulse-ring-anim" style="animation-delay: 1s"></div>
+                    
+                    <div id="ai-orb" class="w-40 h-40 rounded-full bg-blue-600 flex items-center justify-center shadow-2xl shadow-blue-600/50 z-10 relative p-4 group hover:scale-105 transition-all">
+                        <svg class="w-28 h-28 shrink-0 drop-shadow-[0_6px_16px_rgba(0,0,0,0.25)] animate-pulse" viewBox="0 0 200 200" fill="none">
+                            <path d="M100 10C50.3 10 10 50.3 10 100C10 121.2 17.4 140.7 29.8 156.1L15 185C13.2 188.5 16.5 191.8 20 190L48.9 175.2C64.3 187.6 83.8 195 105 195C154.7 195 195 154.7 195 105C195 55.3 154.7 10 100 10Z" fill="white"/>
+                            <rect x="45" y="65" width="110" height="70" rx="30" fill="#2563EB"/>
+                            <rect x="42" y="55" width="6" height="15" rx="3" fill="#2563EB"/>
+                            <rect x="152" y="55" width="6" height="15" rx="3" fill="#2563EB"/>
+                            <circle cx="72" cy="98" r="10" fill="white"/>
+                            <circle cx="128" cy="98" r="10" fill="white"/>
+                            <path d="M85 110Q100 120 115 110" stroke="white" stroke-width="6" stroke-linecap="round" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-headline-sm font-bold text-on-surface">Gemini AI Voice Tutor</h3>
+                    <p id="voice-status-text" class="text-xs text-outline mt-1">Voice active. Speak into mic or type on the right!</p>
+                </div>
+            </div>
+
+            <!-- Voice Controls & Quick Preset Chips -->
+            <div class="space-y-md">
+                <!-- Voice Speech Toggle -->
+                <div class="p-md bg-white rounded-2xl border border-outline-variant/30 flex items-center justify-between shadow-sm">
+                    <span class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-base text-primary">volume_up</span> AI Voice Readout
+                    </span>
+                    <button type="button" id="tts-toggle-btn" onclick="toggleTTS()" class="px-3 py-1 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-full uppercase border border-emerald-300 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Voice ON
+                    </button>
+                </div>
+
+                <div class="space-y-sm">
+                    <span class="text-xs font-bold text-outline uppercase block">Quick Suggested Queries</span>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setQuery('Python for loop & list comprehension')" class="px-3 py-1.5 bg-white border border-outline-variant/30 rounded-xl text-xs font-bold text-on-surface hover:bg-primary/10 hover:text-primary transition-all">
+                            🐍 Python Loops
+                        </button>
+                        <button onclick="setQuery('SQL SELECT and INNER JOIN syntax')" class="px-3 py-1.5 bg-white border border-outline-variant/30 rounded-xl text-xs font-bold text-on-surface hover:bg-primary/10 hover:text-primary transition-all">
+                            🗄️ SQL Joins
+                        </button>
+                        <button onclick="setQuery('JavaScript ES6 Async Await pattern')" class="px-3 py-1.5 bg-white border border-outline-variant/30 rounded-xl text-xs font-bold text-on-surface hover:bg-primary/10 hover:text-primary transition-all">
+                            ⚡ Async JS
+                        </button>
+                        <button onclick="setQuery('Binary Search Tree algorithm time complexity')" class="px-3 py-1.5 bg-white border border-outline-variant/30 rounded-xl text-xs font-bold text-on-surface hover:bg-primary/10 hover:text-primary transition-all">
+                            📊 Data Structures
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-sm border-t border-outline-variant/10 flex justify-between items-center text-xs">
+                <span class="text-emerald-600 font-bold flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Live Speech AI
+                </span>
+                <a href="{{ url_for('student.ai_hub', mode='tutor', clear='true') }}" class="text-outline hover:text-error font-bold flex items-center gap-1 transition-colors">
+                    <span class="material-symbols-outlined text-sm">delete</span> Clear Conversation
+                </a>
+            </div>
+        </div>
+
+        <!-- Right: Full-Width Transcription Arena (Span 8) -->
+        <div class="lg:col-span-8 flex flex-col h-full bg-white">
+            <div class="p-md border-b border-outline-variant/10 flex justify-between items-center bg-slate-50/50">
+                <h4 class="font-bold text-on-surface text-body-md flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-sm">forum</span> Live Session Transcription Log
+                </h4>
+                <span class="text-xs font-bold text-outline uppercase">{{ chat_history|length }} Messages</span>
+            </div>
+            
+            <div id="chat-box" class="flex-grow overflow-y-auto p-lg space-y-lg custom-scrollbar max-h-[500px]">
+                <!-- Initial Greeting -->
+                <div class="flex flex-col gap-1 items-start">
+                    <span class="text-[10px] font-bold text-primary uppercase">TITAN CO-PILOT</span>
+                    <div class="p-md rounded-2xl rounded-tl-none bg-primary/5 border border-primary/10 text-body-sm text-on-surface-variant max-w-[90%]">
+                        Greetings scholar! Speak into your microphone or type any topic to hear my step-by-step voice explanation.
+                    </div>
+                </div>
+
+                <!-- Conversation Turns -->
+                {% for msg in chat_history %}
+                {% if msg.sender == 'student' %}
+                <div class="flex flex-col gap-1 items-end">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">YOU</span>
+                    <div class="p-md rounded-2xl rounded-tr-none bg-primary text-white text-body-sm shadow-md max-w-[85%] font-medium">
+                        {{ msg.text }}
+                    </div>
+                </div>
+                {% else %}
+                <div class="flex flex-col gap-1 items-start">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold text-primary uppercase">TITAN CO-PILOT</span>
+                        <button type="button" onclick="speakCurrentMsg(this)" class="text-primary hover:text-blue-800 text-xs font-bold flex items-center gap-0.5">
+                            <span class="material-symbols-outlined text-xs">volume_up</span> Read Aloud
+                        </button>
+                    </div>
+                    <div class="ai-rendered-msg p-lg rounded-2xl rounded-tl-none bg-slate-50 border border-slate-200 text-body-sm text-slate-800 shadow-sm max-w-[95%] leading-relaxed space-y-2" data-raw="{{ msg.text }}">
+                        {{ msg.text }}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- Submit Input Form & Voice Mic Button -->
+            <div class="p-md border-t border-outline-variant/10 bg-slate-50">
+                <form id="tutor-form" action="{{ url_for('student.ai_hub', mode='tutor') }}" method="POST" class="flex items-center gap-sm">
+                    <!-- Mic Button -->
+                    <button type="button" id="mic-btn" onclick="toggleVoiceInput()" class="p-3.5 bg-surface-container hover:bg-primary/10 text-primary border-2 border-outline-variant/30 rounded-xl font-bold flex items-center justify-center transition-all shadow-sm shrink-0" title="Click to Speak">
+                        <span class="material-symbols-outlined text-lg">mic</span>
+                    </button>
+
+                    <input id="chat-input" type="text" name="message" required placeholder="Speak into mic or type query (e.g. python for loop)..."
+                           class="flex-grow rounded-xl border-2 border-outline-variant/30 bg-white focus:ring-2 focus:ring-primary focus:border-primary text-body-sm p-3.5 font-bold focus:outline-none shadow-inner">
+                    
+                    <button type="submit" class="bg-primary hover:bg-blue-700 text-white px-xl py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg hover:shadow-xl shrink-0">
+                        <span>Ask AI</span>
+                        <span class="material-symbols-outlined text-sm">send</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Mode 2: Innovation Hub Pitcher -->
+    {% else %}
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg flex-1 overflow-hidden">
+        <!-- Pitch Form Card -->
+        <div class="lg:col-span-6 bg-white border-2 border-outline-variant/20 rounded-3xl p-xl shadow-xl space-y-md flex flex-col justify-between">
+            <div>
+                <h3 class="font-headline-sm text-headline-sm text-primary flex items-center gap-sm font-bold">
+                    <span class="material-symbols-outlined text-amber-500">rocket_launch</span>
+                    Pitch Your Technology Idea
+                </h3>
+                <p class="text-body-sm text-on-surface-variant mt-2 leading-relaxed">
+                    Submit your architectural roadmap, business proposal, or core tech concept to get detailed venture and structural feasibility feedback.
+                </p>
+                <form id="pitch-form" action="{{ url_for('student.ai_hub', mode='hub') }}" method="POST" class="mt-lg">
+                    <textarea name="message" required rows="8" placeholder="Outline your startup idea, targets, and structural designs..."
+                              class="w-full rounded-2xl border-2 border-outline-variant/30 bg-surface-container focus:ring-2 focus:ring-primary focus:border-primary text-body-sm p-md font-medium focus:outline-none"></textarea>
+                </form>
+            </div>
+            <button type="submit" form="pitch-form" class="w-full bg-primary hover:bg-blue-700 text-white py-4 rounded-xl font-bold shadow-xl active:scale-95 transition-all">
+                Evaluate Technology Pitch
+            </button>
+        </div>
+
+        <!-- Pitch Feedback Panel -->
+        <div class="lg:col-span-6 bg-white border-2 border-outline-variant/20 rounded-3xl p-xl shadow-xl flex flex-col overflow-y-auto">
+            <h3 class="font-headline-sm text-headline-sm text-on-surface border-b border-outline-variant/10 pb-2 font-bold">AI Feasibility Analysis</h3>
+            <div class="flex-grow pt-lg text-body-md text-on-surface-variant leading-relaxed">
+                {% if pitch_feedback %}
+                    <div class="prose max-w-none text-body-sm space-y-md">
+                        <p class="font-bold text-on-surface uppercase tracking-wider text-xs">EVALUATION METRICS & FEEDBACK:</p>
+                        <div class="whitespace-pre-wrap font-sans bg-slate-50 p-md rounded-2xl border border-slate-200">{{ pitch_feedback }}</div>
+                    </div>
+                {% else %}
+                    <div class="text-center p-12 space-y-sm">
+                        <span class="material-symbols-outlined text-outline text-5xl">analytics</span>
+                        <h4 class="font-bold text-on-surface">No Pitch Submitted Yet</h4>
+                        <p class="text-body-sm text-on-surface-variant max-w-xs mx-auto">Fill in the pitch descriptor on the left panel to trigger your Innovation Hub review.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Restore TTS preference from localStorage (survives page reloads)
+let ttsEnabled = localStorage.getItem('titanTTSEnabled') !== 'false';
+let isRecognizing = false;
+let recognition = null;
+
+function setQuery(text) {
+    document.getElementById('chat-input').value = text;
+}
+
+function toggleTTS() {
+    ttsEnabled = !ttsEnabled;
+    localStorage.setItem('titanTTSEnabled', ttsEnabled);
+    const btn = document.getElementById('tts-toggle-btn');
+    if (ttsEnabled) {
+        btn.className = "px-3 py-1 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-full uppercase border border-emerald-300 flex items-center gap-1";
+        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Voice ON`;
+    } else {
+        window.speechSynthesis.cancel();
+        btn.className = "px-3 py-1 bg-gray-100 text-gray-600 font-bold text-xs rounded-full uppercase border border-gray-300 flex items-center gap-1";
+        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-gray-400"></span> Voice OFF`;
+    }
+}
+
+// Sync toggle button appearance with stored state immediately
+function syncTTSButton() {
+    const btn = document.getElementById('tts-toggle-btn');
+    if (!btn) return;
+    if (ttsEnabled) {
+        btn.className = "px-3 py-1 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-full uppercase border border-emerald-300 flex items-center gap-1";
+        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Voice ON`;
+    } else {
+        btn.className = "px-3 py-1 bg-gray-100 text-gray-600 font-bold text-xs rounded-full uppercase border border-gray-300 flex items-center gap-1";
+        btn.innerHTML = `<span class="w-2 h-2 rounded-full bg-gray-400"></span> Voice OFF`;
+    }
+}
+
+function speakText(rawText) {
+    if (!ttsEnabled || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+
+    // Strip code blocks and markdown symbols for natural speech readout
+    const cleanText = rawText
+        .replace(/```[\s\S]*?```/g, "Code block example follows.")
+        .replace(/`([^`]+)`/g, "$1")
+        .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
+        .replace(/#+\s?/g, "");
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    // Pick best English voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const englishVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha')));
+    if (englishVoice) {
+        utterance.voice = englishVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+}
+
+function speakCurrentMsg(btn) {
+    const parent = btn.closest('.flex-col');
+    const msgEl = parent.querySelector('.ai-rendered-msg');
+    if (msgEl) {
+        const text = msgEl.getAttribute('data-raw') || msgEl.innerText;
+        speakText(text);
+    }
+}
+
+function toggleVoiceInput() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Microphone recognition is not supported on this browser. Please use Chrome, Edge, or Safari.");
+        return;
+    }
+
+    const micBtn = document.getElementById('mic-btn');
+    const statusText = document.getElementById('voice-status-text');
+
+    if (!isRecognizing) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+
+        recognition.onstart = function() {
+            isRecognizing = true;
+            micBtn.className = "p-3.5 bg-red-600 text-white rounded-xl font-bold flex items-center justify-center transition-all shadow-lg animate-pulse shrink-0";
+            micBtn.innerHTML = `<span class="material-symbols-outlined text-lg">mic</span>`;
+            statusText.innerText = "🔴 Listening to your voice...";
+            statusText.className = "text-xs font-bold text-red-600 animate-pulse mt-1";
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('chat-input').value = transcript;
+            statusText.innerText = `Transcribed: "${transcript}"`;
+            // Auto submit
+            setTimeout(() => {
+                document.getElementById('tutor-form').submit();
+            }, 600);
+        };
+
+        recognition.onerror = function() {
+            stopRecognition();
+        };
+
+        recognition.onend = function() {
+            stopRecognition();
+        };
+
+        recognition.start();
+    } else {
+        stopRecognition();
+    }
+}
+
+function stopRecognition() {
+    if (recognition) {
+        recognition.stop();
+    }
+    isRecognizing = false;
+    const micBtn = document.getElementById('mic-btn');
+    const statusText = document.getElementById('voice-status-text');
+    if (micBtn) {
+        micBtn.className = "p-3.5 bg-surface-container hover:bg-primary/10 text-primary border-2 border-outline-variant/30 rounded-xl font-bold flex items-center justify-center transition-all shadow-sm shrink-0";
+    }
+    if (statusText) {
+        statusText.innerText = "Voice active. Speak into mic or type on the right!";
+        statusText.className = "text-xs text-outline mt-1";
+    }
+}
+
+// Auto-scroll chat box to bottom & auto-read latest AI response
+window.addEventListener('DOMContentLoaded', () => {
+    // Sync button visual immediately from localStorage
+    syncTTSButton();
+
+    const chatBox = document.getElementById('chat-box');
+    if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Render markdown format if marked is available
+    if (typeof marked !== 'undefined') {
+        document.querySelectorAll('.ai-rendered-msg').forEach(el => {
+            const raw = el.getAttribute('data-raw');
+            if (raw) {
+                el.innerHTML = marked.parse(raw);
+            }
+        });
+        if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+
+    // Speak latest AI answer ONLY if ttsEnabled is true
+    if (ttsEnabled) {
+        const aiMsgs = document.querySelectorAll('.ai-rendered-msg');
+        if (aiMsgs.length > 0) {
+            const lastMsg = aiMsgs[aiMsgs.length - 1];
+            const rawText = lastMsg.getAttribute('data-raw') || lastMsg.innerText;
+            setTimeout(() => speakText(rawText), 500);
+        }
+    }
+});
+</script>
+{% endblock %}

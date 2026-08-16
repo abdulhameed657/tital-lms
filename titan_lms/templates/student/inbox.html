@@ -1,0 +1,151 @@
+{% extends "layouts/instructor.html" if current_user.role == 'instructor' else ("layouts/admin.html" if current_user.role == 'admin' else "layouts/student.html") %}
+
+{% block title %}Messages | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    .chat-bubble-in {
+        border-radius: 0 12px 12px 12px;
+    }
+    .chat-bubble-out {
+        border-radius: 12px 0 12px 12px;
+    }
+</style>
+{% endblock %}
+
+{% block main_content %}
+<div class="max-w-container-max mx-auto px-gutter py-xl h-[calc(100vh-140px)] flex flex-col">
+    <!-- Messaging Layout Grid -->
+    <div class="flex flex-1 overflow-hidden border border-outline-variant/20 rounded-xl bg-white shadow-sm">
+        
+        <!-- Left Panel: Contact List & Send New Trigger -->
+        <section class="w-80 flex flex-col bg-surface-container-low border-r border-outline-variant/10 h-full shrink-0 slide-from-left">
+            <div class="p-4 border-b border-outline-variant/10">
+                <h3 class="text-headline-sm font-headline-sm text-on-surface">Conversations</h3>
+            </div>
+            <div class="flex-grow overflow-y-auto p-2 space-y-sm">
+                <!-- Start New Message Form -->
+                <div class="p-md bg-white border border-outline-variant/15 rounded-xl space-y-sm hover:shadow-md transition-all duration-300">
+                    <span class="text-label-sm font-bold text-outline-variant uppercase tracking-wider block">Start New Conversation</span>
+                    <form action="{{ url_for('student.messages') }}" method="POST" class="space-y-sm">
+                        <select name="recipient_id" required class="w-full rounded-lg border-outline-variant/20 bg-surface-container text-body-sm p-2 focus:ring-primary focus:border-primary">
+                            <option value="">Choose Recipient...</option>
+                            {% for person in staff %}
+                                <option value="{{ person.id }}">{{ person.name }} ({{ person.role.upper() }})</option>
+                            {% endfor %}
+                        </select>
+                        <textarea name="content" required rows="2" placeholder="Message content..." class="w-full rounded-lg border-outline-variant/20 bg-surface-container text-body-sm p-2 focus:ring-primary focus:border-primary"></textarea>
+                        <button type="submit" class="w-full bg-primary text-white py-2 rounded-lg font-bold text-label-sm active:scale-95 transition-all">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <div class="h-px bg-outline-variant/10 my-2"></div>
+
+                <!-- Recipient list visual highlights -->
+                <span class="text-label-sm font-bold text-outline-variant uppercase tracking-wider px-2 block">Direct Messages Log</span>
+                <div class="space-y-1.5">
+                    {% for partner in partners %}
+                    {% set latest = latest_messages[partner.id] %}
+                    <a href="{{ url_for('student.messages', contact_id=partner.id) }}" 
+                       class="block flex items-center gap-3 p-3 rounded-xl {% if active_contact and partner.id == active_contact.id %}bg-primary/10 border-primary{% else %}bg-primary/5 border-primary/10{% endif %} border hover:translate-x-1 hover:bg-primary/10 transition-all duration-200">
+                        <div class="w-10 h-10 rounded-full {% if active_contact and partner.id == active_contact.id %}bg-primary text-white{% else %}bg-primary/20 text-primary{% endif %} flex items-center justify-center font-bold shrink-0">
+                            {{ partner.name[:2].upper() }}
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <div class="flex justify-between items-center mb-0.5">
+                                <h4 class="text-label-md font-bold text-on-surface truncate">{{ partner.name }}</h4>
+                                {% if latest %}
+                                <span class="text-[9px] text-outline-variant font-mono">{{ latest.created_at.strftime('%I:%M %p') }}</span>
+                                {% endif %}
+                            </div>
+                            {% if latest %}
+                            <p class="text-body-sm text-on-surface-variant truncate">{{ latest.content }}</p>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% else %}
+                    <span class="text-xs text-outline px-2 italic">No conversation log yet.</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Active Chat Interface -->
+        <section class="flex-grow flex flex-col bg-surface-container-lowest h-full slide-from-right">
+            <!-- Active Conversation Header -->
+            <div class="p-4 bg-white border-b border-outline-variant/10 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
+                        {{ active_contact.name[:2].upper() if active_contact else 'CH' }}
+                    </div>
+                    <div>
+                        <h3 class="text-label-lg font-bold text-on-surface">{{ active_contact.name if active_contact else 'Select a Conversation' }}</h3>
+                        <p class="text-[10px] text-emerald-600 font-bold flex items-center gap-1 uppercase tracking-wider">
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> 
+                            {% if active_contact %}
+                                {{ active_contact.role.upper() }} (Active Chat)
+                            {% else %}
+                                Active Channel
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Thread Area -->
+            <div class="flex-grow overflow-y-auto p-lg flex flex-col gap-md custom-scrollbar bg-surface-container-low/20">
+                {% for msg in thread_messages %}
+                    {% if msg.sender_id == current_user.id %}
+                    <!-- Outgoing message -->
+                    <div class="flex gap-3 max-w-[80%] self-end flex-row-reverse">
+                        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-white text-label-sm shrink-0">
+                            {{ current_user.name[:2].upper() }}
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <div class="bg-primary text-white p-3 shadow-md chat-bubble-out text-body-sm">
+                                {{ msg.content }}
+                            </div>
+                            <span class="text-[9px] text-outline-variant mt-1 mr-1 block">{{ msg.created_at.strftime('%b %d at %I:%M %p') }}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Incoming message -->
+                    <div class="flex gap-3 max-w-[80%]">
+                        <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center font-bold text-primary text-label-sm shrink-0 border border-outline-variant/10">
+                            {{ active_contact.name[:2].upper() }}
+                        </div>
+                        <div>
+                            <div class="bg-white p-3 shadow-sm border border-outline-variant/15 chat-bubble-in text-body-sm text-on-surface">
+                                {{ msg.content }}
+                            </div>
+                            <span class="text-[9px] text-outline-variant mt-1 ml-1 block">{{ msg.created_at.strftime('%b %d at %I:%M %p') }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="flex flex-col items-center justify-center h-full text-center gap-sm">
+                    <span class="material-symbols-outlined text-4xl text-outline-variant">forum</span>
+                    <p class="text-body-md text-on-surface-variant">No message history with this contact. Send a message to start chatting.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Quick Text Input Area -->
+            <div class="p-lg bg-white border-t border-outline-variant/10">
+                <form action="{{ url_for('student.messages') }}" method="POST" class="flex gap-sm">
+                    <input type="hidden" name="recipient_id" value="{{ active_contact.id if active_contact else '' }}">
+                    <input type="text" name="content" required placeholder="Type your response..." 
+                           {% if not active_contact %}disabled{% endif %}
+                           class="flex-1 rounded-lg border-outline-variant/20 bg-surface-container focus:ring-primary focus:border-primary text-body-sm p-3">
+                    <button type="submit" {% if not active_contact %}disabled{% endif %} class="bg-primary text-white px-lg rounded-lg font-bold flex items-center justify-center shadow-md active:scale-95 transition-all disabled:opacity-50">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </div>
+</div>
+{% endblock %}

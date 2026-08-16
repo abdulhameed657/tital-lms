@@ -1,0 +1,713 @@
+{% extends "base.html" %}
+
+{% block title %}Titan LMS | Secure Access{% endblock %}
+
+{% block head %}
+<!-- Lucide Icons CDN -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+    .glass-panel {
+        background: rgba(10, 17, 40, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .shimmer-btn {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .shimmer-btn::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transform: rotate(45deg);
+        transition: 0.5s;
+    }
+
+    .shimmer-btn:hover::after {
+        left: 100%;
+        top: 100%;
+    }
+
+    .role-toggle-active {
+        box-shadow: 0 0 15px rgba(0, 86, 208, 0.15);
+    }
+
+    /* Entrance Animations */
+    @keyframes slideFromBottom {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideFromRight {
+        from {
+            opacity: 0;
+            transform: translateX(60px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideFromTop {
+        from {
+            opacity: 0;
+            transform: translateY(-40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Style 1: Fast Zoom-In & Slow Zoom-Out (ACTIVE DEFAULT) */
+    @keyframes fastInSlowOutZoom {
+        0% {
+            transform: scale(1.0) translate(0, 0);
+        }
+
+        25% {
+            transform: scale(1.20) translate(-7%, 1.5%);
+        }
+
+        35% {
+            transform: scale(1.52) translate(-10%, 10%);
+        }
+
+        70% {
+            transform: scale(1.10) translate(-4.5%, -1%);
+        }
+
+        100% {
+            transform: scale(1.0) translate(0, 0);
+        }
+    }
+
+    /* Style 2: Holographic 3D Perspective Tilt */
+    @keyframes holographic3DTilt {
+        0% {
+            transform: scale(1.05) perspective(1000px) rotateY(0deg) rotateX(0deg) translate(0, 0);
+        }
+
+        50% {
+            transform: scale(1.15) perspective(1000px) rotateY(-2.5deg) rotateX(1.5deg) translate(-3.5%, -1.5%);
+        }
+
+        100% {
+            transform: scale(1.08) perspective(1000px) rotateY(2deg) rotateX(-1deg) translate(1.5%, 1%);
+        }
+    }
+
+    .animate-bg-zoom {
+        animation: fastInSlowOutZoom 18s ease-in-out infinite;
+    }
+
+    .animate-logo-down {
+        animation: slideFromTop 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    .animate-tagline-up {
+        animation: slideFromBottom 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        opacity: 0;
+        animation-delay: 0.3s;
+    }
+
+    .animate-form-right {
+        animation: slideFromRight 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        opacity: 0;
+    }
+
+    .animate-stagger-1 {
+        animation: slideFromBottom 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        opacity: 0;
+        animation-delay: 0.2s;
+    }
+
+    .animate-stagger-2 {
+        animation: slideFromBottom 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        opacity: 0;
+        animation-delay: 0.3s;
+    }
+
+    .animate-stagger-3 {
+        animation: slideFromBottom 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        opacity: 0;
+        animation-delay: 0.4s;
+    }
+
+    .ripple-btn {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .gradient-btn {
+        background: linear-gradient(90deg, #0D1FA8 0%, #0054cb 50%, #0D1FA8 100%);
+        background-size: 200% auto;
+        transition: background-position 0.6s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease, transform 0.2s ease;
+    }
+
+    .gradient-btn:hover {
+        background-position: right center;
+    }
+
+    .ripple-effect {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.45);
+        transform: scale(0);
+        animation: ripple 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        pointer-events: none;
+    }
+
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    @keyframes mascot-breath {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-6px);
+        }
+    }
+
+    .animate-mascot-breath {
+        animation: mascot-breath 3s ease-in-out infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="min-h-screen flex flex-col md:flex-row overflow-hidden" x-data="{ 
+        tab: 'login', 
+        role: 'student', 
+        showPassword: false, 
+        showSignupPassword: false, 
+        signupPassword: '', 
+        capsLock: false, 
+        rememberMe: false,
+        get pwdLength() { return this.signupPassword.length >= 8 },
+        get pwdUpper() { return /[A-Z]/.test(this.signupPassword) },
+        get pwdNumber() { return /[0-9]/.test(this.signupPassword) },
+        get pwdSpecial() { return /[^A-Za-z0-9]/.test(this.signupPassword) },
+        get pwdScore() {
+            if (!this.signupPassword) return 0;
+            let s = 0;
+            if (this.pwdLength) s++;
+            if (this.pwdUpper) s++;
+            if (this.pwdNumber) s++;
+            if (this.pwdSpecial) s++;
+            return s;
+        },
+        get strengthLabel() {
+            if (!this.signupPassword) return 'Weak';
+            if (this.pwdScore <= 1) return 'Weak';
+            if (this.pwdScore === 2) return 'Fair';
+            if (this.pwdScore === 3) return 'Good';
+            return 'Strong';
+        },
+        get strengthColor() {
+            if (this.pwdScore <= 1) return 'bg-red-500';
+            if (this.pwdScore === 2) return 'bg-amber-500';
+            if (this.pwdScore === 3) return 'bg-blue-600';
+            return 'bg-emerald-500';
+        },
+        get strengthTextColor() {
+            if (this.pwdScore <= 1) return 'text-red-500';
+            if (this.pwdScore === 2) return 'text-amber-500';
+            if (this.pwdScore === 3) return 'text-blue-600';
+            return 'text-emerald-500';
+        }
+    }">
+    <!-- Left Side: Brand Imagery (Asymmetric High-Impact Section) -->
+    <section
+        class="relative w-full md:w-1/2 lg:w-3/5 min-h-[220px] md:min-h-full bg-slate-950 flex flex-col justify-end overflow-hidden group shrink-0">
+        <!-- Background Image (Balanced, Soft Natural Lighting) -->
+        <div class="absolute inset-0 bg-cover bg-center transition-all duration-1000 scale-105 group-hover:scale-100 brightness-95 contrast-105 saturate-110 animate-bg-zoom"
+            style="background-image: url('/static/login_bg.png'); background-position: 70% center;">
+        </div>
+        <!-- Soft Balanced Navy Shading -->
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-slate-950/20"></div>
+        <!-- Brand Content Overlay -->
+        <div class="absolute inset-0 flex flex-col justify-end p-6 md:p-10 lg:p-14 z-10 space-y-3">
+            <!-- Tagline Area (Positioned at Bottom) -->
+            <div class="max-w-xl text-white animate-tagline-up space-y-2">
+                <div>
+                    <span
+                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-950/70 md:bg-primary/20 backdrop-blur-md border border-amber-400/30 md:border-primary/30 text-white text-[10px] sm:text-xs font-extrabold uppercase tracking-widest">
+                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                        Engineering Academic Ambition
+                    </span>
+                </div>
+                <h2 class="font-headline-lg text-white leading-tight mb-md">Unlock the potential of modern <span
+                        class="text-primary-fixed-dim">high-performance</span> learning.</h2>
+                <p class="text-body-lg text-white/80 font-body-lg">The established standard for enterprise teams and
+                    academic excellence in the digital-first era.</p>
+            </div>
+            <!-- Footer-style Branding -->
+            <div class="text-white/40 text-label-sm font-label-sm tracking-widest uppercase pt-xs">
+                © 2026 {{ current_tenant.name if current_tenant else 'Titan LMS' }} • Academic Excellence Redefined
+            </div>
+        </div>
+    </section>
+
+    <!-- Right Side: Form Area (Clean Modern Card feel) -->
+    <section
+        class="w-full md:w-1/2 lg:w-2/5 min-h-screen bg-surface flex flex-col justify-center px-margin-mobile md:px-margin-desktop lg:px-xxl py-xl animate-form-right relative overflow-visible">
+
+        <!-- Peeping Mascot Character (Emerge from LEFT / Picture side with native transparent PNG alpha channel & bottom fade mask) -->
+        <div id="peeping-mascot" class="hidden md:block absolute pointer-events-none select-none z-30"
+            style="width: 320px; height: 500px; left: -260px; top: 26%; transform: scale(0) translateX(-60px) rotate(0deg); opacity: 0; -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 82%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 82%, rgba(0,0,0,0) 100%); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(-8px 10px 12px rgba(0,0,0,0.12));">
+            <div class="w-full h-full animate-mascot-breath">
+                <img src="/static/mascot.png" class="w-full h-full object-contain block">
+            </div>
+        </div>
+
+        <div class="w-full max-w-md mx-auto space-y-xl relative">
+            <!-- Welcome Header (With 2.5D Vector Academic Cap Graphic at Top Right Corner) -->
+            <header class="animate-stagger-1 relative pt-2">
+                <div x-show="tab === 'login'" class="pr-28 md:pr-32">
+                    <h1 class="text-3xl md:text-4xl font-black text-[#1c1c17] tracking-tight"
+                        style="font-family:'Montserrat',sans-serif;">
+                        Welcome <span class="text-[#0054cb]">Back!</span>
+                    </h1>
+                    <p class="text-sm md:text-base text-gray-500 font-semibold mt-2">Glad to see you again. Continue
+                        your learning journey.</p>
+                </div>
+                <div x-show="tab === 'signup'" class="pr-0">
+                    <h1 class="text-2xl sm:text-3xl md:text-3xl lg:text-4xl text-[#1c1c17] tracking-wider whitespace-nowrap uppercase"
+                        style="font-family:'Impact', 'Arial Black', sans-serif;">
+                        Join Titan <span class="text-[#0054cb]">Faculty</span>
+                    </h1>
+                    <p class="text-sm md:text-base text-gray-500 font-semibold mt-2">Empowering next-gen engineers &
+                        tech leaders.</p>
+                </div>
+
+                <!-- Absolute Top Right Corner Vector Graduation Cap Illustration (Super Large Size) -->
+                <div
+                    class="absolute -top-24 md:-top-32 -right-32 md:-right-44 w-56 h-56 md:w-72 md:h-72 shrink-0 pointer-events-none hover:scale-105 transition-transform duration-300">
+                    <img src="/static/login_vector-page.png" alt="Academic Graduation Cap & Book"
+                        class="w-full h-full object-contain filter drop-shadow-md">
+                </div>
+            </header>
+
+            <!-- Role Selection Grid Cards (Only show on Login) -->
+            <div class="grid grid-cols-2 gap-sm" x-show="tab === 'login'">
+                <!-- Student Card -->
+                <button type="button"
+                    class="p-lg rounded-2xl border flex flex-col items-center justify-center gap-xs transition-all duration-300 relative focus:outline-none overflow-hidden group select-none"
+                    :class="role === 'student' ? 'border-[#0D1FA8] bg-[#0D1FA8]/5 text-[#0D1FA8] shadow-md shadow-[#0D1FA8]/5 font-semibold' : 'border-outline-variant/60 bg-surface-container hover:bg-surface-container-high text-on-surface-variant'"
+                    @click="role = 'student'">
+                    <i data-lucide="graduation-cap"
+                        class="w-8 h-8 transition-transform duration-300 group-hover:scale-110 mb-xs"></i>
+                    <span class="text-label-md font-label-md">Student</span>
+                    <!-- Active Indicator Dot -->
+                    <div class="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-[#F4B400] transition-transform duration-300"
+                        :class="role === 'student' ? 'scale-100' : 'scale-0'"></div>
+                </button>
+
+                <!-- Instructor Card -->
+                <button type="button"
+                    class="p-lg rounded-2xl border flex flex-col items-center justify-center gap-xs transition-all duration-300 relative focus:outline-none overflow-hidden group select-none"
+                    :class="role === 'instructor' ? 'border-[#0D1FA8] bg-[#0D1FA8]/5 text-[#0D1FA8] shadow-md shadow-[#0D1FA8]/5 font-semibold' : 'border-outline-variant/60 bg-surface-container hover:bg-surface-container-high text-on-surface-variant'"
+                    @click="role = 'instructor'">
+                    <i data-lucide="presentation"
+                        class="w-8 h-8 transition-transform duration-300 group-hover:scale-110 mb-xs"></i>
+                    <span class="text-label-md font-label-md">Instructor</span>
+                    <!-- Active Indicator Dot -->
+                    <div class="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-[#F4B400] transition-transform duration-300"
+                        :class="role === 'instructor' ? 'scale-100' : 'scale-0'"></div>
+                </button>
+            </div>
+
+
+
+            <!-- Login Form -->
+            <form action="{{ url_for('auth.login') }}" method="POST" class="space-y-lg animate-stagger-3"
+                x-show="tab === 'login'">
+                <input type="hidden" name="role" :value="role">
+                <div class="space-y-xs relative">
+                    <div class="relative group">
+                        <input
+                            class="w-full pl-12 pr-md pt-6 pb-2 bg-surface-container border border-outline-variant rounded-lg transition-all peer focus:outline-none focus:border-[#0D1FA8] focus:ring-4 focus:ring-[#0D1FA8]/10 font-body-md placeholder:text-transparent"
+                            id="login-email" name="email" placeholder="john.doe@titan.edu" type="email" required>
+                        <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none transition-all duration-300 peer-focus:scale-110 peer-focus:text-[#0D1FA8] text-outline">
+                            <i data-lucide="mail" class="w-5 h-5"></i>
+                        </span>
+                        <label
+                            class="absolute left-12 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none transition-all duration-300 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3.5 peer-focus:text-[#0D1FA8] peer-[:not(:placeholder-shown)]:scale-75 peer-[:not(:placeholder-shown)]:-translate-y-3.5 font-label-md text-label-md"
+                            for="login-email">Academic Email</label>
+                    </div>
+                </div>
+                <div class="space-y-xs relative">
+                    <div class="relative group">
+                        <input
+                            class="w-full pl-12 pr-24 pt-6 pb-2 bg-surface-container border border-outline-variant rounded-lg transition-all peer focus:outline-none focus:border-[#0D1FA8] focus:ring-4 focus:ring-[#0D1FA8]/10 font-body-md placeholder:text-transparent"
+                            id="login-password" name="password" placeholder="••••••••"
+                            :type="showPassword ? 'text' : 'password'" required
+                            @keydown="capsLock = $event.getModifierState('CapsLock')"
+                            @keyup="capsLock = $event.getModifierState('CapsLock')">
+                        <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none transition-all duration-300 peer-focus:scale-110 peer-focus:text-[#0D1FA8] text-outline">
+                            <i data-lucide="key-round" class="w-5 h-5"></i>
+                        </span>
+                        <label
+                            class="absolute left-12 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none transition-all duration-300 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3.5 peer-focus:text-[#0D1FA8] peer-[:not(:placeholder-shown)]:scale-75 peer-[:not(:placeholder-shown)]:-translate-y-3.5 font-label-md text-label-md"
+                            for="login-password">Password</label>
+
+                        <!-- Show/Hide Toggle Button -->
+                        <button type="button" @click="showPassword = !showPassword"
+                            class="absolute right-16 top-1/2 -translate-y-1/2 text-outline hover:text-[#0D1FA8] transition-colors focus:outline-none z-10 flex items-center justify-center">
+                            <i data-lucide="eye" x-show="!showPassword" class="w-5 h-5"></i>
+                            <i data-lucide="eye-off" x-show="showPassword" class="w-5 h-5"></i>
+                        </button>
+
+                        <a class="absolute right-4 top-1/2 -translate-y-1/2 font-label-md text-label-md text-[#0D1FA8] hover:underline z-10"
+                            href="{{ url_for('auth.forgot_password') }}">Forgot?</a>
+                    </div>
+                    <!-- Caps Lock Warning -->
+                    <div x-show="capsLock" x-transition
+                        class="flex items-center gap-xs text-error font-label-sm text-label-sm mt-1 animate-pulse absolute left-0 -bottom-6">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 text-error"></i>
+                        <span>Caps Lock is ON</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-sm pt-sm">
+                    <label class="flex items-center gap-sm cursor-pointer select-none group" for="remember">
+                        <div class="relative flex items-center">
+                            <input class="sr-only" id="remember" name="remember" type="checkbox"
+                                @change="rememberMe = $event.target.checked">
+                            <div class="w-5 h-5 rounded-md border border-outline-variant bg-surface-container flex items-center justify-center transition-all duration-200 group-hover:border-[#0D1FA8]"
+                                :class="rememberMe ? 'bg-[#0D1FA8] border-[#0D1FA8]' : ''">
+                                <i data-lucide="check" class="w-4 h-4 text-white transition-transform duration-200"
+                                    :class="rememberMe ? 'scale-100' : 'scale-0'"></i>
+                            </div>
+                        </div>
+                        <span
+                            class="font-label-md text-label-md text-on-surface-variant group-hover:text-on-surface transition-colors">Stay
+                            signed in for 30 days</span>
+                    </label>
+                </div>
+                <!-- CTA Button -->
+                <button
+                    class="ripple-btn gradient-btn group w-full text-white py-4 rounded-lg font-label-lg text-label-lg shadow-xl shadow-[#0D1FA8]/20 hover:shadow-2xl hover:shadow-[#0D1FA8]/30 active:scale-95 flex items-center justify-center gap-sm"
+                    type="submit">
+                    <span
+                        x-text="tab === 'login' ? 'Sign In' : 'Join {{ current_tenant.name if current_tenant else 'Titan LMS' }}'">Sign
+                        In</span>
+                    <i data-lucide="arrow-right"
+                        class="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300"></i>
+                </button>
+            </form>
+
+            <!-- Signup Form (Pushed Down with Top Spacing) -->
+            <form action="{{ url_for('auth.signup') }}" method="POST" class="space-y-lg animate-stagger-3 pt-6 md:pt-8"
+                x-show="tab === 'signup'" x-cloak>
+                <input type="hidden" name="role" :value="role">
+                <div class="space-y-xs">
+                    <label class="font-label-md text-label-md text-on-surface" for="signup-name">Full Name</label>
+                    <div class="relative group">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">person</span>
+                        <input
+                            class="w-full pl-12 pr-md py-3 bg-surface-container border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-md placeholder:text-outline-variant"
+                            id="signup-name" name="name" placeholder="John Doe" type="text" required>
+                    </div>
+                </div>
+                <div class="space-y-xs">
+                    <label class="font-label-md text-label-md text-on-surface" for="signup-email">Academic Email</label>
+                    <div class="relative group">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">mail</span>
+                        <input
+                            class="w-full pl-12 pr-md py-3 bg-surface-container border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-md placeholder:text-outline-variant"
+                            id="signup-email" name="email" placeholder="john.doe@titan.edu" type="email" required>
+                    </div>
+                </div>
+
+
+                <!-- Instructor Phone Number (Required for Instructor signup) -->
+                <div class="space-y-xs" x-show="role === 'instructor'" x-cloak>
+                    <label class="font-label-md text-label-md text-on-surface" for="signup-phone">Mobile / Phone
+                        Number</label>
+                    <div class="relative group">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">phone</span>
+                        <input
+                            class="w-full pl-12 pr-md py-3 bg-surface-container border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-md placeholder:text-outline-variant"
+                            id="signup-phone" name="phone" placeholder="e.g. 0300-1234567" type="tel"
+                            :required="role === 'instructor'">
+                    </div>
+                </div>
+
+                <div class="space-y-sm">
+                    <div class="flex items-center justify-between">
+                        <label class="font-label-md text-label-md text-on-surface"
+                            for="signup-password">Password</label>
+                        <span
+                            class="text-xs font-semibold text-[#0054cb] cursor-pointer select-none flex items-center gap-1"
+                            @click="showSignupPassword = !showSignupPassword">
+                            <span class="material-symbols-outlined text-[18px]"
+                                x-text="showSignupPassword ? 'visibility_off' : 'visibility'">visibility</span>
+                            <span x-text="showSignupPassword ? 'Hide Password' : 'Show Password'">Show Password</span>
+                        </span>
+                    </div>
+                    <div class="relative group">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">lock</span>
+                        <input
+                            class="w-full pl-12 pr-12 py-3 bg-surface-container border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body-md placeholder:text-outline-variant"
+                            id="signup-password" name="password" placeholder="••••••••"
+                            :type="showSignupPassword ? 'text' : 'password'" x-model="signupPassword" required>
+
+                        <!-- Show/Hide Eye Toggle Icon -->
+                        <button type="button" @click="showSignupPassword = !showSignupPassword"
+                            class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-[#0054cb] transition-colors focus:outline-none z-10 flex items-center justify-center p-1">
+                            <span class="material-symbols-outlined text-[20px]"
+                                x-text="showSignupPassword ? 'visibility_off' : 'visibility'">visibility</span>
+                        </button>
+                    </div>
+
+                    <!-- Password Strength & Criteria Box -->
+                    <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2.5 transition-all"
+                        x-show="signupPassword.length > 0" x-transition>
+                        <!-- Header & Label -->
+                        <div class="flex items-center justify-between text-xs font-semibold">
+                            <span class="text-slate-600">Password strength</span>
+                            <span :class="strengthTextColor" class="font-bold uppercase tracking-wider text-[11px]"
+                                x-text="strengthLabel">Weak</span>
+                        </div>
+
+                        <!-- Strength Bar (Weak ───── Strong) -->
+                        <div class="flex items-center gap-2 w-full">
+                            <span
+                                class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0">Weak</span>
+                            <div
+                                class="flex-1 grid grid-cols-4 gap-1.5 h-2 bg-slate-200 rounded-full overflow-hidden p-0.5">
+                                <div class="h-full rounded-full transition-all duration-300"
+                                    :class="pwdScore >= 1 ? strengthColor : 'bg-transparent'"></div>
+                                <div class="h-full rounded-full transition-all duration-300"
+                                    :class="pwdScore >= 2 ? strengthColor : 'bg-transparent'"></div>
+                                <div class="h-full rounded-full transition-all duration-300"
+                                    :class="pwdScore >= 3 ? strengthColor : 'bg-transparent'"></div>
+                                <div class="h-full rounded-full transition-all duration-300"
+                                    :class="pwdScore >= 4 ? strengthColor : 'bg-transparent'"></div>
+                            </div>
+                            <span
+                                class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider shrink-0">Strong</span>
+                        </div>
+
+                        <!-- 4 Rules Criteria Checklist -->
+                        <div
+                            class="grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-1.5 pt-1 text-xs font-medium border-t border-slate-200/60">
+                            <!-- Rule 1: 8 Characters -->
+                            <div class="flex items-center gap-2 transition-colors"
+                                :class="pwdLength ? 'text-emerald-700 font-semibold' : 'text-slate-500'">
+                                <span
+                                    class="w-4 h-4 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 transition-all"
+                                    :class="pwdLength ? 'bg-emerald-500 text-white shadow-sm' : 'bg-slate-200 text-slate-400'">
+                                    ✓
+                                </span>
+                                <span>At least 8 characters</span>
+                            </div>
+
+                            <!-- Rule 2: Uppercase Letter -->
+                            <div class="flex items-center gap-2 transition-colors"
+                                :class="pwdUpper ? 'text-emerald-700 font-semibold' : 'text-slate-500'">
+                                <span
+                                    class="w-4 h-4 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 transition-all"
+                                    :class="pwdUpper ? 'bg-emerald-500 text-white shadow-sm' : 'bg-slate-200 text-slate-400'">
+                                    ✓
+                                </span>
+                                <span>One uppercase letter</span>
+                            </div>
+
+                            <!-- Rule 3: One Number -->
+                            <div class="flex items-center gap-2 transition-colors"
+                                :class="pwdNumber ? 'text-emerald-700 font-semibold' : 'text-slate-500'">
+                                <span
+                                    class="w-4 h-4 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 transition-all"
+                                    :class="pwdNumber ? 'bg-emerald-500 text-white shadow-sm' : 'bg-slate-200 text-slate-400'">
+                                    ✓
+                                </span>
+                                <span>One number</span>
+                            </div>
+
+                            <!-- Rule 4: Special Character -->
+                            <div class="flex items-center gap-2 transition-colors"
+                                :class="pwdSpecial ? 'text-emerald-700 font-semibold' : 'text-slate-500'">
+                                <span
+                                    class="w-4 h-4 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 transition-all"
+                                    :class="pwdSpecial ? 'bg-emerald-500 text-white shadow-sm' : 'bg-slate-200 text-slate-400'">
+                                    ✓
+                                </span>
+                                <span>One special character</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- CTA Button -->
+                <button
+                    class="shimmer-btn w-full bg-primary hover:bg-primary-container text-white py-4 rounded-lg font-label-lg text-label-lg shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-sm"
+                    type="submit">
+                    Submit Instructor Application
+                    <span class="material-symbols-outlined text-[20px]"
+                        style="font-variation-settings: 'FILL' 1;">how_to_reg</span>
+                </button>
+            </form>
+
+            <!-- Footer Links -->
+            <footer class="pt-xl text-center animate-stagger-3">
+                <p class="text-body-sm text-on-surface-variant">
+                    <span x-text="tab === 'login' ? 'Don\'t have an account?' : 'Already have an account?'">Don't have
+                        an account?</span>
+                    <a class="text-primary font-bold hover:underline ml-1 cursor-pointer"
+                        @click="tab = (tab === 'login' ? 'signup' : 'login'); if (tab === 'signup') { role = 'instructor'; } else { role = 'student'; }"
+                        x-text="tab === 'login' ? 'Request Instructor Account' : 'Sign In'">Request Instructor
+                        Account</a>
+                </p>
+
+                <!-- Exact Mockup Bottom Trust Feature Bar & Links -->
+                <footer class="pt-6 space-y-6">
+                    <!-- 3-Column Trust Card (Exact Mockup Match) -->
+                    <div
+                        class="bg-[#fafbfc] rounded-2xl p-4 shadow-sm border border-gray-200/60 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-0 sm:divide-x divide-gray-200/80 text-left items-center">
+
+                        <!-- Feature 1: Secure & Safe -->
+                        <div class="flex items-center gap-3 sm:px-3">
+                            <span
+                                class="material-symbols-outlined text-2xl text-[#0054cb] shrink-0 font-bold">verified_user</span>
+                            <div>
+                                <h4 class="font-extrabold text-xs text-[#1c1c17] leading-snug">Secure & Safe</h4>
+                                <p class="text-[11px] text-gray-500 font-normal leading-tight">Your data is protected
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Feature 2: Smart Learning -->
+                        <div class="flex items-center gap-3 sm:px-4">
+                            <span
+                                class="material-symbols-outlined text-2xl text-[#0054cb] shrink-0 font-bold">rocket_launch</span>
+                            <div>
+                                <h4 class="font-extrabold text-xs text-[#1c1c17] leading-snug">Smart Learning</h4>
+                                <p class="text-[11px] text-gray-500 font-normal leading-tight">Learn anytime, anywhere
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Feature 3: Track Progress -->
+                        <div class="flex items-center gap-3 sm:px-4">
+                            <span
+                                class="material-symbols-outlined text-2xl text-[#0054cb] shrink-0 font-bold">trending_up</span>
+                            <div>
+                                <h4 class="font-extrabold text-xs text-[#1c1c17] leading-snug">Track Progress</h4>
+                                <p class="text-[11px] text-gray-500 font-normal leading-tight">See your growth</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </footer>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize view if URL contains query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('signup') === 'true') {
+        const rootData = document.querySelector('main').__x.$data;
+        rootData.tab = 'signup';
+    }
+
+    // Peeping Mascot Animation Triggers
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize Lucide Icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        // Ripple effect logic
+        document.querySelectorAll('.ripple-btn').forEach(button => {
+            button.addEventListener('click', function (e) {
+                const rect = button.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple-effect');
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = `${size}px`;
+                ripple.style.transform = 'translate(-50%, -50%) scale(0)';
+                ripple.style.position = 'absolute';
+
+                button.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        const emailInput = document.getElementById('login-email');
+        const passwordInput = document.getElementById('login-password');
+        const mascot = document.getElementById('peeping-mascot');
+
+        if (emailInput && passwordInput && mascot) {
+            emailInput.addEventListener('focus', () => {
+                mascot.style.opacity = '1';
+                mascot.style.transform = 'scale(1) translateX(10px) rotate(0deg) translateY(0)';
+            });
+            emailInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    if (document.activeElement !== emailInput && document.activeElement !== passwordInput) {
+                        mascot.style.opacity = '0';
+                        mascot.style.transform = 'scale(0) translateX(-60px) rotate(0deg) translateY(0)';
+                    }
+                }, 50);
+            });
+
+            passwordInput.addEventListener('focus', () => {
+                mascot.style.opacity = '1';
+                mascot.style.transform = 'scale(1) translateX(10px) rotate(0deg) translateY(45px)';
+            });
+            passwordInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    if (document.activeElement !== emailInput && document.activeElement !== passwordInput) {
+                        mascot.style.opacity = '0';
+                        mascot.style.transform = 'scale(0) translateX(-60px) rotate(0deg) translateY(0)';
+                    }
+                }, 50);
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Grading Evaluation | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    @keyframes flyLeft {
+        from { opacity: 0; transform: translateX(-60px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes flyRight {
+        from { opacity: 0; transform: translateX(60px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes flyUp {
+        from { opacity: 0; transform: translateY(50px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes flyDown {
+        from { opacity: 0; transform: translateY(-40px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .fly-left  { animation: flyLeft  0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-right { animation: flyRight 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-up    { animation: flyUp    0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-down  { animation: flyDown  0.7s cubic-bezier(0.22,1,0.36,1) both; }
+</style>
+{% endblock %}
+
+{% block instructor_content %}
+<main class="flex flex-col lg:flex-row min-h-[calc(100vh-80px)] overflow-hidden">
+    <!-- Student Submission Details (Left Column) -->
+    <section class="flex-grow p-lg md:p-xl space-y-lg bg-surface-container-lowest border-r border-outline-variant/30 overflow-y-auto max-h-[85vh] fly-left">
+        <div class="border-b border-outline-variant/10 pb-md mb-md fly-down">
+            <nav class="flex items-center gap-xs text-label-md text-secondary mb-sm">
+                <a href="{{ url_for('instructor.grading') }}" class="hover:text-primary">Submissions Queue</a>
+                <span class="material-symbols-outlined text-body-sm">chevron_right</span>
+                <span class="text-primary font-bold">Grading Evaluation</span>
+            </nav>
+            <h1 class="font-headline-lg text-headline-lg text-on-surface leading-tight">
+                {{ attempt.quiz.title }} Assessment
+            </h1>
+            <p class="text-body-sm text-on-surface-variant">
+                Student: <span class="font-semibold text-primary">{{ attempt.user.name }}</span> • Submitted: {{ attempt.attempted_at.strftime('%Y-%b-%d %H:%M') }}
+            </p>
+        </div>
+
+        <!-- Student Answers Feed -->
+        <div class="space-y-lg">
+            <h3 class="text-headline-sm font-headline-sm text-on-surface">Student Answers & AI Diagnostics</h3>
+            
+            {% for sa in attempt.answers %}
+            <div class="bg-white p-lg rounded-xl border {% if sa.is_correct %}border-green-500/20{% else %}border-error/20{% endif %} space-y-md shadow-sm">
+                <div class="flex justify-between items-start gap-md">
+                    <div>
+                        <span class="text-label-sm font-bold text-secondary uppercase">Question #{{ loop.index }}</span>
+                        <h4 class="text-body-md font-bold text-on-surface mt-1">{{ sa.question.question_text }}</h4>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-label-sm font-bold uppercase {% if sa.is_correct %}bg-green-100 text-green-700{% else %}bg-error-container/20 text-error{% endif %}">
+                        {% if sa.is_correct %}Correct{% else %}Incorrect{% endif %}
+                    </span>
+                </div>
+
+                <!-- Student Answer Output -->
+                <div class="p-md bg-surface-container-low rounded-lg font-mono text-sm space-y-md">
+                    <div>
+                        <span class="text-label-sm text-outline block uppercase">Student Response:</span>
+                        <p class="text-on-surface font-semibold whitespace-pre-wrap">{{ sa.student_answer }}</p>
+                    </div>
+                    <div class="border-t border-outline-variant/10 pt-2">
+                        <span class="text-label-sm text-outline block uppercase">Answer Key Guidelines:</span>
+                        <p class="text-secondary whitespace-pre-wrap">{{ sa.question.correct_answer }}</p>
+                    </div>
+                </div>
+
+                <!-- AI Evaluation feedback -->
+                {% if sa.ai_evaluation %}
+                <div class="p-md bg-primary/5 border border-primary/10 rounded-lg flex gap-md items-start">
+                    <span class="material-symbols-outlined text-primary mt-1">auto_awesome</span>
+                    <div>
+                        <span class="text-label-sm text-primary font-bold block uppercase">AI Recommendation Feedback</span>
+                        <p class="text-body-sm text-on-surface-variant italic mt-1">{{ sa.ai_evaluation }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- AI Grading & Personal Feedback Panel (Right Column) -->
+    <aside class="w-full lg:w-[420px] bg-surface-container-low p-lg border-l border-outline-variant/30 flex flex-col justify-between max-h-[85vh] overflow-y-auto fly-right" style="animation-delay: 0.15s;">
+        <form action="{{ url_for('instructor.grade_submission', attempt_id=attempt.id) }}" method="POST" class="space-y-lg flex flex-col h-full justify-between">
+            <div class="space-y-lg">
+                <!-- Evaluation Stats Header -->
+                <div class="p-md bg-white border border-outline-variant/20 rounded-xl space-y-md shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-label-sm font-bold text-on-surface-variant uppercase">Platform Grade</span>
+                        <span class="bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full font-label-sm text-xs font-bold uppercase">AI Evaluated</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <div>
+                            <span class="text-label-sm text-outline block">Calculated Score</span>
+                            <div class="flex items-baseline gap-1">
+                                <input name="score" class="w-20 bg-transparent border-b-2 border-primary text-headline-lg font-bold text-primary text-center focus:ring-0 p-0" type="number" step="0.1" value="{{ attempt.score }}">
+                                <span class="text-headline-sm font-bold text-outline">/ 100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-outline-variant/10">
+                        <label class="block text-label-sm text-on-surface-variant font-bold mb-1">Pass/Fail Status</label>
+                        <select name="passed" class="w-full bg-surface border border-outline-variant rounded-lg p-sm text-body-sm cursor-pointer">
+                            <option value="true" {% if attempt.passed %}selected{% endif %}>PASSED</option>
+                            <option value="false" {% if not attempt.passed %}selected{% endif %}>FAILED</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- AI Evaluation feedback summary -->
+                {% if attempt.ai_feedback %}
+                <div class="p-md bg-white border border-outline-variant/20 rounded-xl space-y-sm shadow-sm">
+                    <div class="flex items-center gap-1.5 text-primary">
+                        <span class="material-symbols-outlined text-[18px]">psychology</span>
+                        <span class="font-label-lg text-label-lg font-bold">AI Diagnostics Overview</span>
+                    </div>
+                    <p class="text-body-sm text-on-surface-variant leading-relaxed italic">
+                        "{{ attempt.ai_feedback }}"
+                    </p>
+                </div>
+                {% endif %}
+
+                <!-- Instructor Feedback Editor -->
+                <div class="space-y-sm">
+                    <label class="block text-label-lg font-label-lg text-on-surface uppercase tracking-wider">Instructor Evaluation & Feedback</label>
+                    <textarea name="feedback" required class="w-full h-36 rounded-xl border border-outline-variant bg-white focus:ring-primary focus:border-primary p-md text-body-sm leading-relaxed" placeholder="Add custom notes or instructions for the student's grading report...">{{ attempt.ai_feedback or '' }}</textarea>
+                </div>
+            </div>
+
+            <!-- Grade Submit Button -->
+            <div class="pt-lg border-t border-outline-variant/20 space-y-sm">
+                <button type="submit" class="w-full py-4 bg-primary text-white rounded-xl font-headline-sm text-headline-sm shadow-xl hover:shadow-primary/20 transition-all flex items-center justify-center gap-md active:scale-[0.98]">
+                    Submit Grade &amp; Release Feedback
+                </button>
+            </div>
+        </form>
+    </aside>
+</main>
+{% endblock %}

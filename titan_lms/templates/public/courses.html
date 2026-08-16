@@ -1,0 +1,108 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}Titan LMS | Academic Catalog{% endblock %}
+
+{% block head %}
+<style>
+    @keyframes slideFromBottom {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideFromLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideFromRight {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    .animate-slide-up {
+        animation: slideFromBottom 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+    .animate-slide-left {
+        animation: slideFromLeft 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+    .animate-slide-right {
+        animation: slideFromRight 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+</style>
+{% endblock %}
+
+{% block public_content %}
+<div class="max-w-container-max mx-auto px-4 sm:px-margin-mobile md:px-margin-desktop py-6 sm:py-xl space-y-6 sm:space-y-xl" x-data="{ search: '', category: 'all' }">
+    <!-- Header -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-md pb-4 sm:pb-lg border-b border-outline-variant/20">
+        <div class="space-y-sm max-w-full">
+            <span class="inline-flex items-center gap-xs px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary text-label-sm font-bold uppercase tracking-widest animate-slide-up">
+                Titan Catalog
+            </span>
+            <h1 class="text-2xl sm:text-headline-lg font-headline-lg text-on-surface flex flex-wrap items-center gap-2 overflow-hidden py-1">
+                <span class="material-symbols-outlined text-primary text-[28px] sm:text-[36px] animate-slide-left inline-block">school</span>
+                <span class="animate-slide-right inline-block">Featured Professional Curriculums</span>
+            </h1>
+        </div>
+        
+        <!-- Search & Filter Controls -->
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-md w-full md:w-auto animate-slide-up">
+            <div class="relative flex items-center bg-white px-md py-2 sm:py-xs rounded-full border border-outline-variant/30 shadow-sm w-full sm:w-64 touch-target">
+                <span class="material-symbols-outlined text-outline text-[20px] shrink-0">search</span>
+                <input type="text" placeholder="Search courses..." x-model="search" class="bg-transparent border-none focus:ring-0 text-body-sm w-full placeholder:text-outline-variant">
+            </div>
+            
+            <select x-model="category" class="rounded-full border border-outline-variant/30 bg-white px-4 py-2 sm:py-xs text-body-sm text-on-surface focus:ring-1 focus:ring-primary shadow-sm w-full sm:w-auto touch-target">
+                <option value="all">All Categories</option>
+                <option value="development">Development</option>
+                <option value="design">Design</option>
+                <option value="business">Business</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- Courses Grid -->
+    <section class="animate-slide-up">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {% for course in courses %}
+            <div class="bg-white rounded-2xl shadow-sm border border-outline-variant/20 overflow-hidden hover:shadow-lg hover:-translate-y-1 hover:border-primary/40 transition-all duration-300 flex flex-col justify-between group"
+                 x-show="(category === 'all' || '{{ course.category|lower }}'.includes(category)) && ('{{ course.title|lower }}'.includes(search.toLowerCase()) || '{{ course.description|lower }}'.includes(search.toLowerCase()))">
+                <!-- Thumbnail Banner -->
+                <div class="h-32 sm:h-36 relative overflow-hidden shrink-0">
+                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ course.thumbnail or 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600' }}" alt="{{ course.title }}">
+                    <span class="absolute top-2.5 left-2.5 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider shadow-sm">{{ course.category }}</span>
+                </div>
+                <!-- Card Content -->
+                <div class="p-3.5 sm:p-4 flex-1 flex flex-col justify-between gap-2">
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                            <span>Level: {{ course.level }}</span>
+                            <span>{{ course.lessons|length }} Modules</span>
+                        </div>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-primary transition-colors leading-snug line-clamp-1">
+                            {{ course.title }}
+                        </h3>
+                        <p class="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                            {{ course.description }}
+                        </p>
+                    </div>
+                    <!-- Integrated Footer -->
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 mt-1">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            <img class="w-6 h-6 rounded-full object-cover border border-slate-200 shrink-0" src="{{ course.instructor.avatar_url or 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" alt="{{ course.instructor.name }}">
+                            <span class="text-[11px] font-semibold text-slate-700 truncate">{{ course.instructor.name }}</span>
+                        </div>
+                        <a href="{{ url_for('public.course_detail', course_id=course.id) }}" class="bg-primary hover:bg-primary-container text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs shrink-0 flex items-center gap-1 touch-target">
+                            Enroll <span class="material-symbols-outlined text-[14px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-span-full text-center py-xxl bg-white rounded-xl border border-outline-variant/20">
+                <span class="material-symbols-outlined text-outline text-6xl mb-md">school</span>
+                <h3 class="text-headline-sm text-on-surface">No courses published yet</h3>
+                <p class="text-body-sm text-on-surface-variant mt-sm">Check back soon for new professional tracks!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

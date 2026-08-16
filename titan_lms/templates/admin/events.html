@@ -1,0 +1,287 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Events Management & Approvals | Titan LMS Admin{% endblock %}
+
+{% block admin_content %}
+<div class="p-lg max-w-7xl mx-auto space-y-lg">
+    <!-- Header Banner -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-md bg-surface border border-outline-variant rounded-2xl p-xl shadow-sm">
+        <div>
+            <div class="flex items-center gap-xs text-blue-600 font-bold text-label-md uppercase tracking-wider">
+                <span class="material-symbols-outlined animate-bounce">event</span>
+                <span>Campus Events & Special Lectures Control</span>
+            </div>
+            <h1 class="text-headline-md font-bold text-on-surface mt-xs">Events Hub & Instructor Upload Approvals</h1>
+            <p class="text-body-md text-on-surface-variant">Upload campus workshops, exams, guest lectures, and review instructor-submitted events.</p>
+        </div>
+        <div>
+            <button onclick="document.getElementById('createEventModal').classList.remove('hidden')"
+                class="flex items-center gap-xs bg-blue-600 hover:bg-blue-700 text-white px-xl py-md rounded-xl font-bold transition-all shadow-md">
+                <span class="material-symbols-outlined">add</span>
+                <span>Create Campus Event</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Pending Instructor Events -->
+    {% if pending_events %}
+    <div class="bg-amber-500/5 border border-amber-500/30 rounded-2xl p-lg space-y-md">
+        <h3 class="text-title-lg font-bold text-amber-600 flex items-center gap-xs">
+            <span class="material-symbols-outlined">pending</span> Pending Instructor Uploaded Events ({{ pending_events|length }})
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+            {% for ev in pending_events %}
+            <div class="bg-surface border border-outline-variant p-md rounded-2xl space-y-sm shadow-sm hover:shadow-md transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-blue-600 uppercase">{{ ev.event_type }}</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 uppercase">Pending Approval</span>
+                </div>
+                <h4 class="font-bold text-on-surface text-title-sm">{{ ev.title }}</h4>
+                <p class="text-xs text-on-surface-variant">Uploaded By: <strong>{{ ev.creator.name if ev.creator else 'Instructor' }}</strong></p>
+                <div class="text-xs space-y-1 text-on-surface-variant bg-surface-variant/40 p-sm rounded-lg">
+                    <p>📅 <strong>Date:</strong> {{ ev.event_date.strftime('%b %d, %Y') }} | ⏰ {{ ev.start_time }} - {{ ev.end_time }}</p>
+                    <p>📍 <strong>Location:</strong> {{ ev.location_or_link or 'Campus' }}</p>
+                </div>
+
+                <div class="flex items-center gap-sm pt-xs border-t border-outline-variant">
+                    <form method="POST" action="{{ url_for('admin.events') }}" class="flex-1">
+                        <input type="hidden" name="action" value="approve_event">
+                        <input type="hidden" name="event_id" value="{{ ev.id }}">
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-xl text-xs transition-colors shadow">
+                            Approve & Publish
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin.events') }}">
+                        <input type="hidden" name="action" value="reject_event">
+                        <input type="hidden" name="event_id" value="{{ ev.id }}">
+                        <button type="submit" class="bg-red-500/10 hover:bg-red-500 hover:text-white text-red-600 font-bold px-md py-2 rounded-xl text-xs transition-colors">
+                            Reject
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Published Events Grid -->
+    <div class="bg-surface border border-outline-variant rounded-2xl p-lg space-y-md">
+        <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-600">calendar_month</span>
+            Published Campus Events Calendar
+        </h3>
+        {% if published_events %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+            {% for ev in published_events %}
+            <div class="border border-outline-variant rounded-2xl p-md space-y-sm bg-surface hover:-translate-y-1.5 hover:shadow-2xl hover:border-blue-500/60 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between">
+                <div class="space-y-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-600 uppercase">{{ ev.event_type }}</span>
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-600 uppercase">Active</span>
+                    </div>
+                    <h4 class="font-bold text-on-surface text-title-sm">{{ ev.title }}</h4>
+                    <p class="text-xs text-on-surface-variant">Scope: <strong>{% if ev.course %}{{ ev.course.title }}{% else %}All Campus Students{% endif %}</strong></p>
+
+                    <div class="text-xs space-y-1 text-on-surface-variant bg-blue-500/5 border border-blue-500/10 p-sm rounded-xl">
+                        <p>📅 <strong>Date:</strong> {{ ev.event_date.strftime('%b %d, %Y') }}</p>
+                        <p>⏰ <strong>Time:</strong> {{ ev.start_time }} - {{ ev.end_time }}</p>
+                        <p>📍 <strong>Location:</strong> {{ ev.location_or_link or 'Campus Main Hall' }}</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-sm border-t border-outline-variant/30 flex items-center gap-2">
+                    <button type="button" onclick="openEditEventModal({{ ev.id }}, '{{ ev.title|e }}', '{{ ev.event_type }}', '{{ ev.event_date.strftime('%Y-%m-%d') }}', '{{ ev.start_time }}', '{{ ev.end_time }}', '{{ ev.location_or_link or '' }}', `{{ ev.description|default('', true)|e }}`, '{{ ev.course_id or 'all' }}')"
+                        class="flex-1 bg-amber-500/10 hover:bg-amber-500 text-amber-600 hover:text-white font-bold py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-1 shadow-xs">
+                        <span class="material-symbols-outlined text-sm">edit</span>
+                        <span>Edit</span>
+                    </button>
+                    <form method="POST" action="{{ url_for('admin.events') }}" onsubmit="return confirm('Are you sure you want to delete this event?');" class="inline">
+                        <input type="hidden" name="action" value="delete_event">
+                        <input type="hidden" name="event_id" value="{{ ev.id }}">
+                        <button type="submit" class="p-2 bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white rounded-xl text-xs transition-all flex items-center justify-center shadow-xs" title="Delete Event">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </form>
+                    <button type="button" onclick="openAdminEventModal('{{ ev.title|e }}', '{{ ev.event_type }}', '{{ ev.event_date.strftime('%B %d, %Y') }}', '{{ ev.start_time }} - {{ ev.end_time }}', '{{ ev.location_or_link or 'Campus' }}', `{{ ev.description|default('', true)|e }}`, '{{ ev.status }}')"
+                        class="flex-1 bg-blue-500/10 hover:bg-blue-600 text-blue-600 hover:text-white font-bold py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-1 shadow-xs">
+                        <span class="material-symbols-outlined text-sm">open_in_full</span>
+                        <span>View</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-on-surface-variant py-md">No active published events.</p>
+        {% endif %}
+    </div>
+
+    <!-- Expired Events Section -->
+    {% if expired_events %}
+    <div class="bg-slate-100/50 border border-slate-300/30 rounded-2xl p-lg space-y-md">
+        <h3 class="text-title-lg font-bold text-slate-500 flex items-center gap-2">
+            <span class="material-symbols-outlined text-slate-400">event_busy</span>
+            Expired Events ({{ expired_events|length }})
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+            {% for ev in expired_events %}
+            <div class="border border-slate-200 rounded-2xl p-md space-y-sm bg-white/60 opacity-70 flex flex-col justify-between">
+                <div class="space-y-xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-500 uppercase">{{ ev.event_type }}</span>
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-500 uppercase">Expired</span>
+                    </div>
+                    <h4 class="font-bold text-slate-500 text-title-sm line-through">{{ ev.title }}</h4>
+                    <div class="text-xs space-y-1 text-slate-400 bg-slate-50 border border-slate-200 p-sm rounded-xl">
+                        <p>📅 <strong>Date:</strong> {{ ev.event_date.strftime('%b %d, %Y') }}</p>
+                        <p>⏰ <strong>Time:</strong> {{ ev.start_time }} - {{ ev.end_time }}</p>
+                    </div>
+                </div>
+                <div class="pt-sm border-t border-slate-200 text-right">
+                    <form method="POST" action="{{ url_for('admin.events') }}" onsubmit="return confirm('Delete this expired event?');" class="inline">
+                        <input type="hidden" name="action" value="delete_event">
+                        <input type="hidden" name="event_id" value="{{ ev.id }}">
+                        <button type="submit" class="text-xs text-red-500 hover:underline font-bold flex items-center gap-1 ml-auto">
+                            <span class="material-symbols-outlined text-sm">delete</span> Delete Record
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Event Detail Modal -->
+<div id="adminEvModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-xl shadow-2xl space-y-md animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <div>
+                <span id="ae_type" class="text-xs font-bold text-blue-600 uppercase">Type</span>
+                <h3 id="ae_title" class="text-title-lg font-bold text-on-surface">Title</h3>
+            </div>
+            <button onclick="document.getElementById('adminEvModal').classList.add('hidden')" class="text-on-surface-variant">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+        <div class="space-y-sm text-sm">
+            <div class="bg-blue-500/5 border border-blue-500/20 p-md rounded-xl space-y-2 text-on-surface-variant">
+                <p>📅 <strong>Date:</strong> <span id="ae_date" class="font-bold text-on-surface"></span></p>
+                <p>⏰ <strong>Time:</strong> <span id="ae_time" class="font-bold text-on-surface"></span></p>
+                <p>📍 <strong>Location:</strong> <span id="ae_loc" class="font-bold text-blue-600"></span></p>
+                <p>📊 <strong>Status:</strong> <span id="ae_status" class="font-bold uppercase text-blue-600"></span></p>
+            </div>
+            <p id="ae_desc" class="text-xs text-on-surface italic bg-blue-500/10 p-md rounded-xl border border-blue-500/20"></p>
+        </div>
+        <div class="flex justify-end pt-sm border-t border-outline-variant">
+            <button type="button" onclick="document.getElementById('adminEvModal').classList.add('hidden')"
+                class="bg-blue-600 text-white font-bold px-xl py-md rounded-xl text-sm shadow-md">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Event Modal -->
+<div id="editEventModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center hidden p-md" style="overflow-y:auto;">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-xl shadow-2xl space-y-md my-8">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-500">edit_calendar</span> Edit Event
+            </h3>
+            <button onclick="document.getElementById('editEventModal').classList.add('hidden')" class="text-on-surface-variant">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('admin.events') }}" class="space-y-md">
+            <input type="hidden" name="action" value="edit_event">
+            <input type="hidden" name="event_id" id="edit_event_id">
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Event Title</label>
+                <input type="text" name="title" id="edit_title" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+            </div>
+            <div class="grid grid-cols-2 gap-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Event Type</label>
+                    <select name="event_type" id="edit_event_type" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                        <option value="workshop">Workshop</option>
+                        <option value="seminar">Seminar</option>
+                        <option value="exam">Exam</option>
+                        <option value="holiday">Holiday</option>
+                        <option value="guest_lecture">Guest Lecture</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Course Scope</label>
+                    <select name="course_id" id="edit_course_id" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                        <option value="all">All Campus Students</option>
+                        {% for c in courses %}
+                        <option value="{{ c.id }}">{{ c.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Date</label>
+                    <input type="date" name="event_date" id="edit_event_date" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Start Time</label>
+                    <input type="text" name="start_time" id="edit_start_time" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">End Time</label>
+                    <input type="text" name="end_time" id="edit_end_time" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Location / Link</label>
+                <input type="text" name="location_or_link" id="edit_location" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Description</label>
+                <textarea name="description" id="edit_description" rows="3" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary"></textarea>
+            </div>
+            <div class="flex items-center gap-md pt-sm border-t border-outline-variant">
+                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-md flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-sm">save</span> Save Changes
+                </button>
+                <button type="button" onclick="document.getElementById('editEventModal').classList.add('hidden')" class="px-xl py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-sm transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAdminEventModal(title, type, date, time, loc, desc, status) {
+    document.getElementById('ae_title').innerText = title;
+    document.getElementById('ae_type').innerText = type.toUpperCase();
+    document.getElementById('ae_date').innerText = date;
+    document.getElementById('ae_time').innerText = time;
+    document.getElementById('ae_loc').innerText = loc;
+    document.getElementById('ae_desc').innerText = desc || "No description specified.";
+    document.getElementById('ae_status').innerText = status.toUpperCase();
+    document.getElementById('adminEvModal').classList.remove('hidden');
+}
+
+function openEditEventModal(id, title, type, date, startTime, endTime, location, desc, courseId) {
+    document.getElementById('edit_event_id').value = id;
+    document.getElementById('edit_title').value = title;
+    document.getElementById('edit_event_type').value = type;
+    document.getElementById('edit_event_date').value = date;
+    document.getElementById('edit_start_time').value = startTime;
+    document.getElementById('edit_end_time').value = endTime;
+    document.getElementById('edit_location').value = location;
+    document.getElementById('edit_description').value = desc;
+    document.getElementById('edit_course_id').value = courseId;
+    document.getElementById('editEventModal').classList.remove('hidden');
+}
+</script>
+{% endblock %}

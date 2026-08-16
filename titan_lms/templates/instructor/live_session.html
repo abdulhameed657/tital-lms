@@ -1,0 +1,98 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Live Interactive Classroom & Webinar | Instructor Portal{% endblock %}
+
+{% block head %}
+<style>
+    .classroom-gradient {
+        background: radial-gradient(circle at top right, rgba(0, 84, 203, 0.05), transparent),
+                    radial-gradient(circle at bottom left, rgba(212, 175, 55, 0.05), transparent);
+    }
+    .hover-card-effect {
+        transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .hover-card-effect:hover {
+        transform: scale(1.01);
+        box-shadow: 0 15px 30px rgba(0, 84, 203, 0.12);
+    }
+</style>
+{% endblock %}
+
+{% block instructor_content %}
+<div class="max-w-container-max mx-auto px-gutter py-lg space-y-lg min-h-[calc(100vh-100px)] flex flex-col">
+    <!-- Top Header Strip (Slide From Top) -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md bg-white p-lg rounded-2xl border border-outline-variant/20 shadow-xl shrink-0 slide-from-top hover-card-effect">
+        <div class="flex items-center gap-md">
+            <span class="w-3.5 h-3.5 rounded-full bg-error animate-ping"></span>
+            <div>
+                <span class="text-label-sm font-bold text-error uppercase tracking-widest block">Live Broadcast Host</span>
+                <h1 class="text-headline-sm font-headline-lg text-on-surface font-bold">Advanced Applied Networks - Live Interactive Workshop</h1>
+            </div>
+        </div>
+        <div class="flex items-center gap-md">
+            <span class="px-3.5 py-1.5 bg-primary/10 text-primary rounded-full text-label-sm font-bold flex items-center gap-1.5 shadow-sm">
+                <span class="material-symbols-outlined text-sm">group</span> 48 Active Students
+            </span>
+            <button onclick="alert('Live Stream broadcast ended.')" class="bg-error text-white px-5 py-2.5 rounded-xl text-label-lg font-bold hover:bg-red-700 hover:shadow-lg transition-all active:scale-95">
+                End Broadcast
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Live Broadcast Stage (2 Columns: Stream Feed & Chat/Poll Sidebar) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg flex-1 min-h-0">
+        <!-- Video Stream Player Container (Slide From Left) -->
+        <div class="lg:col-span-8 bg-inverse-surface rounded-2xl overflow-hidden shadow-2xl relative flex flex-col justify-between p-md border border-outline-variant/20 slide-from-left">
+            <!-- Screen Stream Frame -->
+            <div class="relative flex-1 rounded-xl overflow-hidden bg-black flex items-center justify-center min-h-[350px]">
+                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200" alt="Live Stream Feed" class="w-full h-full object-cover opacity-80">
+                <div class="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl text-white text-label-md font-bold flex items-center gap-2 border border-white/20">
+                    <span class="w-2.5 h-2.5 rounded-full bg-error animate-pulse"></span>
+                    {{ current_user.name }} (Host Stream)
+                </div>
+            </div>
+
+            <!-- Bottom Stream Control Bar -->
+            <div class="mt-md bg-white/10 backdrop-blur-xl p-md rounded-xl flex justify-between items-center text-white border border-white/10">
+                <div class="flex gap-md">
+                    <button class="p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-all"><span class="material-symbols-outlined">mic</span></button>
+                    <button class="p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-all"><span class="material-symbols-outlined">videocam</span></button>
+                    <button class="p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-all text-tertiary font-bold flex items-center gap-1">
+                        <span class="material-symbols-outlined">present_to_all</span> Share Screen
+                    </button>
+                </div>
+                <div class="flex gap-sm">
+                    <button class="px-4 py-2 bg-primary text-white rounded-xl font-bold text-label-md hover:bg-primary-container transition-all">Record Session</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat / Q&A / Polls Sidebar (Slide From Right) -->
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-outline-variant/20 shadow-xl p-md flex flex-col justify-between slide-from-right hover-card-effect">
+            <div class="space-y-md flex-1 overflow-y-auto">
+                <div class="flex justify-between items-center border-b border-outline-variant/10 pb-md">
+                    <h3 class="font-bold text-on-surface text-headline-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">chat</span>
+                        Live Class Q&A
+                    </h3>
+                    <span class="bg-primary/10 text-primary text-xs px-2.5 py-1 rounded-full font-bold">4 Messages</span>
+                </div>
+                
+                <div class="space-y-sm text-body-sm">
+                    <div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/20">
+                        <span class="font-bold text-primary">Ali Khan:</span> Can you re-explain the BGP route reflector setup?
+                    </div>
+                    <div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/20">
+                        <span class="font-bold text-tertiary">Fatima Noor:</span> Slides look crystal clear sir!
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-md border-t border-outline-variant/10 flex gap-2">
+                <input type="text" placeholder="Type answer or message..." class="flex-1 px-4 py-2.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-body-sm focus:outline-none focus:border-primary">
+                <button class="bg-primary text-white px-4 py-2.5 rounded-xl font-bold text-label-md hover:bg-primary-container transition-all">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

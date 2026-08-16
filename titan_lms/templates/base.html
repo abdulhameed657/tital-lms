@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html class="scroll-smooth light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>{% block title %}Titan LMS | Academic Excellence{% endblock %}</title>
+
+    <!-- Google Fonts: Space Grotesk, Outfit, Inter -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+        rel="stylesheet">
+
+    <!-- PWA Manifest & Offline Support -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}").catch(err => console.log('SW registration error', err));
+            });
+        }
+    </script>
+
+    <!-- Compiled Tailwind stylesheet -->
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN and configuration -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed-dim": "#bfc5e4",
+                        "on-surface": "#1c1c17",
+                        "tertiary-container": "#cba72f",
+                        "on-primary-fixed-variant": "#00008c",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#dce1ff",
+                        "secondary": "#575d78",
+                        "surface-container-low": "#f6f3eb",
+                        "tertiary-fixed": "#ffe088",
+                        "surface": "#fcf9f1",
+                        "inverse-surface": "#31312b",
+                        "primary": "#00008c",
+                        "primary-container": "#1516a3",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#5b617d",
+                        "surface-tint": "#00008c",
+                        "surface-bright": "#fcf9f1",
+                        "outline": "#737786",
+                        "on-secondary-fixed": "#141a32",
+                        "primary-fixed": "#dae2ff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#4e3d00",
+                        "background": "#fcf9f1",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "secondary-container": "#d8defe",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#ebe8e0",
+                        "surface-container": "#f1eee6",
+                        "on-surface-variant": "#424654",
+                        "inverse-on-surface": "#f3f1e9",
+                        "on-primary-container": "#fefcff",
+                        "primary-fixed-dim": "#b1c5ff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#735c00",
+                        "on-primary-fixed": "#001847",
+                        "surface-container-highest": "#e5e2da",
+                        "outline-variant": "#c2c6d7",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-background": "#1c1c17",
+                        "surface-dim": "#dcdad2",
+                        "surface-variant": "#e5e2da",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#b1c5ff",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed-variant": "#3f465f",
+                        "tertiary-fixed-dim": "#e9c349"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-desktop": "40px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "container-max": "1280px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "xxl": "64px",
+                        "sm": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    fontFamily: {
+                        "display-lg": ["Montserrat"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Montserrat"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Montserrat"],
+                        "label-lg": ["Inter"],
+                        "headline-sm": ["Montserrat"],
+                        "label-md": ["Inter"]
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Alpine.js for client-side interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Mobile-First Global Responsiveness System */
+        html,
+        body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Responsive Media Scaling */
+        img,
+        video,
+        iframe,
+        embed,
+        object {
+            max-width: 100% !important;
+            height: auto;
+        }
+
+        /* Overflow table safety wrapper */
+        .table-responsive {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100% !important;
+            border-collapse: collapse;
+        }
+
+        @media (max-width: 640px) {
+
+            .px-gutter,
+            .px-margin-desktop,
+            .px-margin-mobile {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+
+            .py-xxl {
+                padding-top: 1.75rem !important;
+                padding-bottom: 1.75rem !important;
+            }
+
+            .py-xl {
+                padding-top: 1.25rem !important;
+                padding-bottom: 1.25rem !important;
+            }
+
+            .p-xl {
+                padding: 1rem !important;
+            }
+
+            .p-lg {
+                padding: 0.875rem !important;
+            }
+
+            .gap-xl {
+                gap: 1.25rem !important;
+            }
+
+            .gap-lg {
+                gap: 1rem !important;
+            }
+
+            .text-display-lg,
+            .text-display-lg-mobile {
+                font-size: 1.65rem !important;
+                line-height: 2.15rem !important;
+            }
+
+            .text-headline-lg {
+                font-size: 1.35rem !important;
+                line-height: 1.85rem !important;
+            }
+
+            .text-headline-md {
+                font-size: 1.15rem !important;
+                line-height: 1.6rem !important;
+            }
+        }
+
+        @keyframes slideFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideFromLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-from-top {
+            animation: slideFromTop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .slide-from-bottom {
+            animation: slideFromBottom 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .slide-from-left {
+            animation: slideFromLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .slide-from-right {
+            animation: slideFromRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        /* SPA Page Entrance Animation */
+        @keyframes pageReveal {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-reveal {
+            animation: pageReveal 0.45s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+        }
+
+        /* Lenis Smooth Scroll Configuration */
+        html.lenis,
+        html.lenis body {
+            height: auto;
+        }
+
+        .lenis.lenis-smooth {
+            scroll-behavior: auto !important;
+        }
+
+        .lenis.lenis-smooth [data-lenis-prevent] {
+            overscroll-behavior: contain;
+        }
+
+        .lenis.lenis-stopped {
+            overflow: hidden;
+        }
+
+        .lenis.lenis-scrolling iframe {
+            pointer-events: none;
+        }
+
+        /* Dynamic premium blue gradient for only white-colored rounded cards (any tag like div, a, section, li) */
+        [class*="rounded-"].bg-white:not(header *):not(.no-gradient),
+        [class*="rounded-"].bg-slate-50:not(header *):not(.no-gradient),
+        [class*="rounded-"].bg-slate-50\/50:not(header *):not(.no-gradient),
+        [class*="rounded-"].bg-surface-container:not(header *):not(.no-gradient),
+        [class*="rounded-"].bg-surface-container-lowest:not(header *):not(.no-gradient),
+        [class*="rounded-"].bg-surface-container-low:not(header *):not(.no-gradient),
+        [class*="rounded-"].bg-surface:not(header *):not(.no-gradient),
+        [class*="rounded-"].bg-background:not(header *):not(.no-gradient) {
+            background-image: linear-gradient(135deg, #ffffff 50%, #d8e6fe 100%) !important;
+            border: 1px solid rgba(147, 197, 253, 0.6) !important;
+        }
+
+        /* Prevent gradient nesting: Inner rounded components/subcards inside outer cards should be solid white */
+        [class*="rounded-"] [class*="rounded-"].bg-white,
+        [class*="rounded-"] [class*="rounded-"].bg-slate-50,
+        [class*="rounded-"] [class*="rounded-"].bg-slate-50\/50,
+        [class*="rounded-"] [class*="rounded-"].bg-surface-container,
+        [class*="rounded-"] [class*="rounded-"].bg-surface-container-lowest,
+        [class*="rounded-"] [class*="rounded-"].bg-surface-container-low,
+        [class*="rounded-"] [class*="rounded-"].bg-surface,
+        [class*="rounded-"] [class*="rounded-"].bg-background {
+            background-image: none !important;
+            background-color: #ffffff !important;
+            border: 1px solid rgba(226, 232, 240, 0.8) !important;
+        }
+
+        /* Dark mode support for white cards */
+        .dark [class*="rounded-"].bg-white,
+        .dark [class*="rounded-"].bg-slate-50,
+        .dark [class*="rounded-"].bg-slate-900,
+        .dark [class*="rounded-"].bg-surface-container,
+        .dark [class*="rounded-"].bg-surface-container-lowest,
+        .dark [class*="rounded-"].bg-surface-container-low {
+            background-image: linear-gradient(135deg, #1b233d 60%, #0d1222 100%) !important;
+            border: 1px solid rgba(30, 41, 59, 0.7) !important;
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+
+<body class="bg-background text-on-background font-body-md overflow-x-hidden selection:bg-primary/20">
+    <!-- Top Progress Loading Bar (SPA page transition feel) -->
+    <div id="top-loading-bar"
+        class="fixed top-0 left-0 h-1 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 z-[99999] transition-all duration-300 w-0 pointer-events-none">
+    </div>
+
+
+
+    <!-- Flash Messages Container -->
+    <div class="fixed top-16 sm:top-20 left-4 right-4 sm:left-auto sm:right-6 z-[100] max-w-sm space-y-3"
+        x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="p-lg rounded-xl shadow-xl flex items-start gap-md border border-outline-variant/30 {% if category == 'error' %}bg-error-container text-on-error-container{% elif category == 'success' %}bg-primary-container text-on-primary-container{% else %}bg-surface-container-high text-on-surface{% endif %}"
+            x-data="{ open: true }" x-show="open">
+            <span class="material-symbols-outlined mt-0.5">
+                {% if category == 'error' %}error{% elif category == 'success' %}check_circle{% else %}info{% endif %}
+            </span>
+            <div class="flex-1">
+                <p class="text-body-sm font-semibold">{{ message }}</p>
+            </div>
+            <button class="text-on-surface-variant hover:text-on-surface transition-colors" @click="open = false">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Area with SPA Transition Wrapper -->
+    <div id="page-transition-wrapper">
+        {% block layout %}
+        {% block content %}{% endblock %}
+        {% endblock %}
+    </div>
+
+    <!-- GSAP, ScrollTrigger & Lenis Smooth Scroll Libraries (Framer Motion feel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- 1. SPA-Style Page Transitions (Framer Motion feel) ---
+            const loader = document.getElementById('top-loading-bar');
+
+            // Intercept internal page links to trigger loader bar
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('a');
+                if (
+                    link &&
+                    link.href &&
+                    link.getAttribute('target') !== '_blank' &&
+                    !link.href.includes('#') &&
+                    !link.href.includes('logout') &&
+                    !link.href.startsWith('javascript:') &&
+                    link.host === window.location.host
+                ) {
+                    // Skip elements that explicitly request no transitions
+                    if (link.classList.contains('no-transition')) return;
+
+                    e.preventDefault();
+                    const targetUrl = link.href;
+
+                    // Start top progress loader
+                    if (loader) {
+                        loader.style.width = '70%';
+                    }
+
+                    // Immediately navigate to target URL without delaying or blanking the page
+                    window.location.href = targetUrl;
+                }
+            });
+
+            // --- 2. Lenis Smooth Scroll (Inertial Momentum feel) ---
+            const lenis = new Lenis({
+                duration: 1.15,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                direction: 'vertical',
+                gestureDirection: 'vertical',
+                smooth: true,
+                mouseMultiplier: 0.95,
+                smoothTouch: false,
+                touchMultiplier: 1.5,
+                infinite: false,
+            });
+
+            // Sync ScrollTrigger with Lenis scroll updates
+            lenis.on('scroll', ScrollTrigger.update);
+
+            // Connect GSAP ticker to Lenis smooth scroll loop
+            gsap.ticker.add((time) => {
+                lenis.raf(time * 1000);
+            });
+
+            // Adjust lag smoothing for performance stability
+            gsap.ticker.lagSmoothing(0);
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

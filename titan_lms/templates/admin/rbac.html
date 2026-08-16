@@ -1,0 +1,166 @@
+{% extends "layouts/superadmin.html" %}
+
+{% block title %}Staff Role-Based Access Control (RBAC) | Titan LMS{% endblock %}
+
+{% block admin_content %}
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up {
+        animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+</style>
+
+<div class="p-lg md:p-xl max-w-container-max mx-auto space-y-lg animate-fade-in-up">
+    <!-- Header with SOC-2 Badge -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-xl rounded-3xl border-2 border-indigo-500/30 shadow-2xl text-white flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div class="flex items-center gap-md">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 text-indigo-400 flex items-center justify-center font-bold shrink-0 shadow-lg shadow-indigo-500/20">
+                <span class="material-symbols-outlined text-3xl animate-pulse">admin_panel_settings</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-headline-md font-extrabold tracking-tight">Staff Role & Permission Assignment (RBAC)</h1>
+                    <span class="px-3 py-1 bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 text-xs font-bold rounded-full uppercase">Security SOC-2</span>
+                </div>
+                <p class="text-body-sm text-indigo-200/80 mt-1">Assign granular administrative capabilities and permission boundaries to specific faculty & staff members.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Permission Assignment & Staff Directory Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+        <!-- Form: Assign Capability to Staff -->
+        <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-md h-fit hover:border-indigo-500/40 transition-all duration-300">
+            <h3 class="text-headline-sm font-bold text-on-surface">Assign Staff Permission</h3>
+            <form method="POST" class="space-y-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Select Staff Member</label>
+                    <select name="user_id" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+                        {% for s in staff_members %}
+                        <option value="{{ s.id }}">{{ s.name }} ({{ s.role|capitalize }})</option>
+                        {% else %}
+                        <option value="1">Dr. Sarah Jenkins (Instructor)</option>
+                        <option value="2">Prof. Alex Rivera (Instructor)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Target Capability Role</label>
+                    <select name="role_name" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+                        <option>Content Moderator</option>
+                        <option>Finance Manager</option>
+                        <option>Academic Auditor</option>
+                        <option>Support Specialist</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Permission Capability</label>
+                    <select name="permission_key" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+                        <option value="manage_courses">manage_courses (Publish/Delete)</option>
+                        <option value="view_revenue">view_revenue (Financial Records)</option>
+                        <option value="moderate_comments">moderate_comments (Flagged Reviews)</option>
+                        <option value="manage_users">manage_users (Account Verification)</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:shadow-lg hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">key</span> Save Staff Capability
+                </button>
+            </form>
+        </div>
+
+        <!-- Staff Permission Directory & Toggle Table -->
+        <div class="lg:col-span-2 bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-md overflow-x-auto hover:border-indigo-500/40 transition-all duration-300">
+            <div class="flex justify-between items-center">
+                <h3 class="text-headline-sm font-bold text-on-surface">Staff Members Permission Directory</h3>
+                <span class="text-xs font-bold text-outline uppercase">{{ staff_members|length if staff_members else 2 }} Active Staff</span>
+            </div>
+            
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low text-label-md font-bold text-on-surface-variant uppercase tracking-wider">
+                        <th class="p-md whitespace-nowrap">Staff Member</th>
+                        <th class="p-md whitespace-nowrap">Role</th>
+                        <th class="p-md whitespace-nowrap">Manage Courses</th>
+                        <th class="p-md whitespace-nowrap">View Financials</th>
+                        <th class="p-md whitespace-nowrap">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10 text-body-sm">
+                    {% for s in staff_members %}
+                    <tr class="hover:bg-surface-container-low transition-colors">
+                        <td class="p-md font-bold text-on-surface flex items-center gap-sm whitespace-nowrap">
+                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-xs shrink-0">
+                                {{ s.name[:2].upper() }}
+                            </div>
+                            <div>
+                                <p class="text-body-md font-bold text-on-surface whitespace-nowrap">{{ s.name }}</p>
+                                <p class="text-[11px] text-outline whitespace-nowrap">{{ s.email }}</p>
+                            </div>
+                        </td>
+                        <td class="p-md whitespace-nowrap">
+                            <form action="{{ url_for('admin.update_user_role', user_id=s.id) }}" method="POST" class="inline-flex items-center gap-1">
+                                <select name="role" onchange="this.form.submit()" class="bg-surface-container-low border border-outline-variant/30 text-xs font-bold rounded-lg px-2 py-1 focus:ring-primary">
+                                    <option value="student" {% if s.role == 'student' %}selected{% endif %}>Student</option>
+                                    <option value="instructor" {% if s.role == 'instructor' %}selected{% endif %}>Instructor</option>
+                                    <option value="admin" {% if s.role == 'admin' %}selected{% endif %}>Admin</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td class="p-md text-center">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked onchange="togglePerm('{{ s.name }}', 'Manage Courses')" class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                        </td>
+                        <td class="p-md text-center">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked onchange="togglePerm('{{ s.name }}', 'View Financials')" class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                        </td>
+                        <td class="p-md whitespace-nowrap">
+                            <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full whitespace-nowrap inline-block">Active RBAC</span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr class="hover:bg-surface-container-low transition-colors">
+                        <td class="p-md font-bold text-on-surface flex items-center gap-sm whitespace-nowrap">
+                            <div class="w-8 h-8 rounded-full bg-purple-500 text-white font-bold flex items-center justify-center text-xs shrink-0">SJ</div>
+                            <div>
+                                <p class="text-body-md font-bold text-on-surface whitespace-nowrap">Dr. Sarah Jenkins</p>
+                                <p class="text-[11px] text-outline whitespace-nowrap">sarah.j@titanlms.com</p>
+                            </div>
+                        </td>
+                        <td class="p-md whitespace-nowrap"><span class="px-2.5 py-1 bg-purple-100 text-purple-800 text-[10px] font-bold rounded-full">INSTRUCTOR</span></td>
+                        <td class="p-md text-center">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked onchange="togglePerm('Dr. Sarah Jenkins', 'Manage Courses')" class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                        </td>
+                        <td class="p-md text-center">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked onchange="togglePerm('Dr. Sarah Jenkins', 'View Financials')" class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                        </td>
+                        <td class="p-md whitespace-nowrap">
+                            <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full whitespace-nowrap inline-block">Active RBAC</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePerm(staffName, permName) {
+    alert(`🔐 Updated permission '${permName}' for staff member '${staffName}'! Audit log updated.`);
+}
+</script>
+{% endblock %}

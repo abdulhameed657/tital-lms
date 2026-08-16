@@ -1,0 +1,71 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Forum Thread | {{ thread.title }}{% endblock %}
+
+{% block student_content %}
+<div class="max-w-container-max mx-auto px-gutter py-xl space-y-lg">
+    <!-- Back to Board Link -->
+    <a href="{{ url_for('student.forum') }}" class="text-primary text-label-md font-bold flex items-center gap-xs hover:underline">
+        <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Forum Board
+    </a>
+
+    <!-- Main Thread Card -->
+    <section class="bg-white rounded-xl border border-outline-variant/20 shadow-sm p-lg space-y-md">
+        <div class="flex justify-between items-start">
+            <span class="bg-primary/10 text-primary px-3 py-1 rounded text-label-sm font-bold uppercase tracking-wider">{{ thread.category }}</span>
+            <span class="text-label-sm text-on-surface-variant font-mono">{{ thread.created_at.strftime('%B %d, %Y') }}</span>
+        </div>
+        <h2 class="text-headline-md font-headline-lg text-on-surface leading-tight">{{ thread.title }}</h2>
+        <div class="flex items-center gap-sm">
+            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary text-label-sm shrink-0">
+                {{ thread.user.name[:2].upper() }}
+            </div>
+            <span class="text-body-sm text-on-surface font-bold">Author: {{ thread.user.name }} (Student)</span>
+        </div>
+        <div class="pt-md border-t border-outline-variant/10 text-body-md text-on-surface-variant leading-relaxed">
+            <p>{{ thread.content }}</p>
+        </div>
+    </section>
+
+    <!-- Replies Section -->
+    <section class="space-y-md">
+        <h3 class="text-headline-sm font-headline-md text-on-surface">Responses ({{ thread.posts|length }})</h3>
+        <div class="space-y-sm">
+            {% for post in thread.posts %}
+            <div class="flex gap-md bg-white border border-outline-variant/20 rounded-xl p-md shadow-sm items-start">
+                <div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center font-bold text-primary text-label-sm shrink-0 border border-outline-variant/20">
+                    {{ post.user.name[:2].upper() }}
+                </div>
+                <div class="flex-grow space-y-sm min-w-0">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-on-surface text-body-sm leading-none">{{ post.user.name }}</h4>
+                        <span class="text-[10px] text-outline-variant uppercase font-mono">{{ post.created_at.strftime('%b %d at %I:%M %p') }}</span>
+                    </div>
+                    <p class="text-body-md text-on-surface-variant leading-relaxed">{{ post.content }}</p>
+                </div>
+            </div>
+            {% else %}
+            <div class="p-8 text-center bg-white border border-outline-variant/20 rounded-xl">
+                <p class="text-body-sm text-on-surface-variant">No responses added yet. Be the first to share your thoughts!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Add Reply Form -->
+    <section class="bg-white border border-outline-variant/20 rounded-xl p-lg shadow-sm space-y-md">
+        <h3 class="font-headline-sm text-headline-sm text-on-surface">Post a Reply</h3>
+        <form action="{{ url_for('student.forum_thread', thread_id=thread.id) }}" method="POST" class="space-y-md">
+            <div>
+                <textarea name="content" required rows="4" placeholder="Type your constructive response..." 
+                          class="w-full rounded-lg border-outline-variant/20 bg-surface-container focus:ring-primary focus:border-primary text-body-sm p-md"></textarea>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-primary text-white px-xl py-2.5 rounded-lg font-bold text-label-md hover:bg-primary-container active:scale-95 transition-all shadow-md shadow-primary/10">
+                    Submit Response
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

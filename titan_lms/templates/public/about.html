@@ -1,0 +1,624 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}About Us | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+  /* Light Theme Styles based on reference code.html */
+  .about-light-page {
+    background-color: #fcf9f1;
+    color: #1c1c17;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .glass-card-light {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 84, 203, 0.12);
+    box-shadow: 0 10px 30px -5px rgba(0, 84, 203, 0.08);
+  }
+
+  .glass-card-light:hover {
+    box-shadow: 0 20px 40px -10px rgba(0, 84, 203, 0.15);
+    border-color: rgba(0, 84, 203, 0.25);
+  }
+
+  .text-glow-light {
+    text-shadow: 0 0 20px rgba(0, 84, 203, 0.15);
+  }
+
+  @keyframes floatPortrait {
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .portrait-frame-light {
+    position: relative;
+    border-radius: 2rem;
+    padding: 0.5rem;
+    background: linear-gradient(135deg, #ffffff, #f1eee6);
+    border: 1px solid rgba(0, 84, 203, 0.15);
+    box-shadow: 0 20px 50px rgba(0, 84, 203, 0.12);
+    animation: floatPortrait 6s ease-in-out infinite;
+  }
+
+  .fade-up {
+    animation: fadeUp .8s cubic-bezier(.22, 1, .36, 1) both;
+  }
+
+  .fade-left {
+    animation: fadeLeft .8s cubic-bezier(.22, 1, .36, 1) both;
+  }
+
+  .fade-right {
+    animation: fadeRight .8s cubic-bezier(.22, 1, .36, 1) both;
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .delay-1 {
+    animation-delay: .1s;
+  }
+
+  .delay-2 {
+    animation-delay: .2s;
+  }
+
+  .delay-3 {
+    animation-delay: .3s;
+  }
+
+  .delay-4 {
+    animation-delay: .4s;
+  }
+
+  .delay-5 {
+    animation-delay: .5s;
+  }
+</style>
+{% endblock %}
+
+{% block public_content %}
+
+<div class="about-light-page relative overflow-hidden">
+
+  <!-- ═══════════════════════════════ HERO ═══════════════════════════════════ -->
+  <!-- ═══════════════════════════════ HERO ═══════════════════════════════════ -->
+  <section
+    class="relative min-h-0 sm:min-h-[50vh] flex flex-col justify-center items-center px-4 sm:px-6 py-10 sm:py-16 bg-gradient-to-b from-[#f6f3eb] via-[#fcf9f1] to-[#fcf9f1]">
+    <!-- Ambient light background blobs -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-[#0054cb]/10 rounded-full blur-[100px] pointer-events-none">
+    </div>
+    <div class="absolute top-1/2 -left-24 w-72 h-72 bg-[#cba72f]/10 rounded-full blur-[100px] pointer-events-none">
+    </div>
+
+    <div class="max-w-4xl w-full text-center space-y-4 sm:space-y-6 relative z-10">
+      <div class="fade-up delay-1">
+        <span
+          class="inline-flex items-center gap-1.5 bg-[#0054cb]/10 border border-[#0054cb]/20 text-[#0054cb] text-[11px] sm:text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full">
+          <span class="material-symbols-outlined text-xs sm:text-sm">architecture</span> Our Vision & Roadmap
+        </span>
+      </div>
+      <h1
+        class="fade-up delay-2 text-2xl sm:text-4xl md:text-5xl font-black text-[#1c1c17] tracking-tight leading-tight"
+        style="font-family:'Montserrat',sans-serif;">
+        Engineering the <br class="hidden sm:inline">
+        <span class="text-[#0054cb]">Future of AI-Driven Education</span>
+      </h1>
+      <p class="fade-up delay-3 max-w-2xl mx-auto text-xs sm:text-base text-[#424654] font-medium leading-relaxed">
+        We are building a world where high-fidelity digital environments and artificial intelligence harmonize to unlock
+        the peak of human potential, transforming theoretical learning into immediate industrial mastery.
+      </p>
+    </div>
+
+    <!-- The Titan Mandate Card -->
+    <div class="max-w-3xl w-full mt-6 sm:mt-10 fade-up delay-4">
+      <div class="glass-card-light p-4 sm:p-6 rounded-2xl">
+        <div class="flex flex-col md:flex-row gap-4 sm:gap-6 items-center">
+          <div class="flex-1 space-y-2 sm:space-y-3">
+            <h2 class="text-base sm:text-xl font-bold text-[#0054cb]" style="font-family:'Montserrat',sans-serif;">The Titan Mandate
+            </h2>
+            <p class="text-[#424654] text-xs sm:text-sm leading-relaxed">
+              At Titan LMS, we believe education shouldn't just exist in a vacuum. Our architecture is built for
+              performance, designed to help professional learners and enterprise teams reach the cutting edge of their
+              fields.
+            </p>
+          </div>
+          <div
+            class="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl bg-[#0054cb]/10 border border-[#0054cb]/20 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-3xl sm:text-5xl text-[#0054cb]">architecture</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ FOUNDER SECTION (MUHAMMAD ASLAM SHAIKH) ════════════════════════ -->
+  <section class="py-10 sm:py-16 px-4 sm:px-6 bg-[#f1eee6]/60 border-y border-[#e5e2da]">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
+
+        <!-- Left: Portrait Frame (50%) -->
+        <div class="lg:w-1/2 flex flex-col items-center fade-left delay-1">
+          <div class="portrait-frame-light w-full max-w-xs sm:max-w-md overflow-hidden">
+            <div class="w-full aspect-[4/5] rounded-[1.5rem] sm:rounded-[1.8rem] overflow-hidden border border-[#0054cb]/15 shadow-xl">
+              <img src="/static/muhammad_aslam_shaikh_portrait.png" alt="Muhammad Aslam Shaikh - Founder & Chairman"
+                class="w-full h-full object-cover object-center">
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Content (50%) -->
+        <div class="lg:w-1/2 space-y-4 sm:space-y-6 fade-right delay-2">
+          <div>
+            <span class="text-[10px] sm:text-xs font-bold text-[#735c00] uppercase tracking-[0.2em]">Meet Our Founder</span>
+            <h2 class="text-xl sm:text-3xl font-extrabold text-[#1c1c17] mt-1"
+              style="font-family:'Montserrat',sans-serif;">
+              Muhammad Aslam Shaikh
+            </h2>
+            <p class="text-xs sm:text-base font-semibold text-[#0054cb] mt-0.5">Founder & Chairman, Titan</p>
+          </div>
+
+          <p class="text-[#424654] text-xs sm:text-base leading-relaxed">
+            Muhammad Aslam Shaikh is the Founder & Chairman of Titan. With a vision to transform education through
+            technology, he established Titan to build an AI-powered learning ecosystem that empowers students,
+            educators, and institutions. His mission is to make high-quality digital education accessible, practical,
+            and future-ready while preparing the next generation with the skills required for the modern world.
+          </p>
+
+          <!-- Founder Quote -->
+          <div class="p-4 sm:p-6 rounded-2xl bg-white border-l-4 border-[#0054cb] shadow-sm space-y-1.5">
+            <p class="text-[#1c1c17] text-xs sm:text-base font-semibold italic">
+              "Education powered by technology creates limitless opportunities."
+            </p>
+            <p class="text-[11px] sm:text-xs font-bold text-[#735c00]">— Muhammad Aslam Shaikh</p>
+          </div>
+
+          <!-- Feature Cards Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            <div
+              class="p-4 rounded-xl bg-white border border-[#0054cb]/10 text-center shadow-sm hover:border-[#0054cb]/30 transition-all">
+              <span class="material-symbols-outlined text-[#0054cb] text-2xl mb-1">military_tech</span>
+              <p class="text-xs font-bold text-[#1c1c17]">Visionary Leadership</p>
+            </div>
+            <div
+              class="p-4 rounded-xl bg-white border border-[#0054cb]/10 text-center shadow-sm hover:border-[#0054cb]/30 transition-all">
+              <span class="material-symbols-outlined text-[#0054cb] text-2xl mb-1">psychology</span>
+              <p class="text-xs font-bold text-[#1c1c17]">AI & Innovation</p>
+            </div>
+            <div
+              class="p-4 rounded-xl bg-white border border-[#0054cb]/10 text-center shadow-sm hover:border-[#0054cb]/30 transition-all">
+              <span class="material-symbols-outlined text-[#0054cb] text-2xl mb-1">transform</span>
+              <p class="text-xs font-bold text-[#1c1c17]">Digital Transformation</p>
+            </div>
+            <div
+              class="p-4 rounded-xl bg-white border border-[#0054cb]/10 text-center shadow-sm hover:border-[#0054cb]/30 transition-all">
+              <span class="material-symbols-outlined text-[#0054cb] text-2xl mb-1">school</span>
+              <p class="text-xs font-bold text-[#1c1c17]">Future of Education</p>
+            </div>
+          </div>
+
+
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+  <!-- ═════════════════════════ DETAILED VISION FOR AI MASTERY ═════════════════════════ -->
+  <section class="py-20 px-6 bg-[#0054cb]/5 border-y border-[#0054cb]/10">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+      <div class="space-y-6 fade-left">
+        <h2 class="text-3xl font-black text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">Our Vision for AI
+          Mastery</h2>
+        <p class="text-lg text-[#424654] leading-relaxed">
+          We envision a future where AI doesn't just deliver content, but acts as a cognitive scaffold—predicting where
+          a learner will struggle and reinforcing their foundation before they ever fail.
+        </p>
+
+        <ul class="space-y-4">
+          <li class="flex gap-4 items-start">
+            <span class="material-symbols-outlined text-[#0054cb] text-2xl mt-1">check_circle</span>
+            <div>
+              <h4 class="font-bold text-[#1c1c17] text-base">Adaptive Neural Paths</h4>
+              <p class="text-sm text-[#424654]">Real-time curriculum adjustment based on comprehension speed and
+                engagement.</p>
+            </div>
+          </li>
+          <li class="flex gap-4 items-start">
+            <span class="material-symbols-outlined text-[#0054cb] text-2xl mt-1">check_circle</span>
+            <div>
+              <h4 class="font-bold text-[#1c1c17] text-base">High-Fidelity Simulation</h4>
+              <p class="text-sm text-[#424654]">Immersive digital twins of industry environments for risk-free practical
+                mastery.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Titan AI Tutor Mini Interface Card -->
+      <div class="glass-card-light rounded-3xl p-6 md:p-8 border border-[#0054cb]/20 shadow-2xl relative overflow-hidden fade-right space-y-6 bg-gradient-to-b from-white/90 via-white/80 to-[#0054cb]/5">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-[#0054cb]/10 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#0054cb] to-blue-500 text-white flex items-center justify-center shadow-md">
+              <span class="material-symbols-outlined text-2xl">smart_toy</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-extrabold text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">Titan AI Tutor</h3>
+              <p class="text-xs text-[#0054cb] font-semibold italic">“What would you like to learn today?”</p>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-700 text-xs font-bold rounded-full border border-emerald-500/20">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Active
+          </span>
+        </div>
+
+        <!-- Mini Search / Input Interface -->
+        <div class="space-y-3 bg-white p-4 rounded-2xl border border-[#0054cb]/15 shadow-sm">
+          <form onsubmit="askAiTutor(event)" class="relative flex items-center">
+            <input id="aiQuestionInput" type="text" placeholder="Ask anything..." class="w-full bg-[#0054cb]/5 border border-[#0054cb]/15 text-xs text-[#1c1c17] placeholder-[#737786] rounded-xl pl-4 pr-10 py-3 focus:outline-none focus:border-[#0054cb] transition-colors">
+            <button type="submit" class="absolute right-2 w-8 h-8 rounded-lg bg-[#0054cb] text-white flex items-center justify-center hover:bg-[#0040a0] transition-colors">
+              <span class="material-symbols-outlined text-sm">send</span>
+            </button>
+          </form>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] text-[#737786] font-medium">Try asking:</span>
+            <button onclick="askPresetQuestion('What is AI?')" class="px-3 py-1 bg-[#0054cb]/10 hover:bg-[#0054cb]/20 text-[#0054cb] font-bold text-xs rounded-lg transition-colors flex items-center gap-1">
+              What is AI? 🔍
+            </button>
+          </div>
+
+          <!-- Dynamic Live AI Response Box -->
+          <div id="aiResponseBox" class="hidden p-3.5 bg-gradient-to-r from-[#0054cb]/5 to-blue-50/50 rounded-xl border border-[#0054cb]/20 text-xs space-y-1.5 transition-all">
+            <div class="flex items-center justify-between font-bold text-[#0054cb]">
+              <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">auto_awesome</span> Titan AI Answer</span>
+              <span id="aiStatusBadge" class="text-[10px] text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">Instant Response</span>
+            </div>
+            <p id="aiAnswerText" class="text-[#424654] leading-relaxed font-medium"></p>
+          </div>
+        </div>
+
+        <!-- Bottom Features Grid (4 items) -->
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <div onclick="askPresetQuestion('What is Personalized Learning?')" class="p-3.5 rounded-xl bg-white border border-[#0054cb]/10 flex items-center gap-2.5 shadow-sm hover:border-[#0054cb]/30 cursor-pointer hover:bg-[#0054cb]/5 transition-all">
+            <span class="text-xl">🧠</span>
+            <span class="text-xs font-bold text-[#1c1c17]">Personalized Learning</span>
+          </div>
+          <div onclick="askPresetQuestion('How fast are Instant Answers?')" class="p-3.5 rounded-xl bg-white border border-[#0054cb]/10 flex items-center gap-2.5 shadow-sm hover:border-[#0054cb]/30 cursor-pointer hover:bg-[#0054cb]/5 transition-all">
+            <span class="text-xl">⚡</span>
+            <span class="text-xs font-bold text-[#1c1c17]">Instant Answers</span>
+          </div>
+          <div onclick="askPresetQuestion('What is Progress Aware AI?')" class="p-3.5 rounded-xl bg-white border border-[#0054cb]/10 flex items-center gap-2.5 shadow-sm hover:border-[#0054cb]/30 cursor-pointer hover:bg-[#0054cb]/5 transition-all">
+            <span class="text-xl">📊</span>
+            <span class="text-xs font-bold text-[#1c1c17]">Progress Aware</span>
+          </div>
+          <div onclick="askPresetQuestion('How do Smart Recommendations work?')" class="p-3.5 rounded-xl bg-white border border-[#0054cb]/10 flex items-center gap-2.5 shadow-sm hover:border-[#0054cb]/30 cursor-pointer hover:bg-[#0054cb]/5 transition-all">
+            <span class="text-xl">🎯</span>
+            <span class="text-xs font-bold text-[#1c1c17]">Smart Recommendations</span>
+          </div>
+        </div>
+
+      </div>
+
+<script>
+const aiAnswersDB = {
+  "What is AI?": "🤖 Artificial Intelligence (AI) refers to computer systems engineered to simulate human intelligence—learning from data, recognizing complex patterns, and solving problems autonomously.",
+  "What is Personalized Learning?": "🧠 Titan AI analyzes your learning speed, Quiz scores, and weak spots to automatically adapt course modules tailored to your personal pace.",
+  "How fast are Instant Answers?": "⚡ Titan AI responds within milliseconds (sub-second latency) so your learning momentum is never interrupted.",
+  "What is Progress Aware AI?": "📊 The AI tutor tracks completed lectures, assignments, and exam attempts to guide your next best study step.",
+  "How do Smart Recommendations work?": "🎯 Based on your career goals and current skill gaps, Titan AI recommends targeted practice labs and advanced modules."
+};
+
+function askPresetQuestion(query) {
+  const input = document.getElementById('aiQuestionInput');
+  input.value = query;
+  processAiQuery(query);
+}
+
+function askAiTutor(e) {
+  e.preventDefault();
+  const input = document.getElementById('aiQuestionInput');
+  const query = input.value.trim();
+  if(!query) return;
+  processAiQuery(query);
+}
+
+function processAiQuery(query) {
+  const box = document.getElementById('aiResponseBox');
+  const textEl = document.getElementById('aiAnswerText');
+  const badge = document.getElementById('aiStatusBadge');
+
+  box.classList.remove('hidden');
+  badge.textContent = "AI Thinking...";
+  badge.className = "text-[10px] text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full animate-pulse";
+  textEl.textContent = "Analyzing query...";
+
+  setTimeout(() => {
+    badge.textContent = "Instant Response";
+    badge.className = "text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full";
+
+    if(aiAnswersDB[query]) {
+      textEl.textContent = aiAnswersDB[query];
+    } else {
+      textEl.textContent = `🤖 "Great question about '${query}'! Titan AI breaks down complex concepts into step-by-step interactive lessons tailored to your skill level."`;
+    }
+  }, 400);
+}
+</script>
+
+    </div>
+  </section>
+
+
+  <!-- ═════════════════════════ CORE VALUES / TITAN PILLARS ═════════════════════════ -->
+  <section class="py-20 px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-12 fade-up">
+      <h2 class="text-3xl font-black text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">The TITAN Pillars</h2>
+      <div class="w-20 h-1 bg-[#cba72f] mx-auto rounded-full mt-3"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="glass-card-light p-6 rounded-2xl hover:-translate-y-2 transition-all">
+        <div
+          class="w-12 h-12 rounded-xl bg-[#0054cb]/10 border border-[#0054cb]/20 flex items-center justify-center mb-4 text-[#0054cb]">
+          <span class="material-symbols-outlined text-2xl">verified_user</span>
+        </div>
+        <h3 class="text-lg font-bold text-[#1c1c17] mb-2" style="font-family:'Montserrat',sans-serif;">Trust</h3>
+        <p class="text-sm text-[#424654] leading-relaxed">Built on ironclad security and academic integrity standards
+          that top-tier institutions rely on daily.</p>
+      </div>
+
+      <div class="glass-card-light p-6 rounded-2xl hover:-translate-y-2 transition-all">
+        <div
+          class="w-12 h-12 rounded-xl bg-[#0054cb]/10 border border-[#0054cb]/20 flex items-center justify-center mb-4 text-[#0054cb]">
+          <span class="material-symbols-outlined text-2xl">lightbulb</span>
+        </div>
+        <h3 class="text-lg font-bold text-[#1c1c17] mb-2" style="font-family:'Montserrat',sans-serif;">Innovation</h3>
+        <p class="text-sm text-[#424654] leading-relaxed">Leveraging AI-driven insights to personalize learning paths at
+          a scale never before possible.</p>
+      </div>
+
+      <div class="glass-card-light p-6 rounded-2xl hover:-translate-y-2 transition-all">
+        <div
+          class="w-12 h-12 rounded-xl bg-[#0054cb]/10 border border-[#0054cb]/20 flex items-center justify-center mb-4 text-[#0054cb]">
+          <span class="material-symbols-outlined text-2xl">workspace_premium</span>
+        </div>
+        <h3 class="text-lg font-bold text-[#1c1c17] mb-2" style="font-family:'Montserrat',sans-serif;">Excellence</h3>
+        <p class="text-sm text-[#424654] leading-relaxed">We refuse to compromise on UI quality or content depth,
+          providing a premium ecosystem for elites.</p>
+      </div>
+
+      <div class="glass-card-light p-6 rounded-2xl hover:-translate-y-2 transition-all">
+        <div
+          class="w-12 h-12 rounded-xl bg-[#0054cb]/10 border border-[#0054cb]/20 flex items-center justify-center mb-4 text-[#0054cb]">
+          <span class="material-symbols-outlined text-2xl">psychology</span>
+        </div>
+        <h3 class="text-lg font-bold text-[#1c1c17] mb-2" style="font-family:'Montserrat',sans-serif;">Mastery</h3>
+        <p class="text-sm text-[#424654] leading-relaxed">Our curriculum logic focuses on deep comprehension rather than
+          rote memorization and surface learning.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═════════════════════════ LEADERSHIP MATRIX / TEAM ═════════════════════════ -->
+  <section class="py-20 bg-[#f1eee6] border-t border-[#e5e2da] overflow-hidden">
+    <div class="max-w-6xl mx-auto px-6 mb-10">
+      <div class="flex flex-col md:flex-row justify-between items-end gap-6">
+        <div class="space-y-2">
+          <h2 class="text-3xl font-black text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">Leadership Matrix</h2>
+          <p class="text-base text-[#424654] max-w-xl">Guided by visionaries combining decades of expertise with next-gen technical capabilities.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leadership Matrix Display (Marquee if > 5 members, Static Centered Grid if <= 5) -->
+    {% if team_members and team_members|length > 5 %}
+      <!-- Infinite Auto-Scrolling Marquee Track (> 5 members) -->
+      <div class="relative w-full overflow-hidden py-4 before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-20 before:bg-gradient-to-r before:from-[#f1eee6] before:to-transparent after:absolute after:right-0 after:top-0 after:z-10 after:h-full after:w-20 after:bg-gradient-to-l after:from-[#f1eee6] after:to-transparent">
+        <div class="flex w-max gap-8 animate-marquee hover:[animation-play-state:paused] cursor-pointer">
+          
+          {# First pass #}
+          {% for m in team_members %}
+          <div class="w-[230px] md:w-[250px] shrink-0 p-[3px] pl-2.5 bg-gradient-to-b from-[#0054cb] via-[#0040a0] to-[#0a2540] rounded-tl-[28px] rounded-bl-[28px] rounded-br-[28px] rounded-tr-[75px] shadow-xl group hover:-translate-y-2 transition-all duration-300">
+            <div class="w-full bg-white p-6 rounded-tl-[24px] rounded-bl-[24px] rounded-br-[24px] rounded-tr-[70px] flex flex-col items-center text-center shadow-sm">
+              <div class="w-36 h-36 rounded-full p-1 bg-gradient-to-tr from-[#0054cb] via-[#a88924] to-[#cba72f] shadow-md group-hover:scale-105 transition-transform">
+                {% if m.image_url %}
+                <img src="{{ m.image_url }}" alt="{{ m.name }}" class="w-full h-full object-cover rounded-full">
+                {% else %}
+                <div class="w-full h-full rounded-full bg-[#0054cb]/10 text-[#0054cb] flex items-center justify-center font-black text-2xl">
+                  {{ m.initials or 'TM' }}
+                </div>
+                {% endif %}
+              </div>
+              <h4 class="font-extrabold text-lg text-[#1c1c17] mt-4 line-clamp-1" style="font-family:'Montserrat',sans-serif;">{{ m.name }}</h4>
+              <p class="text-xs font-bold text-[#0054cb] uppercase tracking-wider mt-1 line-clamp-1">{{ m.designation }}</p>
+              <div class="w-8 h-[2.5px] bg-[#0054cb] rounded-full mt-3 opacity-80"></div>
+            </div>
+          </div>
+          {% endfor %}
+
+          {# Duplicate pass for seamless looping #}
+          {% for m in team_members %}
+          <div class="w-[230px] md:w-[250px] shrink-0 p-[3px] pl-2.5 bg-gradient-to-b from-[#0054cb] via-[#0040a0] to-[#0a2540] rounded-tl-[28px] rounded-bl-[28px] rounded-br-[28px] rounded-tr-[75px] shadow-xl group hover:-translate-y-2 transition-all duration-300">
+            <div class="w-full bg-white p-6 rounded-tl-[24px] rounded-bl-[24px] rounded-br-[24px] rounded-tr-[70px] flex flex-col items-center text-center shadow-sm">
+              <div class="w-36 h-36 rounded-full p-1 bg-gradient-to-tr from-[#0054cb] via-[#a88924] to-[#cba72f] shadow-md group-hover:scale-105 transition-transform">
+                {% if m.image_url %}
+                <img src="{{ m.image_url }}" alt="{{ m.name }}" class="w-full h-full object-cover rounded-full">
+                {% else %}
+                <div class="w-full h-full rounded-full bg-[#0054cb]/10 text-[#0054cb] flex items-center justify-center font-black text-2xl">
+                  {{ m.initials or 'TM' }}
+                </div>
+                {% endif %}
+              </div>
+              <h4 class="font-extrabold text-lg text-[#1c1c17] mt-4 line-clamp-1" style="font-family:'Montserrat',sans-serif;">{{ m.name }}</h4>
+              <p class="text-xs font-bold text-[#0054cb] uppercase tracking-wider mt-1 line-clamp-1">{{ m.designation }}</p>
+              <div class="w-8 h-[2.5px] bg-[#0054cb] rounded-full mt-3 opacity-80"></div>
+            </div>
+          </div>
+          {% endfor %}
+
+        </div>
+      </div>
+    {% else %}
+      <!-- Static Centered Single Row Display (<= 5 members: No auto-scrolling, Single Row) -->
+      <div class="w-full overflow-x-auto py-6 px-6">
+        <div class="flex flex-nowrap justify-center items-center gap-5 md:gap-6 w-max mx-auto">
+          {% for m in (team_members if team_members else []) %}
+          <div class="w-[220px] md:w-[235px] shrink-0 p-[3px] pl-2.5 bg-gradient-to-b from-[#0054cb] via-[#0040a0] to-[#0a2540] rounded-tl-[28px] rounded-bl-[28px] rounded-br-[28px] rounded-tr-[75px] shadow-xl group hover:-translate-y-2 transition-all duration-300">
+            <div class="w-full bg-white p-5 rounded-tl-[24px] rounded-bl-[24px] rounded-br-[24px] rounded-tr-[70px] flex flex-col items-center text-center shadow-sm">
+              <div class="w-32 h-32 md:w-36 md:h-36 rounded-full p-1 bg-gradient-to-tr from-[#0054cb] via-[#a88924] to-[#cba72f] shadow-md group-hover:scale-105 transition-transform">
+                {% if m.image_url %}
+                <img src="{{ m.image_url }}" alt="{{ m.name }}" class="w-full h-full object-cover rounded-full">
+                {% else %}
+                <div class="w-full h-full rounded-full bg-[#0054cb]/10 text-[#0054cb] flex items-center justify-center font-black text-2xl">
+                  {{ m.initials or 'TM' }}
+                </div>
+                {% endif %}
+              </div>
+              <h4 class="font-extrabold text-base text-[#1c1c17] mt-3 line-clamp-1" style="font-family:'Montserrat',sans-serif;">{{ m.name }}</h4>
+              <p class="text-[11px] font-bold text-[#0054cb] uppercase tracking-wider mt-1 line-clamp-1">{{ m.designation }}</p>
+              <div class="w-8 h-[2.5px] bg-[#0054cb] rounded-full mt-2.5 opacity-80"></div>
+            </div>
+          </div>
+          {% else %}
+          <!-- Default Static Fallback (2 Members) -->
+          <div class="w-[220px] md:w-[235px] shrink-0 p-[3px] pl-2.5 bg-gradient-to-b from-[#0054cb] via-[#0040a0] to-[#0a2540] rounded-tl-[28px] rounded-bl-[28px] rounded-br-[28px] rounded-tr-[75px] shadow-xl group hover:-translate-y-2 transition-all duration-300">
+            <div class="w-full bg-white p-5 rounded-tl-[24px] rounded-bl-[24px] rounded-br-[24px] rounded-tr-[70px] flex flex-col items-center text-center shadow-sm">
+              <div class="w-32 h-32 md:w-36 md:h-36 rounded-full p-1 bg-gradient-to-tr from-[#0054cb] via-[#a88924] to-[#cba72f] shadow-md group-hover:scale-105 transition-transform">
+                <img src="/static/uploads/avatars/avatar_20260804122355_0.png" alt="Abdulhameed" class="w-full h-full object-cover rounded-full">
+              </div>
+              <h4 class="font-extrabold text-base text-[#1c1c17] mt-3 line-clamp-1" style="font-family:'Montserrat',sans-serif;">Abdulhameed</h4>
+              <p class="text-[11px] font-bold text-[#0054cb] uppercase tracking-wider mt-1 line-clamp-1">AI INSTRUCTOR</p>
+              <div class="w-8 h-[2.5px] bg-[#0054cb] rounded-full mt-2.5 opacity-80"></div>
+            </div>
+          </div>
+
+          <div class="w-[220px] md:w-[235px] shrink-0 p-[3px] pl-2.5 bg-gradient-to-b from-[#0054cb] via-[#0040a0] to-[#0a2540] rounded-tl-[28px] rounded-bl-[28px] rounded-br-[28px] rounded-tr-[75px] shadow-xl group hover:-translate-y-2 transition-all duration-300">
+            <div class="w-full bg-white p-5 rounded-tl-[24px] rounded-bl-[24px] rounded-br-[24px] rounded-tr-[70px] flex flex-col items-center text-center shadow-sm">
+              <div class="w-32 h-32 md:w-36 md:h-36 rounded-full p-1 bg-gradient-to-tr from-[#0054cb] via-[#a88924] to-[#cba72f] shadow-md group-hover:scale-105 transition-transform">
+                <img src="/static/uploads/avatars/avatar_20260804065802_Profile_.jpg" alt="Zohaib" class="w-full h-full object-cover rounded-full">
+              </div>
+              <h4 class="font-extrabold text-base text-[#1c1c17] mt-3 line-clamp-1" style="font-family:'Montserrat',sans-serif;">Zohaib</h4>
+              <p class="text-[11px] font-bold text-[#0054cb] uppercase tracking-wider mt-1 line-clamp-1">IT ENGINEER</p>
+              <div class="w-8 h-[2.5px] bg-[#0054cb] rounded-full mt-2.5 opacity-80"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </section>
+
+
+  <!-- ═════════════════════════ FINAL CTA ═════════════════════════ -->
+  <section
+    class="py-20 bg-gradient-to-r from-[#0054cb] via-[#2c6dec] to-[#0040a0] text-white text-center relative overflow-hidden">
+    <div class="max-w-2xl mx-auto px-6 relative z-10 space-y-6 fade-up">
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white" style="font-family:'Montserrat',sans-serif;">
+        Ready to engineer your future?
+      </h2>
+      <p class="text-blue-100 text-base font-medium max-w-xl mx-auto">
+        Thousands of students trust Titan LMS to upgrade their skills and careers. Your journey starts now.
+      </p>
+      <div class="flex justify-center gap-4 flex-wrap">
+        <a href="{{ url_for('auth.login') }}?signup=true"
+          class="bg-[#ffe088] hover:bg-[#e9c349] text-[#241a00] font-black px-8 py-4 rounded-xl shadow-lg hover:scale-105 transition-all flex items-center gap-2">
+          <span class="material-symbols-outlined text-xl">rocket_launch</span> Enroll Now
+        </a>
+        <a href="{{ url_for('public.courses') }}"
+          class="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold px-8 py-4 rounded-xl transition-all flex items-center gap-2 backdrop-blur-sm">
+          <span class="material-symbols-outlined text-xl">book</span> View Courses
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<style>
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite !important;
+}
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('opacity-100', 'translate-y-0', 'translate-x-0');
+          entry.target.classList.remove('opacity-0', 'translate-y-8', '-translate-x-8', 'translate-x-8');
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.fade-up,.fade-left,.fade-right').forEach(el => {
+      if (el.classList.contains('fade-left')) { el.classList.add('opacity-0', '-translate-x-8'); }
+      else if (el.classList.contains('fade-right')) { el.classList.add('opacity-0', 'translate-x-8'); }
+      else { el.classList.add('opacity-0', 'translate-y-8'); }
+      obs.observe(el);
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Course Access Key Created | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    @keyframes scaleUp {
+        from { opacity: 0; transform: scale(0.9) translateY(30px); }
+        to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes glowPulse {
+        0%, 100% { box-shadow: 0 0 20px rgba(0, 84, 203, 0.2); }
+        50% { box-shadow: 0 0 35px rgba(0, 84, 203, 0.45); }
+    }
+    .ticket-container {
+        animation: scaleUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .glow-card {
+        animation: glowPulse 3s infinite ease-in-out;
+    }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<div class="px-gutter py-xl max-w-2xl mx-auto flex flex-col justify-center min-h-[80vh] space-y-lg">
+    
+    <!-- Header Banner -->
+    <div class="text-center space-y-sm">
+        <div class="inline-flex items-center gap-xs px-3 py-1.5 rounded-full bg-green-100 border border-green-200 text-green-700 text-xs font-bold uppercase tracking-widest">
+            <span class="material-symbols-outlined text-xs">check_circle</span>
+            <span>Activation Key Generated</span>
+        </div>
+        <h1 class="text-display-sm font-display-md text-on-surface font-black tracking-tight leading-tight">Course Licensing Receipt</h1>
+        <p class="text-body-md text-secondary">Share this activation key with students. They will enter this key to instantly register into this course.</p>
+    </div>
+
+    <!-- The Ticket Receipt Card -->
+    <div class="ticket-container bg-white rounded-3xl border-2 border-slate-200 shadow-2xl overflow-hidden glow-card">
+        <!-- Ticket Header (Brand Strip) -->
+        <div class="bg-gradient-to-r from-[#0054cb] to-[#003d96] p-6 text-white flex justify-between items-center relative">
+            <div>
+                <p class="text-[10px] uppercase font-mono tracking-widest text-blue-200">Titan Course Access Ticket</p>
+                <h3 class="text-headline-sm font-headline-md font-bold mt-1 text-white leading-none">Class Pass</h3>
+            </div>
+            <span class="material-symbols-outlined text-3xl text-blue-200/80">confirmation_number</span>
+            <!-- Notch Left -->
+            <div class="absolute -left-3 bottom-0 w-6 h-6 rounded-full bg-slate-50 border-r border-slate-200"></div>
+            <!-- Notch Right -->
+            <div class="absolute -right-3 bottom-0 w-6 h-6 rounded-full bg-slate-50 border-l border-slate-200"></div>
+        </div>
+
+        <!-- Ticket Body -->
+        <div class="p-8 space-y-lg relative">
+            <!-- Notch Left Border Match -->
+            <div class="absolute -left-3 -top-3 w-6 h-6 rounded-full bg-[#f8fafc] border-r border-slate-200/50"></div>
+            <!-- Notch Right Border Match -->
+            <div class="absolute -right-3 -top-3 w-6 h-6 rounded-full bg-[#f8fafc] border-l border-slate-200/50"></div>
+
+            <!-- Course Title Details -->
+            <div class="space-y-xs border-b border-dashed border-slate-200 pb-base">
+                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Course Name</span>
+                <h2 class="text-headline-sm font-bold text-on-surface leading-tight">{{ course.title }}</h2>
+                <p class="text-body-sm text-secondary">{{ course.category or 'General Education' }} &bull; {{ course.level }} Level</p>
+            </div>
+
+            <!-- Stats (Seats & Info) -->
+            <div class="grid grid-cols-2 gap-md border-b border-dashed border-slate-200 pb-base">
+                <div>
+                    <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1">Student Capacity</span>
+                    <div class="flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-primary text-xl">group</span>
+                        <span class="text-headline-xs font-bold text-on-surface">{{ course.student_limit or 100 }} Seats Limit</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1">Instructor assigned</span>
+                    <div class="flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-primary text-xl">person</span>
+                        <span class="text-body-md font-bold text-on-surface truncate">{{ course.instructor.name }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add More Seats Form -->
+            <form action="{{ url_for('admin.course_add_seats', course_id=course.id) }}" method="POST" class="bg-slate-50 p-base rounded-2xl border border-slate-200/60 flex items-center justify-between gap-md">
+                <div class="space-y-1">
+                    <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Generate More Keys</span>
+                    <p class="text-[10px] text-slate-500 font-bold">Add extra seats & codes instantly.</p>
+                </div>
+                <div class="flex items-center gap-xs">
+                    <input type="number" name="additional_seats" placeholder="Qty" min="1" max="200" required
+                        class="w-20 bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-center text-xs font-bold focus:outline-none focus:border-primary">
+                    <button type="submit" class="bg-[#0054cb] hover:bg-[#0040a0] text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-0.5 shadow-sm transition-all active:scale-95">
+                        <span class="material-symbols-outlined text-sm">add</span> Add Keys
+                    </button>
+                </div>
+            </form>
+
+            <!-- Access Keys List Zone -->
+            <div class="space-y-sm">
+                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Generated Seat Activation Keys ({{ keys|length }} total)</span>
+                
+                <div class="max-h-[350px] overflow-y-auto border border-slate-200 rounded-2xl custom-scrollbar divide-y divide-slate-100">
+                    {% for k in keys %}
+                    <div class="flex items-center justify-between p-md bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center gap-md">
+                            <span class="font-mono font-black text-sm text-[#0054cb] tracking-wider select-all select-key-text">
+                                {{ k.key_code }}
+                            </span>
+                            <button onclick="copyIndividualKey(this, '{{ k.key_code }}')" class="p-1.5 hover:bg-primary/5 text-primary rounded-lg transition-all active:scale-90" title="Copy Code">
+                                <span class="material-symbols-outlined text-[16px]">content_copy</span>
+                            </button>
+                        </div>
+                        <div class="text-right">
+                            {% if k.is_used %}
+                            <span class="inline-flex items-center gap-xs px-2 py-0.5 rounded bg-error/10 text-error text-[10px] font-bold uppercase">
+                                Used
+                            </span>
+                            <span class="block text-[8px] font-mono text-outline-variant uppercase">By: {{ k.used_by.name if k.used_by else 'Student' }}</span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-xs px-2 py-0.5 rounded bg-green-100 text-green-700 text-[10px] font-bold uppercase">
+                                Available
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <p class="text-[10px] text-slate-500 font-bold text-center">Share one unique code with each student. Each code can only be used once for this course.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation & Bottom Commands -->
+    <div class="flex flex-col sm:flex-row justify-center items-center gap-md">
+        <a href="{{ url_for('admin.courses') }}" class="w-full sm:w-auto bg-[#0054cb] hover:bg-[#0040a0] text-white px-lg py-sm rounded-xl font-bold text-sm text-center shadow-md transition-all active:scale-95">
+            Back to Directory
+        </a>
+        <button onclick="window.print()" class="w-full sm:w-auto border-2 border-slate-200 hover:border-slate-300 bg-white text-slate-700 px-lg py-sm rounded-xl font-bold text-sm flex items-center justify-center gap-xs transition-all active:scale-95">
+            <span class="material-symbols-outlined text-base">print</span>
+            Print License Slip
+        </button>
+    </div>
+
+</div>
+
+<script>
+function copyIndividualKey(btn, keyVal) {
+    navigator.clipboard.writeText(keyVal).then(() => {
+        const icon = btn.querySelector('.material-symbols-outlined');
+        const originalIcon = icon.innerText;
+        icon.innerText = "check";
+        icon.classList.add("text-green-600");
+        setTimeout(() => {
+            icon.innerText = originalIcon;
+            icon.classList.remove("text-green-600");
+        }, 1500);
+    });
+}
+</script>
+{% endblock %}

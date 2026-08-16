@@ -1,0 +1,283 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Arena Control Room #{{ session.battle_pin }} | Titan LMS{% endblock %}
+
+{% block instructor_content %}
+<div class="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto space-y-6 sm:space-y-8 animate-fade-in">
+    <!-- Big PIN Header Banner -->
+    <div class="bg-slate-900 text-white p-6 sm:p-10 rounded-3xl border-2 border-blue-500/40 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 text-center md:text-left">
+        <div>
+            <div class="flex items-center justify-center md:justify-start gap-2">
+                <span class="px-3 py-1 bg-blue-600/30 text-blue-300 border border-blue-400/40 text-xs font-mono font-bold rounded-full uppercase">Game PIN</span>
+                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-extrabold rounded-full uppercase">Status: {{ session.status|upper }}</span>
+            </div>
+            <h1 class="text-4xl sm:text-6xl font-mono font-extrabold text-blue-400 tracking-widest mt-1">{{ session.battle_pin }}</h1>
+            <p class="text-xs sm:text-sm text-slate-300 mt-2">Tell students to go to <span class="text-white font-bold underline">/student/quiz-battle</span> and enter this PIN!</p>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-3">
+            {% if session.status == 'lobby' %}
+            <form method="POST" action="{{ url_for('instructor.start_quiz_battle', session_id=session.id) }}">
+                <button type="submit" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold px-8 py-4 rounded-2xl shadow-xl shadow-emerald-500/30 active:scale-95 transition-all text-base flex items-center gap-2 animate-bounce">
+                    <span class="material-symbols-outlined text-2xl">play_arrow</span> START GAME NOW
+                </button>
+            </form>
+            {% else %}
+            <form method="POST" action="{{ url_for('instructor.next_battle_question', session_id=session.id) }}">
+                <button type="submit" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold px-6 py-4 rounded-2xl shadow-xl shadow-blue-500/30 active:scale-95 transition-all text-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-xl">skip_next</span> Push Next Question ({{ session.current_question }}/{{ questions|length }})
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Active Question & Player Podium Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        <!-- Active Question View -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <span class="text-xs font-extrabold text-blue-600 uppercase">
+                    {% if session.status == 'lobby' %}
+                    Lobby Mode (Click 'START GAME NOW' to begin)
+                    {% else %}
+                    Question {{ session.current_question }} of {{ questions|length }} Active
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if active_q %}
+            <div class="space-y-4 py-2">
+                <h3 class="text-xl font-extrabold text-on-surface">{{ active_q.question_text }}</h3>
+                <div class="grid grid-cols-2 gap-3 text-xs font-bold text-white">
+                    <div class="p-4 bg-red-600 rounded-2xl flex items-center justify-between">
+                        <span>▲ A) {{ active_q.option_a }}</span>
+                        {% if active_q.correct_option == 'a' %}<span class="bg-white text-red-600 px-2 py-0.5 rounded-full text-[10px]">CORRECT</span>{% endif %}
+                    </div>
+                    <div class="p-4 bg-blue-600 rounded-2xl flex items-center justify-between">
+                        <span>◆ B) {{ active_q.option_b }}</span>
+                        {% if active_q.correct_option == 'b' %}<span class="bg-white text-blue-600 px-2 py-0.5 rounded-full text-[10px]">CORRECT</span>{% endif %}
+                    </div>
+                    <div class="p-4 bg-amber-500 rounded-2xl flex items-center justify-between">
+                        <span>● C) {{ active_q.option_c }}</span>
+                        {% if active_q.correct_option == 'c' %}<span class="bg-white text-amber-700 px-2 py-0.5 rounded-full text-[10px]">CORRECT</span>{% endif %}
+                    </div>
+                    <div class="p-4 bg-emerald-600 rounded-2xl flex items-center justify-between">
+                        <span>■ D) {{ active_q.option_d }}</span>
+                        {% if active_q.correct_option == 'd' %}<span class="bg-white text-emerald-700 px-2 py-0.5 rounded-full text-[10px]">CORRECT</span>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Live Answer Distribution Bar Stats -->
+                <div class="pt-4 border-t border-slate-100 space-y-2">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-600">
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm text-red-600">bar_chart</span> Live Choice Distribution</span>
+                        <span class="font-mono text-red-600">{{ vote_counts.total }} Submissions Received</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-2 text-center text-xs font-extrabold text-white">
+                        <div class="bg-red-600 p-2.5 rounded-2xl shadow-md flex flex-col items-center">
+                            <span class="text-xs">▲ A</span>
+                            <span class="text-xl font-mono">{{ vote_counts.a }}</span>
+                        </div>
+                        <div class="bg-blue-600 p-2.5 rounded-2xl shadow-md flex flex-col items-center">
+                            <span class="text-xs">◆ B</span>
+                            <span class="text-xl font-mono">{{ vote_counts.b }}</span>
+                        </div>
+                        <div class="bg-amber-500 p-2.5 rounded-2xl shadow-md flex flex-col items-center">
+                            <span class="text-xs">● C</span>
+                            <span class="text-xl font-mono">{{ vote_counts.c }}</span>
+                        </div>
+                        <div class="bg-emerald-600 p-2.5 rounded-2xl shadow-md flex flex-col items-center">
+                            <span class="text-xs">■ D</span>
+                            <span class="text-xl font-mono">{{ vote_counts.d }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="py-8 text-center text-slate-400 text-xs">No active question currently displayed. Click 'START GAME NOW' or 'Push Next Question'.</div>
+            {% endif %}
+        </div>
+
+        <!-- Joined Players Live Leaderboard & TITAN Live Quiz Winner Podium -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-500">military_tech</span> Live Winner Podium ({{ participants|length }})
+                </h3>
+                <span class="text-xs font-bold text-slate-500">Realtime Scores</span>
+            </div>
+
+            {% set p_1st = participants[0] if participants|length > 0 else None %}
+            {% set p_2nd = participants[1] if participants|length > 1 else None %}
+            {% set p_3rd = participants[2] if participants|length > 2 else None %}
+
+            <!-- TITAN Live Quiz Leaderboard Podium Cards (Exact UI Match & Responsive Alignment) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center pt-4 pb-2">
+                <!-- Rank #2 Card (Left on Desktop, 2nd on Mobile) -->
+                {% if p_2nd %}
+                <div class="order-2 md:order-1 bg-white rounded-3xl p-6 border-2 border-slate-200/80 shadow-lg text-center flex flex-col items-center justify-between space-y-4">
+                    <span class="text-xs font-mono font-black text-slate-400 tracking-wider uppercase">RANK #2</span>
+                    <div class="w-28 h-36 rounded-[45px] overflow-hidden border-4 border-slate-300 shadow-md bg-slate-100">
+                        <img src="{{ p_2nd.user.avatar_url or '/static/logo.png' }}" alt="{{ p_2nd.user.name }}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'">
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-base text-on-surface">{{ p_2nd.user.name }}</h4>
+                        <p class="text-xs font-mono font-extrabold text-blue-600 mt-0.5">{{ p_2nd.score }} PTS</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="order-2 md:order-1 bg-slate-50/50 rounded-3xl p-6 border-2 border-dashed border-slate-200 text-center text-xs text-slate-400">Rank #2 Spot Open</div>
+                {% endif %}
+
+                <!-- Rank #1 CHAMPION Card (Center - 1st on Mobile, Center Highest on Desktop) -->
+                {% if p_1st %}
+                <div class="order-1 md:order-2 relative bg-white rounded-3xl p-6 sm:p-8 border-2 border-amber-600 shadow-2xl shadow-amber-500/20 text-center flex flex-col items-center justify-between space-y-4 md:-translate-y-2">
+                    <!-- Top Champion Pill Badge -->
+                    <div class="absolute -top-4 bg-amber-600 text-white font-extrabold px-5 py-1 rounded-full text-xs uppercase tracking-wider shadow-md flex items-center gap-1.5 border border-amber-300">
+                        <span class="material-symbols-outlined text-sm">trophy</span> CHAMPION
+                    </div>
+                    
+                    <span class="text-xs font-mono font-black text-amber-700 tracking-wider uppercase pt-2">RANK #1</span>
+                    <div class="w-32 h-40 rounded-[50px] overflow-hidden border-4 border-amber-500 shadow-xl ring-4 ring-amber-300/40 bg-amber-50">
+                        <img src="{{ p_1st.user.avatar_url or '/static/logo.png' }}" alt="{{ p_1st.user.name }}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'">
+                    </div>
+                    <div>
+                        <h3 class="font-black text-lg sm:text-xl text-on-surface">{{ p_1st.user.name }}</h3>
+                        <p class="text-xs font-mono font-extrabold text-amber-700 mt-0.5">{{ p_1st.score }} PTS</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="order-1 md:order-2 bg-amber-50/30 rounded-3xl p-8 border-2 border-dashed border-amber-300 text-center text-xs text-amber-600">Rank #1 Champion Spot Open</div>
+                {% endif %}
+
+                <!-- Rank #3 Card (Right on Desktop, 3rd on Mobile) -->
+                {% if p_3rd %}
+                <div class="order-3 md:order-3 bg-white rounded-3xl p-6 border-2 border-amber-200/80 shadow-lg text-center flex flex-col items-center justify-between space-y-4">
+                    <span class="text-xs font-mono font-black text-amber-800 tracking-wider uppercase">RANK #3</span>
+                    <div class="w-28 h-36 rounded-[45px] overflow-hidden border-4 border-amber-300 shadow-md bg-amber-50">
+                        <img src="{{ p_3rd.user.avatar_url or '/static/logo.png' }}" alt="{{ p_3rd.user.name }}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150'">
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-base text-on-surface">{{ p_3rd.user.name }}</h4>
+                        <p class="text-xs font-mono font-extrabold text-blue-600 mt-0.5">{{ p_3rd.score }} PTS</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="order-3 md:order-3 bg-slate-50/50 rounded-3xl p-6 border-2 border-dashed border-slate-200 text-center text-xs text-slate-400">Rank #3 Spot Open</div>
+                {% endif %}
+            </div>
+
+            <!-- Remaining Ranks (#4 and Below) List -->
+            <div class="space-y-2 max-h-56 overflow-y-auto pt-2 border-t border-slate-100">
+                {% for p in participants %}
+                {% if loop.index > 3 %}
+                <div class="p-3 bg-surface-container-low rounded-2xl border border-outline-variant/20 flex items-center justify-between text-xs sm:text-sm">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg font-extrabold flex items-center justify-center bg-slate-100 text-slate-700">#{{ loop.index }}</span>
+                        <span class="font-bold text-on-surface">{{ p.user.name }}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-amber-600 font-bold">🔥 {{ p.streak }}x</span>
+                        <span class="font-extrabold text-emerald-600">{{ p.score }} PTS</span>
+                    </div>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="py-4 text-center text-slate-400 text-xs">Waiting for students to enter PIN {{ session.battle_pin }}...</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Management Section (Manual Add + AI Generator + PDF Extractor) -->
+    <div class="bg-white p-6 sm:p-8 rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+                <h3 class="text-xl font-extrabold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-600">quiz</span> Battle Question Bank ({{ questions|length }} Total)
+                </h3>
+                <p class="text-xs text-outline">Add questions manually, generate with AI, or extract from PDF document.</p>
+            </div>
+        </div>
+
+        <!-- Add Question Modals / Tabs -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Form 1: Add Manual Question -->
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4">
+                <h4 class="font-bold text-sm text-on-surface flex items-center gap-1">
+                    <span class="material-symbols-outlined text-base text-primary">edit_note</span> Add Manual Question
+                </h4>
+
+                <form method="POST" action="{{ url_for('instructor.add_battle_question', session_id=session.id) }}" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface mb-1">Question Statement</label>
+                        <input type="text" name="question_text" placeholder="e.g. Which keyword defines a constant in ES6?" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:border-red-500" required>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <input type="text" name="option_a" placeholder="Option A" class="bg-white border border-slate-300 rounded-xl p-2 font-bold" required>
+                        <input type="text" name="option_b" placeholder="Option B" class="bg-white border border-slate-300 rounded-xl p-2 font-bold" required>
+                        <input type="text" name="option_c" placeholder="Option C" class="bg-white border border-slate-300 rounded-xl p-2 font-bold" required>
+                        <input type="text" name="option_d" placeholder="Option D" class="bg-white border border-slate-300 rounded-xl p-2 font-bold" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface mb-1">Correct Answer Option</label>
+                        <select name="correct_option" class="w-full bg-white border border-slate-300 rounded-xl p-2 text-xs font-bold">
+                            <option value="a">Option A</option>
+                            <option value="b">Option B</option>
+                            <option value="c">Option C</option>
+                            <option value="d">Option D</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full bg-primary text-white font-bold py-2.5 rounded-xl text-xs hover:bg-primary-container">
+                        + Add Question
+                    </button>
+                </form>
+            </div>
+
+            <!-- Form 2: AI & PDF Generator -->
+            <div class="bg-purple-50 p-6 rounded-2xl border border-purple-200 space-y-4 flex flex-col justify-between">
+                <div class="space-y-3">
+                    <h4 class="font-bold text-sm text-purple-900 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-base text-purple-600">auto_awesome</span> AI & PDF Question Generator
+                    </h4>
+                    <p class="text-xs text-purple-700">Synthesize 3 new multiple choice questions instantly based on course topic or PDF content.</p>
+
+                    <form method="POST" action="{{ url_for('instructor.ai_generate_battle_questions', session_id=session.id) }}" class="space-y-3 pt-2">
+                        <div>
+                            <label class="block text-xs font-bold text-purple-900 mb-1">Topic / Subject Context</label>
+                            <input type="text" name="topic" value="JavaScript Async Programming & Promises" class="w-full bg-white border border-purple-300 rounded-xl p-2.5 text-xs font-bold text-purple-900 focus:outline-none focus:border-purple-500" required>
+                        </div>
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-extrabold py-3 rounded-xl text-xs flex items-center justify-center gap-1 shadow-md">
+                            <span class="material-symbols-outlined text-base">auto_awesome</span> Auto-Generate AI Questions
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const currentStatus = "{{ session.status }}";
+const currentQIndex = {{ session.current_question }};
+const battlePin = "{{ session.battle_pin }}";
+
+setInterval(async () => {
+    try {
+        const res = await fetch('/student/quiz-battle/status/' + battlePin);
+        const data = await res.json();
+        
+        if (data.status !== currentStatus || data.current_question !== currentQIndex) {
+            window.location.reload();
+        }
+    } catch(err) {
+        console.log("Host polling check...", err);
+    }
+}, 2000);
+</script>
+{% endblock %}

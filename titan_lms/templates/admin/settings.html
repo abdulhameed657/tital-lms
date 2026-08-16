@@ -1,0 +1,124 @@
+{% extends "layouts/superadmin.html" %}
+
+{% block title %}System Settings | Titan LMS{% endblock %}
+
+{% block admin_content %}
+<div class="p-lg md:p-xl space-y-xl max-w-container-max mx-auto">
+    <!-- Page Header -->
+    <div class="mb-xxl slide-from-top">
+        <h1 class="text-display-lg font-display-lg text-on-surface mb-xs font-bold">Enterprise Settings</h1>
+        <p class="text-body-lg text-on-surface-variant">Configure your global LMS parameters, payments, and security protocols.</p>
+    </div>
+
+    <form action="{{ url_for('admin.settings') }}" method="POST" class="space-y-xl">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+            
+            <!-- Section: System Configurations & API Keys (Left Column - Span 8) -->
+            <div class="lg:col-span-8 space-y-lg slide-from-left">
+                <section class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/10">
+                    <div class="flex items-center gap-sm mb-lg border-b border-outline-variant/10 pb-md">
+                        <span class="material-symbols-outlined text-primary">key</span>
+                        <h2 class="text-headline-md font-headline-md">Security Keys & Credentials</h2>
+                    </div>
+                    
+                    <div class="space-y-md">
+                        <div>
+                            <label class="text-label-lg font-label-lg mb-sm block text-on-surface">Flask Application Secret Key</label>
+                            <input type="text" name="secret_key" value="{{ configs.SECRET_KEY }}" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary font-mono text-sm">
+                            <p class="text-body-sm text-on-surface-variant mt-sm">Critical for cookie signature, CSRF verification, and session state protection.</p>
+                        </div>
+                        
+                        <div>
+                            <label class="text-label-lg font-label-lg mb-sm block text-on-surface">Google Gemini API Key</label>
+                            <input type="password" name="gemini_key" value="{{ configs.GEMINI_API_KEY }}" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary font-mono text-sm">
+                            <p class="text-body-sm text-on-surface-variant mt-sm">Used for Gemini AI Quiz Generation, automated student grading evaluation, and Gemini AI voice tutor.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Localization -->
+                <section class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/10">
+                    <div class="flex items-center gap-sm mb-lg border-b border-outline-variant/10 pb-md">
+                        <span class="material-symbols-outlined text-primary">language</span>
+                        <h2 class="text-headline-md font-headline-md">Localization & Region</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                        <div>
+                            <label class="text-label-md font-label-md text-on-surface-variant mb-xs block">Default Language</label>
+                            <select class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-primary">
+                                <option>English (US)</option>
+                                <option>Urdu (Pakistan)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-label-md font-label-md text-on-surface-variant mb-xs block">Base Currency</label>
+                            <select class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-primary">
+                                <option>PKR - Pakistan Rupee</option>
+                                <option>USD - US Dollar</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column - Span 4 -->
+            <div class="lg:col-span-4 space-y-lg flex flex-col">
+                <!-- Section: Payments (Pakistan Gateways) -->
+                <section class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/10 flex-1 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-sm mb-lg border-b border-outline-variant/10 pb-md">
+                            <span class="material-symbols-outlined text-primary">payments</span>
+                            <h2 class="text-headline-md font-headline-md">Local Gateways</h2>
+                        </div>
+                        <div class="space-y-md">
+                            <div class="flex items-center justify-between p-md bg-surface-container rounded-lg">
+                                <div class="flex items-center gap-md">
+                                    <div class="w-8 h-8 bg-primary/10 rounded flex items-center justify-center font-bold text-xs text-primary">JC</div>
+                                    <span class="text-label-lg text-xs font-bold">JazzCash Wallet</span>
+                                </div>
+                                <span class="text-primary text-xs font-bold">ACTIVE</span>
+                            </div>
+                            <div class="flex items-center justify-between p-md bg-surface-container rounded-lg">
+                                <div class="flex items-center gap-md">
+                                    <div class="w-8 h-8 bg-tertiary/10 rounded flex items-center justify-center font-bold text-xs text-tertiary">EP</div>
+                                    <span class="text-label-lg text-xs font-bold">EasyPaisa Account</span>
+                                </div>
+                                <span class="text-on-surface-variant text-xs">CONNECTED</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Notifications Toggles -->
+                <section class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/10">
+                    <div class="flex items-center gap-sm mb-lg border-b border-outline-variant/10 pb-md">
+                        <span class="material-symbols-outlined text-primary">notifications_active</span>
+                        <h2 class="text-headline-md font-headline-md">Alerts</h2>
+                    </div>
+                    <div class="space-y-md">
+                        <div class="flex items-center justify-between py-sm">
+                            <span class="text-body-sm font-bold">Email Alerts</span>
+                            <input type="checkbox" checked class="rounded border-outline-variant text-primary focus:ring-primary">
+                        </div>
+                        <div class="flex items-center justify-between py-sm">
+                            <span class="text-body-sm font-bold">System Broadcasts</span>
+                            <input type="checkbox" checked class="rounded border-outline-variant text-primary focus:ring-primary">
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Form Submit Actions -->
+        <div class="flex justify-end gap-md pt-lg border-t border-outline-variant/20">
+            <a href="{{ url_for('admin.dashboard') }}" class="px-6 py-3 bg-surface-container text-on-surface font-label-lg rounded-lg hover:bg-surface-container-high transition-colors">
+                Cancel
+            </a>
+            <button type="submit" class="px-8 py-3 bg-primary text-white font-label-lg rounded-lg shadow-md hover:shadow-primary/20 transition-all active:scale-95">
+                Save Parameters
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

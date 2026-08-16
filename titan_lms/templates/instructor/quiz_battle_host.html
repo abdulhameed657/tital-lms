@@ -1,0 +1,77 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}TITAN Live Quiz Host Arena | Titan LMS{% endblock %}
+
+{% block instructor_content %}
+<div class="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto space-y-6 sm:space-y-8 animate-fade-in">
+    <!-- Header -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 p-6 sm:p-8 rounded-3xl border-2 border-blue-500/30 shadow-2xl text-white flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-blue-500/20 border border-blue-400/30 text-blue-400 flex items-center justify-center font-bold shrink-0 shadow-lg shadow-blue-500/20">
+                <span class="material-symbols-outlined text-3xl animate-bounce">bolt</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight">TITAN Live Quiz Host Arena</h1>
+                    <span class="px-3 py-1 bg-blue-500/30 text-blue-200 border border-blue-400/40 text-xs font-bold rounded-full uppercase">Realtime Leaderboards</span>
+                </div>
+                <p class="text-xs sm:text-sm text-blue-200/80 mt-1">Host live multiplayer quiz battles for your class. Generate a 6-digit PIN for students to join in real-time!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Host New Game Card & Past Battles Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <!-- Launch Game Form -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-4 h-fit">
+            <h3 class="text-lg font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-600">add_circle</span> Launch New Battle Session
+            </h3>
+
+            <form method="POST" action="{{ url_for('instructor.host_quiz_battle') }}" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface mb-1">Battle Arena Title</label>
+                    <input type="text" name="title" value="JavaScript Speed Quiz Battle" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-3 text-xs sm:text-sm font-bold focus:outline-none focus:border-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface mb-1">Question Auto-Timer Limit</label>
+                    <select name="timer_seconds" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-3 text-xs sm:text-sm font-bold focus:outline-none focus:border-blue-500">
+                        <option value="15" selected>⏱️ 15 Seconds per Question (Recommended)</option>
+                        <option value="10">⏱️ 10 Seconds (Ultra Fast Speed Mode)</option>
+                        <option value="20">⏱️ 20 Seconds (Standard Pace)</option>
+                        <option value="30">⏱️ 30 Seconds (Extended Thought)</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold py-3.5 rounded-xl shadow-lg shadow-blue-500/30 active:scale-95 transition-all text-xs sm:text-sm flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-base">sensors</span> Generate Game PIN & Open Lobby
+                </button>
+            </form>
+        </div>
+
+        <!-- Hosted Games List -->
+        <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-4">
+            <h3 class="text-lg font-bold text-on-surface">Your Hosted Quiz Arenas</h3>
+
+            <div class="space-y-3">
+                {% for s in sessions %}
+                <div class="p-4 bg-surface-container-low rounded-2xl border border-outline-variant/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1 bg-blue-600 text-white font-mono font-extrabold text-xs sm:text-sm rounded-xl">{{ s.battle_pin }}</span>
+                        <div>
+                            <p class="font-extrabold text-sm text-on-surface">{{ s.title }}</p>
+                            <p class="text-xs text-outline">Created: {{ s.created_at.strftime('%b %d, %H:%M') }} • Status: <span class="uppercase font-bold text-blue-600">{{ s.status }}</span></p>
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('instructor.host_battle_lobby', session_id=s.id) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1 shadow-sm">
+                        <span class="material-symbols-outlined text-sm">tv</span> Open Arena Control
+                    </a>
+                </div>
+                {% else %}
+                <div class="py-12 text-center text-slate-400 text-xs">No active quiz battle sessions. Click 'Generate Game PIN' above to launch your first live quiz arena!</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

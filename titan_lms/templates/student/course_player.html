@@ -1,0 +1,300 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Course Player | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    .chapter-marker {
+        width: 8px;
+        height: 8px;
+        background: #D4AF37;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #D4AF37;
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .chapter-marker:hover {
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+</style>
+{% endblock %}
+
+{% block student_content %}
+<div class="flex-1 overflow-y-auto bg-surface py-4 sm:py-lg px-4 sm:px-gutter max-w-container-max mx-auto w-full">
+    <!-- Course Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md mb-6 sm:mb-xl">
+        <div>
+            <nav class="flex flex-wrap gap-xs text-xs sm:text-label-sm text-outline mb-sm uppercase tracking-widest">
+                <span>Courses</span>
+                <span>/</span>
+                <span class="text-on-surface line-clamp-1">{{ course.category }}</span>
+            </nav>
+            <h2 class="text-xl sm:text-headline-lg font-headline-lg text-on-surface">{{ course.title }}</h2>
+            <p class="text-xs sm:text-label-md text-on-surface-variant font-medium mt-1">Mentor: {{ course.instructor.name }}</p>
+        </div>
+        <div class="flex gap-sm">
+            <a href="{{ url_for('public.home') }}" class="bg-surface-container-high text-on-surface px-4 py-2 sm:px-lg sm:py-sm rounded-lg hover:bg-surface-container-highest transition-colors flex items-center gap-xs text-xs sm:font-label-lg border border-outline-variant/10 touch-target">
+                <span class="material-symbols-outlined text-[18px] sm:text-[20px]">arrow_back</span> Return Catalog
+            </a>
+        </div>
+    </div>
+
+    <!-- Bento Layout for Player and Sidebar -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start h-auto">
+        <!-- Main Learning Area (Left Column) -->
+        <div class="lg:col-span-8 space-y-lg">
+            
+            {% if lesson.content_type == 'video' %}
+            <!-- Interactive Video Player (Supports YouTube URLs) -->
+            <div class="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border-2 border-slate-800">
+                {% if lesson.content and ('youtube.com' in lesson.content or 'youtu.be' in lesson.content) %}
+                    {% set yt_id = '' %}
+                    {% if 'v=' in lesson.content %}
+                        {% set yt_id = lesson.content.split('v=')[1].split('&')[0] %}
+                    {% elif 'youtu.be/' in lesson.content %}
+                        {% set yt_id = lesson.content.split('youtu.be/')[1].split('?')[0] %}
+                    {% elif 'embed/' in lesson.content %}
+                        {% set yt_id = lesson.content.split('embed/')[1].split('?')[0] %}
+                    {% endif %}
+
+                    {% if yt_id %}
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/{{ yt_id }}?autoplay=0&rel=0&modestbranding=1" title="{{ lesson.title }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    {% else %}
+                        <iframe class="w-full h-full" src="{{ lesson.content }}" title="{{ lesson.title }}" frameborder="0" allowfullscreen></iframe>
+                    {% endif %}
+                {% else %}
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Sample Lecture" frameborder="0" allowfullscreen></iframe>
+                {% endif %}
+            </div>
+            
+            {% elif lesson.content_type == 'quiz' %}
+            <!-- Quiz Activation Gate -->
+            <div class="bg-white border border-outline-variant/20 rounded-xl p-6 sm:p-xl text-center space-y-md shadow-sm">
+                <span class="material-symbols-outlined text-primary text-5xl sm:text-6xl">assignment</span>
+                <h3 class="font-headline-sm text-lg sm:text-headline-sm text-on-surface">Module Evaluation: {{ lesson.title }}</h3>
+                <p class="text-body-sm text-on-surface-variant max-w-md mx-auto">This lesson is structured as a graded quiz. Ensure you review the prior video chapters before starting your evaluation.</p>
+                {% if quiz %}
+                    <form action="{{ url_for('student.start_quiz', quiz_id=quiz.id) }}" method="POST">
+                        <button type="submit" class="bg-primary text-white px-6 sm:px-xl py-3 rounded-lg font-bold hover:bg-primary-container shadow-md shadow-primary/20 active:scale-95 transition-all touch-target">
+                            Start Graded Quiz
+                        </button>
+                    </form>
+                {% else %}
+                    <p class="text-body-sm text-red-500 font-bold">Quiz content is currently being configured by the instructor.</p>
+                {% endif %}
+            </div>
+
+            {% elif lesson.content_type == 'lab' %}
+            <!-- Lab Activation Gate -->
+            <div class="bg-white border border-outline-variant/20 rounded-xl p-6 sm:p-xl text-center space-y-md shadow-sm">
+                <span class="material-symbols-outlined text-primary text-5xl sm:text-6xl">terminal</span>
+                <h3 class="font-headline-sm text-lg sm:text-headline-sm text-on-surface">Interactive Sandbox Lab Workspace</h3>
+                <p class="text-body-sm text-on-surface-variant max-w-md mx-auto">Deploy clusters, verify node configurations, and monitor constellations in our terminal sandbox.</p>
+                <a href="{{ url_for('public.course_lab', course_id=course.id) }}" class="inline-block bg-primary text-white px-6 sm:px-xl py-3 rounded-lg font-bold hover:bg-primary-container shadow-md shadow-primary/20 active:scale-95 transition-all touch-target">
+                    Launch Sandbox Terminal
+                </a>
+            </div>
+
+            {% else %}
+            <!-- Standard Text Lesson Reading Pane with AI Voice-Over Text-to-Speech -->
+            <div class="bg-white border border-outline-variant/20 rounded-xl p-4 sm:p-xl shadow-sm prose max-w-none text-on-surface space-y-md">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-outline-variant/10 pb-md">
+                    <h3 class="font-headline-sm text-lg sm:text-headline-sm text-primary m-0">{{ lesson.title }}</h3>
+                    <!-- AI Voice-Over Button -->
+                    <button id="tts-btn" onclick="toggleTextToSpeech()" class="px-3 py-2 sm:px-md sm:py-sm bg-primary/10 text-primary border border-primary/20 rounded-xl font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2 text-xs sm:text-body-sm shrink-0 touch-target">
+                        <span class="material-symbols-outlined text-md">volume_up</span>
+                        <span id="tts-label">🔊 Listen to AI Voice-Over</span>
+                    </button>
+                </div>
+                <div id="lesson-text-body" class="text-body-md text-on-surface-variant leading-relaxed space-y-md">
+                    {{ lesson.content or 'Welcome to this lesson. Read through the curriculum material carefully before advancing to the next modules.' }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Tabs Content (Description / Assignments / Forum) -->
+            <div class="bg-white rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden" x-data="{ activeTab: 'content' }">
+                <div class="flex border-b border-outline-variant/10 overflow-x-auto">
+                    <button class="px-4 sm:px-xl py-3 sm:py-lg text-xs sm:text-label-lg font-bold shrink-0" :class="activeTab === 'content' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low'" @click="activeTab = 'content'">
+                        Course Content
+                    </button>
+                    <button class="px-4 sm:px-xl py-3 sm:py-lg text-xs sm:text-label-lg font-bold shrink-0" :class="activeTab === 'assignments' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low'" @click="activeTab = 'assignments'">
+                        Evaluations
+                    </button>
+                    <button class="px-4 sm:px-xl py-3 sm:py-lg text-xs sm:text-label-lg font-bold shrink-0" :class="activeTab === 'discussion' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low'" @click="activeTab = 'discussion'">
+                        Discussion
+                    </button>
+                </div>
+                <div class="p-lg text-body-md text-on-surface-variant leading-relaxed">
+                    <div x-show="activeTab === 'content'">
+                        <h4 class="font-bold text-on-surface text-body-lg mb-sm">Curriculum Details</h4>
+                        <p>{{ course.description }}</p>
+                    </div>
+                    <div x-show="activeTab === 'assignments'" class="space-y-sm">
+                        <h4 class="font-bold text-on-surface text-body-lg mb-sm">Quizzes and Testing Rooms</h4>
+                        {% for l in course.lessons if l.content_type == 'quiz' %}
+                            <div class="p-md bg-surface-container rounded-lg border border-outline-variant/15 flex justify-between items-center">
+                                <div>
+                                    <p class="font-bold text-on-surface text-body-md">Module {{ l.order }}: {{ l.title }} Evaluation</p>
+                                    <span class="text-label-sm text-outline-variant uppercase">Graded Testing</span>
+                                </div>
+                                <a href="{{ url_for('student.course_player', course_id=course.id, lesson_id=l.id) }}" class="bg-primary text-white px-lg py-1.5 rounded text-label-sm font-bold">Launch</a>
+                            </div>
+                        {% else %}
+                            <p class="text-body-sm text-on-surface-variant">No graded quizzes are included in this course layout.</p>
+                        {% endfor %}
+                    </div>
+                    <div x-show="activeTab === 'discussion'">
+                        <h4 class="font-bold text-on-surface text-body-lg mb-sm">Classroom Queries</h4>
+                        <p class="mb-md">Have questions regarding this module? Post them on the community boards to get answers from mentors and classmates.</p>
+                        <a href="{{ url_for('student.forum') }}" class="inline-block bg-primary/10 text-primary px-lg py-2.5 rounded-lg font-bold hover:bg-primary/20 transition-all text-body-sm">
+                            Open Forum Board
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating 24/7 AI Tutor Widget Button -->
+        <div id="ai-tutor-container" class="fixed bottom-6 right-6 z-50">
+            <button onclick="toggleTutorChat()" class="bg-primary text-white px-lg py-3 rounded-full shadow-2xl hover:scale-105 transition-all flex items-center gap-2 font-bold border-2 border-white">
+                <span class="material-symbols-outlined text-2xl">smart_toy</span>
+                <span>24/7 AI Student Tutor</span>
+            </button>
+        </div>
+
+        <!-- 24/7 AI Tutor Chat Drawer -->
+        <div id="ai-tutor-modal" class="fixed bottom-20 right-6 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border-2 border-primary/20 hidden z-50 flex flex-col h-[480px] overflow-hidden">
+            <div class="bg-primary text-white p-md flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-2xl">smart_toy</span>
+                    <div>
+                        <h4 class="font-bold text-body-md leading-none">Titan AI Tutor</h4>
+                        <span class="text-[10px] opacity-80 font-mono">24/7 Course Assistant • Active</span>
+                    </div>
+                </div>
+                <button onclick="toggleTutorChat()" class="text-white opacity-80 hover:opacity-100">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div id="tutor-chat-box" class="flex-1 p-md overflow-y-auto space-y-md text-xs bg-slate-50">
+                <div class="bg-white p-md rounded-2xl border border-slate-200 text-on-surface shadow-xs">
+                    👋 Hi {{ current_user.name }}! I am your 24/7 AI Course Tutor. Ask me any question about <b>{{ lesson.title }}</b> or {{ course.title }}!
+                </div>
+            </div>
+
+            <div class="p-sm bg-white border-t border-slate-200 flex gap-2">
+                <input type="text" id="tutor-input" placeholder="Ask AI Tutor anything..." class="flex-1 bg-slate-100 border border-slate-300 rounded-xl px-md py-2 text-xs focus:outline-none focus:border-primary font-medium" onkeypress="if(event.key==='Enter') sendTutorMessage()">
+                <button onclick="sendTutorMessage()" class="bg-primary text-white px-md py-2 rounded-xl text-xs font-bold hover:bg-primary-container">
+                    Send
+                </button>
+            </div>
+        </div>
+
+        <script>
+            // Text-to-speech engine
+            let synth = window.speechSynthesis;
+            let isSpeaking = false;
+
+            function toggleTextToSpeech() {
+                if (!synth) {
+                    alert("Text-To-Speech is not supported on this browser.");
+                    return;
+                }
+                const label = document.getElementById('tts-label');
+                if (isSpeaking) {
+                    synth.cancel();
+                    isSpeaking = false;
+                    label.innerText = "🔊 Listen to AI Voice-Over";
+                } else {
+                    const text = document.getElementById('lesson-text-body').innerText;
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 1.0;
+                    utterance.onend = function() {
+                        isSpeaking = false;
+                        label.innerText = "🔊 Listen to AI Voice-Over";
+                    };
+                    synth.speak(utterance);
+                    isSpeaking = true;
+                    label.innerText = "⏹️ Stop Audio Playback";
+                }
+            }
+
+            // AI Tutor Chat
+            function toggleTutorChat() {
+                const modal = document.getElementById('ai-tutor-modal');
+                modal.classList.toggle('hidden');
+            }
+
+            function sendTutorMessage() {
+                const input = document.getElementById('tutor-input');
+                const query = input.value.trim();
+                if (!query) return;
+
+                const chatBox = document.getElementById('tutor-chat-box');
+                chatBox.innerHTML += `<div class="bg-primary/10 text-primary font-bold p-md rounded-2xl ml-auto max-w-[85%] border border-primary/20">${query}</div>`;
+                input.value = '';
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                fetch("{{ url_for('student.tutor_chat') }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        query: query,
+                        course_id: {{ course.id }},
+                        lesson_id: {{ lesson.id }}
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    chatBox.innerHTML += `<div class="bg-white p-md rounded-2xl border border-slate-200 text-on-surface shadow-xs max-w-[90%] font-medium">🤖 ${data.response}</div>`;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                })
+                .catch(() => {
+                    chatBox.innerHTML += `<div class="bg-red-50 text-red-600 p-md rounded-2xl border border-red-200 text-xs">AI Tutor server unavailable right now. Please try again.</div>`;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                });
+            }
+        </script>
+
+        <!-- Sidebar Course Outline (Right Column) -->
+        <div class="lg:col-span-4">
+            <div class="bg-white rounded-xl shadow-sm border border-outline-variant/20 flex flex-col h-[calc(100vh-280px)] overflow-hidden">
+                <div class="p-lg border-b border-outline-variant/10 shrink-0">
+                    <h3 class="text-headline-sm font-headline-md text-on-surface">Curriculum Outline</h3>
+                    <div class="mt-xs flex justify-between items-center text-label-sm text-on-surface-variant font-bold">
+                        <span>COURSE TRACK PROGRESS</span>
+                        <span class="text-primary">{{ enrollment.progress_pct }}% Completed</span>
+                    </div>
+                </div>
+                <div class="flex-grow overflow-y-auto p-md space-y-xs custom-scrollbar">
+                    {% for l in course.lessons %}
+                    <a href="{{ url_for('student.course_player', course_id=course.id, lesson_id=l.id) }}" 
+                       class="flex items-center gap-md p-sm rounded-lg hover:bg-surface-container transition-colors {% if l.id == lesson.id %}bg-primary/5 border-l-4 border-primary{% endif %}">
+                        
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+                            {% if l.order < lesson.order or enrollment.progress_pct == 100 %}
+                                <span class="material-symbols-outlined text-tertiary">check_circle</span>
+                            {% elif l.id == lesson.id %}
+                                <span class="material-symbols-outlined text-primary">play_circle</span>
+                            {% else %}
+                                <span class="material-symbols-outlined text-outline-variant">circle</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="flex-grow min-w-0">
+                            <p class="text-label-md font-bold text-on-surface truncate leading-snug">Module {{ l.order }}: {{ l.title }}</p>
+                            <span class="text-label-sm text-outline-variant uppercase font-medium">{{ l.content_type }} • {{ l.duration }} mins</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

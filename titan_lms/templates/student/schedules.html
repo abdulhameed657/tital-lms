@@ -1,0 +1,193 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Class Schedules & Timetable | Titan LMS{% endblock %}
+
+{% block student_content %}
+<div class="p-lg max-w-7xl mx-auto space-y-lg">
+    <!-- Header Banner -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-md bg-surface border border-outline-variant rounded-2xl p-xl shadow-sm">
+        <div>
+            <div class="flex items-center gap-xs text-blue-500 font-bold text-label-md uppercase tracking-wider">
+                <span class="material-symbols-outlined animate-bounce">calendar_clock</span>
+                <span>My Academic Timetable</span>
+            </div>
+            <h1 class="text-headline-md font-bold text-on-surface mt-xs">Course Schedules & Planned Classes Tracker</h1>
+            <p class="text-body-md text-on-surface-variant">View your enrolled course schedules, weekly routine timings, and total planned classes automatically calculated.</p>
+        </div>
+        <div class="bg-blue-500/10 border border-blue-500/20 px-lg py-md rounded-2xl flex items-center gap-md">
+            <span class="material-symbols-outlined text-blue-600 text-3xl">school</span>
+            <div>
+                <span class="text-[10px] text-outline uppercase font-bold block">Enrolled Courses Scheduled</span>
+                <span class="text-title-md font-bold text-blue-600">{{ schedules|length }} Courses</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3-Stat Overview Bento Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
+        <div class="bg-surface border border-outline-variant p-lg rounded-2xl flex items-center gap-md hover:-translate-y-1 hover:shadow-xl hover:border-blue-500/40 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined">format_list_numbered</span>
+            </div>
+            <div>
+                <p class="text-label-sm font-bold text-outline uppercase">Total Course Classes</p>
+                <h3 class="text-headline-sm font-bold text-blue-600">{{ total_classes }} Classes</h3>
+            </div>
+        </div>
+        <div class="bg-surface border border-outline-variant p-lg rounded-2xl flex items-center gap-md hover:-translate-y-1 hover:shadow-xl hover:border-sky-500/40 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined">task_alt</span>
+            </div>
+            <div>
+                <p class="text-label-sm font-bold text-outline uppercase">Classes Completed</p>
+                <h3 class="text-headline-sm font-bold text-sky-600">{{ completed_classes }} Completed</h3>
+            </div>
+        </div>
+        <div class="bg-surface border border-outline-variant p-lg rounded-2xl flex items-center gap-md hover:-translate-y-1 hover:shadow-xl hover:border-indigo-500/40 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined">hourglass_top</span>
+            </div>
+            <div>
+                <p class="text-label-sm font-bold text-outline uppercase">Classes Remaining</p>
+                <h3 class="text-headline-sm font-bold text-indigo-600">{{ remaining_classes }} Remaining</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrolled Course Schedules Grid -->
+    <div class="bg-surface border border-outline-variant rounded-2xl p-lg space-y-md">
+        <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-500">calendar_month</span>
+            Enrolled Courses Weekly Timetables
+        </h3>
+        {% if schedules %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+            {% for s in schedules %}
+            <div class="border border-outline-variant rounded-2xl p-md space-y-sm bg-surface hover:-translate-y-1.5 hover:shadow-2xl hover:border-blue-500/60 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between">
+                <div class="space-y-xs">
+                    <div class="flex items-center justify-between flex-wrap gap-1">
+                        <span class="text-xs font-bold text-blue-600 uppercase tracking-wide">{{ s.course.title }}</span>
+                        <span class="font-mono text-[10px] font-extrabold bg-slate-900 text-amber-400 px-2 py-0.5 rounded border border-slate-700">Roll No: {{ current_user.get_roll_number(s.course) }}</span>
+                    </div>
+                    <h4 class="font-bold text-on-surface text-title-sm">{{ s.title }}</h4>
+                    <p class="text-xs text-on-surface-variant">Instructor: <strong>{{ s.instructor.name }}</strong></p>
+
+                    <!-- Class Progress Bar -->
+                    {% set pct = ((s.completed_classes / s.total_classes * 100)|round) if s.total_classes > 0 else 0 %}
+                    <div class="space-y-1 bg-blue-500/5 border border-blue-500/10 p-sm rounded-xl">
+                        <div class="flex justify-between text-xs font-bold">
+                            <span class="text-outline">Class Completion</span>
+                            <span class="text-blue-600">{{ s.completed_classes }} / {{ s.total_classes }} ({{ pct }}%)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-blue-600 h-full transition-all duration-500" style="width: {{ pct }}%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="text-xs space-y-1.5 text-on-surface-variant pt-xs">
+                        <p class="flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-sm text-blue-500">calendar_month</span>
+                            <span><strong>Days:</strong> {{ s.days_of_week }}</span>
+                        </p>
+                        <p class="flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-sm text-sky-500">schedule</span>
+                            <span><strong>Timing:</strong> {{ s.start_time }} - {{ s.end_time }}</span>
+                        </p>
+                        <p class="flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-sm text-indigo-500">date_range</span>
+                            <span><strong>Duration:</strong> {{ s.start_date.strftime('%b %d') }} to {{ s.end_date.strftime('%b %d, %Y') }}</span>
+                        </p>
+                        <p class="flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-sm text-amber-500">location_on</span>
+                            <span><strong>Venue:</strong> {{ s.room_or_link or 'Online Classroom' }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Interactive Card Open Button -->
+                <div class="pt-sm border-t border-outline-variant/30">
+                    <button type="button" onclick="openScheduleModal('{{ s.title }}', '{{ s.course.title }}', '{{ s.instructor.name }}', '{{ current_user.get_roll_number(s.course) }}', '{{ s.days_of_week }}', '{{ s.start_time }} - {{ s.end_time }}', '{{ s.start_date.strftime('%b %d') }} to {{ s.end_date.strftime('%b %d, %Y') }}', '{{ s.room_or_link or 'Online Room' }}', '{{ s.completed_classes }}', '{{ s.total_classes }}')"
+                        class="w-full bg-blue-500/10 hover:bg-blue-600 text-blue-600 hover:text-white font-bold py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-xs">
+                        <span class="material-symbols-outlined text-sm">open_in_full</span>
+                        <span>Open Details Modal</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-on-surface-variant py-md">No course schedules published for your enrolled courses yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- All Campus Schedules Overview -->
+    <div class="bg-surface border border-outline-variant rounded-2xl p-lg space-y-md">
+        <h3 class="text-title-lg font-bold text-on-surface">All Approved Campus Schedules</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+            {% for s in all_schedules %}
+            <div class="flex items-center justify-between bg-surface-variant/30 border border-outline-variant p-md rounded-xl hover:border-blue-500/40 transition-all">
+                <div>
+                    <span class="text-xs font-bold text-blue-600 block">{{ s.course.title }}</span>
+                    <h5 class="font-bold text-on-surface text-sm">{{ s.title }}</h5>
+                    <p class="text-xs text-on-surface-variant">🗓️ {{ s.days_of_week }} | ⏰ {{ s.start_time }} - {{ s.end_time }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-title-sm font-bold text-blue-600 block">{{ s.total_classes }} Classes</span>
+                    <span class="text-[10px] text-outline">Total Schedule</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Schedule Detail Modal -->
+<div id="detailScheduleModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-xl shadow-2xl space-y-md animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <div>
+                <span id="m_course" class="text-xs font-bold text-blue-600 uppercase tracking-wide">Course</span>
+                <h3 id="m_title" class="text-title-lg font-bold text-on-surface">Schedule Title</h3>
+            </div>
+            <button onclick="document.getElementById('detailScheduleModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+        <div class="space-y-sm text-sm">
+            <div class="bg-slate-900 text-amber-400 p-md rounded-xl font-mono text-xs flex justify-between items-center border border-slate-700">
+                <span>Course Roll Number:</span>
+                <span id="m_roll" class="font-bold text-sm">466960</span>
+            </div>
+            <div class="bg-blue-500/5 border border-blue-500/20 p-md rounded-xl space-y-2 text-on-surface-variant">
+                <p>👨‍🏫 <strong>Instructor:</strong> <span id="m_inst" class="font-bold text-on-surface"></span></p>
+                <p>🗓️ <strong>Weekly Days:</strong> <span id="m_days" class="font-bold text-on-surface"></span></p>
+                <p>⏰ <strong>Class Timing:</strong> <span id="m_time" class="font-bold text-on-surface"></span></p>
+                <p>📆 <strong>Schedule Dates:</strong> <span id="m_duration" class="font-bold text-on-surface"></span></p>
+                <p>📍 <strong>Classroom / Link:</strong> <span id="m_venue" class="font-bold text-blue-600"></span></p>
+                <p>📊 <strong>Classes Tracked:</strong> <span id="m_classes" class="font-bold text-indigo-600"></span></p>
+            </div>
+        </div>
+        <div class="flex justify-end pt-sm border-t border-outline-variant">
+            <button type="button" onclick="document.getElementById('detailScheduleModal').classList.add('hidden')"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-xl py-md rounded-xl text-sm shadow-md">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openScheduleModal(title, course, inst, roll, days, time, duration, venue, completed, total) {
+    document.getElementById('m_title').innerText = title;
+    document.getElementById('m_course').innerText = course;
+    document.getElementById('m_inst').innerText = inst;
+    document.getElementById('m_roll').innerText = roll;
+    document.getElementById('m_days').innerText = days;
+    document.getElementById('m_time').innerText = time;
+    document.getElementById('m_duration').innerText = duration;
+    document.getElementById('m_venue').innerText = venue;
+    document.getElementById('m_classes').innerText = completed + " completed / " + total + " total planned";
+    document.getElementById('detailScheduleModal').classList.remove('hidden');
+}
+</script>
+{% endblock %}

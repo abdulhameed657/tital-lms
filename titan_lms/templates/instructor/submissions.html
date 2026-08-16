@@ -1,0 +1,288 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Grading Queue | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+    @keyframes flyLeft {
+        from { opacity: 0; transform: translateX(-60px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes flyRight {
+        from { opacity: 0; transform: translateX(60px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes flyUp {
+        from { opacity: 0; transform: translateY(50px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes flyDown {
+        from { opacity: 0; transform: translateY(-40px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .fly-left  { animation: flyLeft  0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-right { animation: flyRight 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-up    { animation: flyUp    0.7s cubic-bezier(0.22,1,0.36,1) both; }
+    .fly-down  { animation: flyDown  0.7s cubic-bezier(0.22,1,0.36,1) both; }
+
+    .submission-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .submission-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 12px 30px rgba(0, 84, 203, 0.12);
+    }
+</style>
+{% endblock %}
+
+{% block instructor_content %}
+<!-- Calculate dynamic stats in Jinja -->
+{% set total_attempts = attempts|length %}
+{% set passing_attempts = attempts | selectattr('passed', 'equalto', true) | list | length %}
+{% set failing_attempts = total_attempts - passing_attempts %}
+{% set pass_rate = (passing_attempts / total_attempts * 100) if total_attempts > 0 else 100.0 %}
+
+<!-- Canvas -->
+<div class="px-gutter py-xl max-w-container-max mx-auto space-y-xl" x-data="{ statusFilter: 'all', activeTab: 'quizzes' }">
+    <!-- Page Header -->
+    <section class="flex flex-col md:flex-row md:items-end justify-between gap-md fly-down">
+        <div>
+            <nav class="flex items-center gap-xs text-label-md text-secondary mb-sm">
+                <a href="{{ url_for('instructor.dashboard') }}" class="hover:text-primary">Management</a>
+                <span class="material-symbols-outlined text-body-sm">chevron_right</span>
+                <span class="text-primary font-bold">Grading Queue</span>
+            </nav>
+            <h1 class="text-display-lg-mobile md:text-display-lg font-display-lg text-on-surface tracking-tight">Grading Review Dashboard</h1>
+            <p class="text-body-lg text-secondary max-w-2xl mt-sm">Verify student attempts, override AI evaluations, and write constructive comments.</p>
+        </div>
+    </section>
+
+    <!-- Metrics Bento Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-lg">
+        <div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant/30 submission-card group fly-left" style="animation-delay: 0.1s;">
+            <div class="flex justify-between items-start mb-md">
+                <div class="p-3 bg-primary/10 rounded-lg text-primary">
+                    <span class="material-symbols-outlined">rate_review</span>
+                </div>
+            </div>
+            <p class="text-label-md text-secondary uppercase tracking-wider mb-xs">Total Submissions</p>
+            <p class="text-headline-lg font-headline-lg text-on-surface">{{ total_attempts }}</p>
+        </div>
+        <div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant/30 submission-card group fly-up" style="animation-delay: 0.15s;">
+            <div class="flex justify-between items-start mb-md">
+                <div class="p-3 bg-tertiary/10 rounded-lg text-tertiary">
+                    <span class="material-symbols-outlined">verified</span>
+                </div>
+            </div>
+            <p class="text-label-md text-secondary uppercase tracking-wider mb-xs">Passing Scores</p>
+            <p class="text-headline-lg font-headline-lg text-on-surface">{{ passing_attempts }}</p>
+        </div>
+        <div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant/30 submission-card group fly-up" style="animation-delay: 0.2s;">
+            <div class="flex justify-between items-start mb-md">
+                <div class="p-3 bg-error/10 rounded-lg text-error">
+                    <span class="material-symbols-outlined">warning</span>
+                </div>
+            </div>
+            <p class="text-label-md text-secondary uppercase tracking-wider mb-xs">Re-evaluations Needed</p>
+            <p class="text-headline-lg font-headline-lg text-on-surface">{{ failing_attempts }}</p>
+        </div>
+        <div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant/30 submission-card group fly-right" style="animation-delay: 0.25s;">
+            <div class="flex justify-between items-start mb-md">
+                <div class="p-3 bg-outline/10 text-outline rounded-lg">
+                    <span class="material-symbols-outlined">analytics</span>
+                </div>
+            </div>
+            <p class="text-label-md text-secondary uppercase tracking-wider mb-xs">Platform Pass Rate</p>
+            <p class="text-headline-lg font-headline-lg text-on-surface">{{ "%.1f"|format(pass_rate) }}%</p>
+        </div>
+    </section>
+
+    <!-- Table Filters & Search -->
+    <!-- Table Filters & Search -->
+    <section class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl shadow-sm overflow-hidden fly-up" style="animation-delay: 0.2s;">
+        <!-- Top Tab Bar -->
+        <div class="p-lg border-b border-outline-variant/10 flex flex-col md:flex-row md:items-center justify-between gap-md bg-surface-container-low/80">
+            <div class="flex items-center gap-sm">
+                <button @click="activeTab = 'quizzes'" :class="activeTab === 'quizzes' ? 'bg-[#0054cb] text-white font-bold' : 'text-secondary bg-slate-100 hover:bg-slate-200'" class="px-5 py-2.5 rounded-xl text-label-lg transition-all flex items-center gap-1 shadow-sm">
+                    <span class="material-symbols-outlined text-sm">quiz</span> Quiz Submissions
+                </button>
+                <button @click="activeTab = 'assignments'" :class="activeTab === 'assignments' ? 'bg-[#0054cb] text-white font-bold' : 'text-secondary bg-slate-100 hover:bg-slate-200'" class="px-5 py-2.5 rounded-xl text-label-lg transition-all flex items-center gap-1 shadow-sm">
+                    <span class="material-symbols-outlined text-sm">upload_file</span> Assignment File Uploads
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters (Show only for Quiz Tab) -->
+        <div x-show="activeTab === 'quizzes'" class="p-lg border-b border-outline-variant/10 flex flex-col lg:flex-row lg:items-center justify-between gap-md bg-surface-container-low/30">
+            <div class="flex flex-wrap items-center gap-sm">
+                <button @click="statusFilter = 'all'; filterSubmissions('all')" :class="statusFilter === 'all' ? 'bg-primary text-white' : 'text-secondary hover:bg-surface-container-high'" class="px-md py-2 rounded-full text-label-lg transition-all">All Submissions</button>
+                <button @click="statusFilter = 'passed'; filterSubmissions('passed')" :class="statusFilter === 'passed' ? 'bg-primary text-white' : 'text-secondary hover:bg-surface-container-high'" class="px-md py-2 rounded-full text-label-lg transition-all">Passed</button>
+                <button @click="statusFilter = 'failed'; filterSubmissions('failed')" :class="statusFilter === 'failed' ? 'bg-primary text-white' : 'text-secondary hover:bg-surface-container-high'" class="px-md py-2 rounded-full text-label-lg transition-all">Failed</button>
+            </div>
+            <div class="flex items-center gap-md">
+                <div class="relative flex-1 lg:w-64">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">filter_list</span>
+                    <input id="submissions-search" class="bg-surface border border-outline-variant/50 rounded-lg pl-10 pr-md py-2 w-full focus:ring-primary text-body-sm transition-all" placeholder="Search by student name..." type="text" onkeyup="filterSubmissions()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Quizzes Table Content -->
+        <div x-show="activeTab === 'quizzes'" class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low/30 border-b border-outline-variant/10">
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider">Student</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider">Quiz Track Info</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider">Grading Date</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider text-center">Score</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider text-center">Status</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10" id="submissions-tbody">
+                    {% for attempt in attempts %}
+                    <tr class="submission-row hover:bg-surface transition-colors group" data-status="{% if attempt.passed %}passed{% else %}failed{% endif %}" data-student="{{ attempt.user.name if attempt.user else 'Deleted Student' }}">
+                        <!-- Student details -->
+                        <td class="px-lg py-lg">
+                            <div class="flex items-center gap-md">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary shrink-0 border border-outline-variant/20">
+                                    {{ (attempt.user.name[:2].upper()) if attempt.user else 'ST' }}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-on-surface leading-tight text-body-md">{{ attempt.user.name if attempt.user else 'Deleted Student' }}</h4>
+                                    <span class="text-[10px] text-outline-variant uppercase font-mono">{{ attempt.user.email if attempt.user else 'deleted@titan.edu' }}</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Quiz details -->
+                        <td class="px-lg py-lg">
+                            <div>
+                                <h4 class="font-bold text-on-surface leading-tight">{{ attempt.quiz.title }}</h4>
+                                <span class="text-[10px] text-outline-variant uppercase">{{ attempt.quiz.course.title }}</span>
+                            </div>
+                        </td>
+
+                        <!-- Date -->
+                        <td class="px-lg py-lg text-body-sm text-secondary">
+                            {{ attempt.attempted_at.strftime('%b %d, %Y %H:%M') }}
+                        </td>
+
+                        <!-- Score -->
+                        <td class="px-lg py-lg text-center font-bold font-mono text-label-lg">
+                            {{ "%.1f"|format(attempt.score) }}%
+                        </td>
+
+                        <!-- Status badge -->
+                        <td class="px-lg py-lg text-center">
+                            <span class="inline-flex items-center gap-xs px-3 py-1 rounded-full text-label-md font-bold {% if attempt.passed %}bg-primary/10 text-primary{% else %}bg-error/10 text-error{% endif %}">
+                                <span class="w-2 h-2 rounded-full {% if attempt.passed %}bg-primary{% else %}bg-error{% endif %}"></span>
+                                {% if attempt.passed %}PASSED{% else %}FAILED{% endif %}
+                            </span>
+                        </td>
+
+                        <!-- Action -->
+                        <td class="px-lg py-lg text-right">
+                            <a href="{{ url_for('instructor.grade_submission', attempt_id=attempt.id) }}" class="inline-block bg-primary text-white px-md py-1.5 rounded hover:bg-primary-container font-bold text-xs shadow-md transition-all active:scale-95">
+                                Review Grade
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-lg py-lg text-center text-body-md text-on-surface-variant">
+                            No student quiz attempts have been recorded for your tracks yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Assignments File Uploads Content -->
+        <div x-show="activeTab === 'assignments'" class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-low/30 border-b border-outline-variant/10">
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider">Student</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider">Assignment Details</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider">Submitted Date</th>
+                        <th class="px-lg py-md text-label-sm font-label-lg text-secondary uppercase tracking-wider text-right">File Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10">
+                    {% for sub in file_submissions %}
+                    <tr class="hover:bg-surface transition-colors">
+                        <!-- Student -->
+                        <td class="px-lg py-lg">
+                            <div class="flex items-center gap-md">
+                                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center font-bold text-purple-700 shrink-0 border border-purple-200">
+                                    {{ sub.student.name[:2].upper() }}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-on-surface leading-tight text-body-md">{{ sub.student.name }}</h4>
+                                    <span class="text-[10px] text-outline-variant uppercase font-mono">{{ sub.student.email }}</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Assignment details -->
+                        <td class="px-lg py-lg">
+                            <div>
+                                <h4 class="font-bold text-on-surface leading-tight">{{ sub.lesson.title }}</h4>
+                                <span class="text-[10px] text-outline-variant uppercase">{{ sub.lesson.course.title }}</span>
+                            </div>
+                        </td>
+
+                        <!-- Submitted date -->
+                        <td class="px-lg py-lg text-body-sm text-secondary">
+                            {{ sub.submitted_at.strftime('%b %d, %Y %I:%M %p') }}
+                        </td>
+
+                        <!-- Action -->
+                        <td class="px-lg py-lg text-right">
+                            <a href="{{ sub.file_url }}" download class="inline-flex items-center gap-1 bg-[#0054cb] text-white px-4 py-2 rounded-xl hover:bg-[#0040a0] font-bold text-xs shadow-md transition-all active:scale-95">
+                                <span class="material-symbols-outlined text-sm">download</span> Download File
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="px-lg py-lg text-center text-body-md text-on-surface-variant">
+                            No student assignment file submissions found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<script>
+let currentStatusFilter = 'all';
+
+function filterSubmissions(statusState) {
+    if (statusState !== undefined) {
+        currentStatusFilter = statusState;
+    }
+    const query = document.getElementById('submissions-search').value.toLowerCase();
+    const rows = document.querySelectorAll('.submission-row');
+    
+    rows.forEach(row => {
+        const student = row.getAttribute('data-student').toLowerCase();
+        const status = row.getAttribute('data-status');
+        
+        const matchesQuery = student.includes(query);
+        const matchesFilter = currentStatusFilter === 'all' || status === currentStatusFilter;
+        
+        if (matchesQuery && matchesFilter) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

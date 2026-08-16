@@ -1,0 +1,69 @@
+{% extends "layouts/superadmin.html" %}
+
+{% block title %}Automated AI Content Moderation Queue | Titan LMS{% endblock %}
+
+{% block admin_content %}
+<div class="p-lg md:p-xl max-w-container-max mx-auto space-y-lg">
+    <!-- Header with Red Alert Pulse Badge -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-950 p-xl rounded-3xl border-2 border-blue-400/40 shadow-2xl shadow-blue-900/30 text-white flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div class="flex items-center gap-md">
+            <div class="w-14 h-14 rounded-2xl bg-white/15 border border-white/30 text-white flex items-center justify-center font-bold shrink-0 shadow-lg backdrop-blur-md">
+                <span class="material-symbols-outlined text-3xl animate-pulse">gavel</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-headline-md font-extrabold tracking-tight">AI Content Moderation & Policy Guard</h1>
+                    <span class="px-3 py-1 bg-white/20 text-white border border-white/30 text-xs font-bold rounded-full uppercase flex items-center gap-1 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-blue-300 animate-ping"></span> Policy Guard v3.0
+                    </span>
+                </div>
+                <p class="text-body-sm text-blue-100 mt-1">Review AI-flagged comments, forum posts, and course reviews with sentiment and toxicity metrics.</p>
+            </div>
+        </div>
+
+        <button onclick="alert('Bulk approving low-risk content items...')" class="bg-white text-blue-900 hover:bg-blue-50 font-extrabold px-5 py-2.5 rounded-xl shadow-lg hover:scale-105 transition-all text-xs flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">done_all</span> Batch Approve Low Risk
+        </button>
+    </div>
+
+    <!-- Flagged Queue List -->
+    <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-md">
+        <h3 class="text-headline-sm font-bold text-on-surface">AI Toxicity & Safety Review Queue</h3>
+        <div class="space-y-md">
+            {% for item in items %}
+            <div class="p-lg bg-surface-container-low rounded-2xl border-2 border-outline-variant/20 flex flex-col md:flex-row md:items-center justify-between gap-md shadow-sm hover:shadow-md transition-shadow">
+                <div class="space-y-2 flex-1">
+                    <div class="flex flex-wrap items-center gap-sm">
+                        <span class="px-3 py-1 bg-red-500/10 text-red-600 text-xs font-bold uppercase rounded-full border border-red-500/20 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">warning</span> {{ item.flag_reason }}
+                        </span>
+                        <span class="text-xs font-bold text-outline uppercase">{{ item.content_type }}</span>
+                        <span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-mono font-bold rounded">Toxicity Metric: 92%</span>
+                    </div>
+                    <p class="text-body-md font-bold text-on-surface bg-white p-md rounded-xl border border-gray-200 shadow-inner">"{{ item.text_preview }}"</p>
+                    <p class="text-xs text-outline">Status: <span class="font-bold text-on-surface uppercase">{{ item.status }}</span></p>
+                </div>
+                {% if item.status == 'pending' %}
+                <div class="flex items-center gap-sm shrink-0">
+                    <form method="POST" class="inline">
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        <input type="hidden" name="action" value="approve">
+                        <button type="submit" class="px-4 py-2.5 bg-emerald-600 text-white font-bold text-xs rounded-xl hover:shadow-lg hover:scale-105 transition-all">Approve Content</button>
+                    </form>
+                    <form method="POST" class="inline">
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        <input type="hidden" name="action" value="remove">
+                        <button type="submit" class="px-4 py-2.5 bg-red-600 text-white font-bold text-xs rounded-xl hover:shadow-lg hover:scale-105 transition-all">Purge Content</button>
+                    </form>
+                </div>
+                {% else %}
+                <span class="px-3 py-1 bg-gray-200 text-gray-700 font-bold text-xs rounded-full uppercase shrink-0">{{ item.status }}</span>
+                {% endif %}
+            </div>
+            {% else %}
+            <p class="text-body-md text-on-surface-variant text-center py-xl">No items in the moderation queue.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

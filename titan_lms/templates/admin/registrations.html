@@ -1,0 +1,130 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Student Applications & Approvals | Titan LMS{% endblock %}
+
+{% block admin_content %}
+<div class="p-lg md:p-xl space-y-xl max-w-container-max mx-auto">
+    
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-xl">
+        <div>
+            <h1 class="text-display-lg font-display-lg text-on-surface mb-xs font-bold">Student Applications Management</h1>
+            <p class="text-body-lg text-on-surface-variant">Review pending registration requests, inspect profile pictures & credentials, and approve student login accounts.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="px-4 py-2 bg-amber-500/10 text-amber-600 font-extrabold text-xs rounded-full border border-amber-500/20">
+                ⏳ {{ pending|length }} Pending Approval
+            </span>
+            <span class="px-4 py-2 bg-emerald-500/10 text-emerald-600 font-extrabold text-xs rounded-full border border-emerald-500/20">
+                ✅ {{ approved|length }} Approved
+            </span>
+        </div>
+    </div>
+
+    <!-- Pending Applications Table -->
+    <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/10 overflow-hidden">
+        <div class="p-6 border-b border-outline-variant/10 flex items-center justify-between">
+            <h2 class="text-title-lg font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">pending_actions</span>
+                <span>Pending Approval Requests</span>
+            </h2>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container/40 text-on-surface-variant text-xs font-bold uppercase tracking-wider border-b border-outline-variant/10">
+                        <th class="p-4">Student</th>
+                        <th class="p-4">Course & Campus</th>
+                        <th class="p-4">Father Name & CNIC</th>
+                        <th class="p-4">Contact Info</th>
+                        <th class="p-4">Applied Date</th>
+                        <th class="p-4 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10 text-sm">
+                    {% if pending %}
+                        {% for r in pending %}
+                        <tr class="hover:bg-surface-container/20 transition-colors">
+                            <td class="p-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ r.avatar_url or '/static/logo.png' }}" alt="{{ r.full_name }}" class="w-12 h-12 rounded-full object-cover border-2 border-primary/20 shrink-0">
+                                    <div>
+                                        <div class="font-bold text-on-surface">{{ r.full_name }}</div>
+                                        <div class="text-xs text-primary font-semibold">{{ r.email }}</div>
+                                        <div class="text-[11px] text-slate-500 font-medium">Gender: {{ r.gender }} • DOB: {{ r.dob }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4">
+                                <div class="font-semibold text-on-surface">{{ r.course_name }}</div>
+                                <div class="text-xs text-slate-500 font-medium">🏫 {{ r.campus_name }}</div>
+                                <div class="text-[11px] text-amber-600 font-bold mt-0.5">Mode: {{ r.class_preference }}</div>
+                            </td>
+                            <td class="p-4 text-xs font-semibold text-slate-700">
+                                <div>Father: <strong class="text-slate-900">{{ r.father_name }}</strong></div>
+                                <div>Student CNIC: <span class="font-mono text-slate-900">{{ r.id_number }}</span></div>
+                                <div>Father CNIC: <span class="font-mono text-slate-500">{{ r.father_id_number }}</span></div>
+                            </td>
+                            <td class="p-4 text-xs font-medium text-slate-600">
+                                <div>📞 {{ r.phone }}</div>
+                                <div>👨‍👦 Father Phone: {{ r.father_phone }}</div>
+                                <div class="text-[11px] text-slate-500 truncate max-w-xs">📍 {{ r.address }}</div>
+                            </td>
+                            <td class="p-4 text-xs font-medium text-slate-500">
+                                {{ r.created_at.strftime('%b %d, %Y') }}
+                            </td>
+                            <td class="p-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <form action="{{ url_for('admin.approve_registration', reg_id=r.id) }}" method="POST">
+                                        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-sm">check_circle</span> Approve & Create Login
+                                        </button>
+                                    </form>
+                                    <form action="{{ url_for('admin.reject_registration', reg_id=r.id) }}" method="POST">
+                                        <button type="submit" onclick="return confirm('Reject this student application?')" class="px-3 py-2 bg-rose-100 text-rose-700 hover:bg-rose-200 font-bold text-xs rounded-xl transition-all">
+                                            Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-slate-400 font-medium">
+                                No pending student applications right now.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Approved Students Log -->
+    {% if approved %}
+    <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/10 overflow-hidden">
+        <div class="p-6 border-b border-outline-variant/10">
+            <h2 class="text-title-md font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-emerald-600">verified</span>
+                <span>Approved Active Students</span>
+            </h2>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for a in approved %}
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-3">
+                <img src="{{ a.avatar_url or '/static/logo.png' }}" class="w-10 h-10 rounded-full object-cover border border-emerald-500">
+                <div class="text-xs">
+                    <div class="font-bold text-slate-900">{{ a.full_name }}</div>
+                    <div class="text-slate-500 font-mono">{{ a.email }}</div>
+                    <div class="text-[#0054cb] font-semibold text-[11px]">{{ a.course_name }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

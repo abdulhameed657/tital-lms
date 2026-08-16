@@ -1,0 +1,376 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Student Profile Settings | Titan LMS{% endblock %}
+
+{% block student_content %}
+<div class="smit-enroll-page py-8 px-4 sm:px-6 lg:px-8 bg-slate-50/50 min-h-screen">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header Page Title -->
+    <div class="flex items-center justify-between pb-6 border-b border-slate-200 mb-8">
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight" style="font-family:'Montserrat',sans-serif;">
+          Profile <span class="text-primary">Settings</span>
+        </h1>
+        <p class="text-slate-500 text-sm font-semibold mt-1">Update and manage all personal, contact, and academic details provided during enrollment.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="{{ url_for('student.dashboard') }}" class="w-10 h-10 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition-colors flex items-center justify-center shrink-0" title="Back to Dashboard">
+          <span class="material-symbols-outlined text-xl">dashboard</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Two-Column Panel -->
+    <form action="{{ url_for('student.profile') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column: Avatar & Summary Box -->
+      <div class="space-y-6 lg:col-span-1">
+        <div class="bg-white rounded-3xl border border-slate-200/60 shadow-lg p-6 flex flex-col items-center text-center">
+          
+          <span class="text-xs font-black uppercase bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full mb-6">
+            Student Profile
+          </span>
+
+          <!-- Profile Picture File Upload Box -->
+          <div class="relative group cursor-pointer mb-4">
+            <div class="w-32 h-32 rounded-3xl overflow-hidden border-4 border-primary-container shadow-md bg-slate-100 flex items-center justify-center relative">
+              <img id="avatar_img_preview" class="w-full h-full object-cover" 
+                   src="{{ reg.avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}" 
+                   alt="Profile Photo">
+              <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <span class="material-symbols-outlined text-2xl">photo_camera</span>
+              </div>
+            </div>
+            <!-- File Input overlay -->
+            <input type="file" id="avatar_input" name="avatar" accept="image/*" onchange="previewProfileAvatar(this)" 
+                   class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+          </div>
+          
+          <h2 class="font-extrabold text-slate-800 text-lg" style="font-family:'Montserrat',sans-serif;">{{ current_user.name }}</h2>
+          <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-4">Roll Number: {{ current_user.get_roll_number() }}</p>
+          
+          <!-- Summary Metrics Cards -->
+          <div class="w-full border-t border-slate-100 pt-4 grid grid-cols-2 gap-4">
+            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+              <p class="text-2xl font-black text-primary">{{ current_user.points }}</p>
+              <p class="text-[9px] uppercase tracking-wider font-extrabold text-slate-400">Total Points</p>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+              <p class="text-2xl font-black text-amber-500">🔥 {{ current_user.streak }}</p>
+              <p class="text-[9px] uppercase tracking-wider font-extrabold text-slate-400">Daily Streak</p>
+            </div>
+          </div>
+
+          <div class="w-full mt-4 p-3.5 bg-emerald-50 rounded-2xl border border-emerald-100 text-left">
+            <div class="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+              <span class="material-symbols-outlined text-sm">verified_user</span> Verified Enrollment
+            </div>
+            <p class="text-[10px] text-emerald-600/80 font-semibold mt-1">Approved academic profile is synced with core database registration.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Registration Edit Forms -->
+      <div class="lg:col-span-2 space-y-8">
+        
+        <!-- CARD SECTION 1: Personal Profile details -->
+        <div class="bg-white rounded-3xl border border-slate-200/60 shadow-lg p-6 md:p-8 space-y-6">
+          <div class="smit-section-title">
+            <span class="material-symbols-outlined text-primary text-xl">assignment_ind</span>
+            <span>Personal Information</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Full Name -->
+            <div>
+              <label class="smit-label">Full Name<span class="req">*</span></label>
+              <input type="text" name="full_name" required value="{{ reg.full_name }}" class="smit-input" placeholder="e.g. Muhammad Ali">
+            </div>
+
+            <!-- Father Name -->
+            <div>
+              <label class="smit-label">Father's Name<span class="req">*</span></label>
+              <input type="text" name="father_name" required value="{{ reg.father_name }}" class="smit-input" placeholder="e.g. Muhammad Aslam">
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label class="smit-label">Academic Email<span class="req">*</span></label>
+              <input type="email" name="email" required value="{{ reg.email }}" class="smit-input" placeholder="e.g. ali@titan.edu">
+            </div>
+
+            <!-- Date of Birth -->
+            <div>
+              <label class="smit-label">Date of Birth<span class="req">*</span></label>
+              <input type="date" name="dob" required value="{{ reg.dob }}" class="smit-input">
+            </div>
+
+            <!-- Gender -->
+            <div>
+              <label class="smit-label">Gender<span class="req">*</span></label>
+              <select name="gender" required class="smit-input">
+                <option value="Male" {% if reg.gender == 'Male' %}selected{% endif %}>Male</option>
+                <option value="Female" {% if reg.gender == 'Female' %}selected{% endif %}>Female</option>
+                <option value="Other" {% if reg.gender == 'Other' %}selected{% endif %}>Other</option>
+              </select>
+            </div>
+
+            <!-- CNIC / B-Form ID -->
+            <div>
+              <label class="smit-label">Student CNIC / B-Form<span class="req">*</span></label>
+              <input type="text" name="id_number" required value="{{ reg.id_number }}" class="smit-input" placeholder="e.g. 42101-1234567-9">
+            </div>
+
+            <!-- Current Password -->
+            <div>
+              <label class="smit-label">Current Password</label>
+              <input type="password" name="current_password" class="smit-input" placeholder="Required to change password">
+            </div>
+
+            <!-- New Password -->
+            <div>
+              <label class="smit-label">New Password</label>
+              <input type="password" name="new_password" class="smit-input" placeholder="Leave blank to keep current">
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD SECTION 2: Location & Contact details -->
+        <div class="bg-white rounded-3xl border border-slate-200/60 shadow-lg p-6 md:p-8 space-y-6">
+          <div class="smit-section-title">
+            <span class="material-symbols-outlined text-primary text-xl">contact_phone</span>
+            <span>Contact & Location Details</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Student Phone -->
+            <div>
+              <label class="smit-label">Mobile Number<span class="req">*</span></label>
+              <input type="tel" name="phone" required value="{{ reg.phone }}" class="smit-input" placeholder="e.g. 0300-1234567">
+            </div>
+
+            <!-- Father Phone -->
+            <div>
+              <label class="smit-label">Father's Mobile Number<span class="req">*</span></label>
+              <input type="tel" name="father_phone" required value="{{ reg.father_phone }}" class="smit-input" placeholder="e.g. 0300-7654321">
+            </div>
+
+            <!-- Father CNIC -->
+            <div>
+              <label class="smit-label">Father's CNIC<span class="req">*</span></label>
+              <input type="text" name="father_id_number" required value="{{ reg.father_id_number }}" class="smit-input" placeholder="e.g. 42101-9876543-2">
+            </div>
+
+            <!-- City -->
+            <div>
+              <label class="smit-label">City<span class="req">*</span></label>
+              <input type="text" name="city" required value="{{ reg.city }}" class="smit-input" placeholder="e.g. Karachi">
+            </div>
+
+            <!-- Country (Hidden or read-only/disabled) -->
+            <input type="hidden" name="country" value="{{ reg.country or 'Pakistan' }}">
+
+            <!-- Address -->
+            <div class="sm:col-span-2">
+              <label class="smit-label">Permanent Home Address<span class="req">*</span></label>
+              <textarea name="address" required rows="3" class="smit-input min-h-[90px] w-full" placeholder="e.g. House No. 123, Street 5, Gulshan-e-Iqbal, Block 4">{{ reg.address }}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD SECTION 3: Academics & Preferences -->
+        <div class="bg-white rounded-3xl border border-slate-200/60 shadow-lg p-6 md:p-8 space-y-6">
+          <div class="smit-section-title">
+            <span class="material-symbols-outlined text-primary text-xl">school</span>
+            <span>Academic Profile & Preferences</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Selected Enrolled Course -->
+            <div>
+              <label class="smit-label">Enrolled Course Selection<span class="req">*</span></label>
+              <select name="course_name" required class="smit-input">
+                {% for course in courses %}
+                <option value="{{ course.title }}" {% if reg.course_name == course.title %}selected{% endif %}>{{ course.title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Selected Campus -->
+            <div>
+              <label class="smit-label">Titan Campus Node Location<span class="req">*</span></label>
+              <select name="campus_name" required class="smit-input">
+                {% for campus in campuses %}
+                <option value="{{ campus.name }}" {% if reg.campus_name == campus.name %}selected{% endif %}>{{ campus.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- Class Preference -->
+            <div>
+              <label class="smit-label">Class Preference Mode<span class="req">*</span></label>
+              <select name="class_preference" required class="smit-input">
+                <option value="On-Campus" {% if reg.class_preference == 'On-Campus' %}selected{% endif %}>On-Campus (Physical Labs)</option>
+                <option value="Online" {% if reg.class_preference == 'Online' %}selected{% endif %}>Online (Virtual Portal)</option>
+              </select>
+            </div>
+
+            <!-- Computer Proficiency -->
+            <div>
+              <label class="smit-label">Computer Skill Level<span class="req">*</span></label>
+              <select name="computer_proficiency" required class="smit-input">
+                <option value="Beginner" {% if reg.computer_proficiency == 'Beginner' %}selected{% endif %}>Beginner</option>
+                <option value="Intermediate" {% if reg.computer_proficiency == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+                <option value="Advanced" {% if reg.computer_proficiency == 'Advanced' %}selected{% endif %}>Advanced</option>
+              </select>
+            </div>
+
+            <!-- Last Qualification -->
+            <div>
+              <label class="smit-label">Last Qualification Degree<span class="req">*</span></label>
+              <select name="last_qualification" required class="smit-input">
+                <option value="Matric / O-Levels" {% if reg.last_qualification == 'Matric / O-Levels' %}selected{% endif %}>Matric / O-Levels</option>
+                <option value="Intermediate / A-Levels" {% if reg.last_qualification == 'Intermediate / A-Levels' %}selected{% endif %}>Intermediate / A-Levels</option>
+                <option value="Undergraduate Degree (BS/BSc)" {% if reg.last_qualification == 'Undergraduate Degree (BS/BSc)' %}selected{% endif %}>Undergraduate Degree (BS/BSc)</option>
+                <option value="Master's / Doctorate" {% if reg.last_qualification == "Master's / Doctorate" %}selected{% endif %}>Master's / Doctorate</option>
+              </select>
+            </div>
+
+            <!-- Heard From -->
+            <div>
+              <label class="smit-label">Where did you hear about Titan?<span class="req">*</span></label>
+              <select name="heard_from" required class="smit-input">
+                <option value="Social Media" {% if reg.heard_from == 'Social Media' %}selected{% endif %}>Social Media</option>
+                <option value="Friend/Alumni" {% if reg.heard_from == 'Friend/Alumni' %}selected{% endif %}>Friend / Alumni Recommendation</option>
+                <option value="Google Search" {% if reg.heard_from == 'Google Search' %}selected{% endif %}>Google Search</option>
+                <option value="Banner" {% if reg.heard_from == 'Banner' %}selected{% endif %}>Campus Banner</option>
+              </select>
+            </div>
+
+            <!-- Laptop Ownership -->
+            <div class="sm:col-span-2">
+              <label class="smit-label">Do you possess a personal Laptop for academic practice?<span class="req">*</span></label>
+              <div class="flex items-center gap-6 pt-2">
+                <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
+                  <input type="radio" name="has_laptop" value="Yes" {% if reg.has_laptop == 'Yes' %}checked{% endif %} class="w-4 h-4 accent-[#0B73B7]">
+                  <span>Yes, I have one.</span>
+                </label>
+                <label class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
+                  <input type="radio" name="has_laptop" value="No" {% if reg.has_laptop == 'No' %}checked{% endif %} class="w-4 h-4 accent-[#0B73B7]">
+                  <span>No, I do not possess a laptop.</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit & Save Actions Button -->
+        <div class="flex justify-end pt-4">
+          <button type="submit" class="px-8 py-4 bg-primary hover:bg-primary-container text-white text-base font-extrabold rounded-2xl shadow-xl shadow-primary/20 hover:shadow-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-xl">save</span>
+            <span>Save Profile Settings</span>
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  /* ── Exact SMIT Input Box Styling with high specificity to override Tailwind Forms ── */
+  .smit-enroll-page {
+    font-family: "Montserrat", system-ui, -apple-system, sans-serif;
+  }
+  
+  .smit-enroll-page .smit-input {
+    width: 100% !important;
+    border-radius: 0.75rem !important;
+    border: 2px solid #e2e8f0 !important;
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    font-family: "Montserrat", system-ui, sans-serif !important;
+    transition: all 0.3s ease !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+  }
+
+  /* Single-line inputs & dropdowns */
+  .smit-enroll-page input.smit-input,
+  .smit-enroll-page select.smit-input {
+    height: 3.25rem !important;
+    padding: 0 1rem !important;
+  }
+
+  /* Select dropdown custom arrow */
+  .smit-enroll-page select.smit-input {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-position: right 1rem center !important;
+    background-repeat: no-repeat !important;
+    background-size: 1.25rem !important;
+    padding-right: 2.5rem !important;
+  }
+
+  /* Textarea vertical padding */
+  .smit-enroll-page textarea.smit-input {
+    padding: 0.875rem 1rem !important;
+  }
+
+  .smit-enroll-page .smit-input:hover {
+    border-color: #cbd5e1 !important;
+  }
+
+  .smit-enroll-page .smit-input:focus {
+    border-color: #0054cb !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 4px rgba(0, 84, 203, 0.08) !important;
+  }
+
+  /* ── Section Title ── */
+  .smit-section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1.5px solid #f1f5f9;
+    padding-bottom: 0.75rem;
+  }
+
+  /* ── Labels ── */
+  .smit-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    tracking-wider: 0.05em;
+    font-family: "Montserrat", system-ui, sans-serif;
+  }
+
+  .smit-label .req {
+    color: #0054cb;
+    margin-left: 2px;
+  }
+</style>
+
+<script>
+  function previewProfileAvatar(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById('avatar_img_preview').src = e.target.result;
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
+{% endblock %}

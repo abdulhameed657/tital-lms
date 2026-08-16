@@ -1,0 +1,124 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Create New Course | Instructor Portal{% endblock %}
+
+{% block instructor_content %}
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-xl">
+    <!-- Wizard Header -->
+    <div class="mb-xl slide-from-top">
+        <h1 class="text-headline-lg font-headline-lg text-on-surface mb-xs font-bold">Create New Course</h1>
+        <p class="text-on-surface-variant text-body-md font-body-md">Empower your students by sharing your academic expertise with interactive modules.</p>
+    </div>
+
+    <!-- Form Container -->
+    <form action="{{ url_for('instructor.create_course') }}" method="POST">
+        <!-- Bento Layout Form -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+            <!-- Left: Main Form Fields -->
+            <div class="lg:col-span-8 space-y-gutter slide-from-left">
+                <!-- Section: Basic Info -->
+                <div class="bg-surface-container-lowest rounded-2xl p-xl shadow-xl border border-outline-variant/20 space-y-lg">
+                    <h2 class="text-headline-sm font-headline-sm text-on-surface font-bold flex items-center gap-sm">
+                        <span class="material-symbols-outlined text-primary">info</span>
+                        General Course Information
+                    </h2>
+                    
+                    <div class="space-y-md">
+                        <div>
+                            <label class="block text-label-lg font-bold text-on-surface mb-xs">Course Title</label>
+                            <input name="title" id="course-title" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-md focus:outline-none focus:border-primary" placeholder="e.g. Advanced Applied Network Security & Cloud Clusters" type="text">
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+                            <!-- Category with Custom Input option -->
+                            <div>
+                                <div class="flex justify-between items-center mb-xs">
+                                    <label class="block text-label-lg font-bold text-on-surface">Category</label>
+                                    <button type="button" onclick="toggleCustomCategory()" class="text-[11px] text-primary font-bold hover:underline">+ New Category</button>
+                                </div>
+                                <select name="category" id="category-select" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-md cursor-pointer focus:outline-none focus:border-primary">
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Network Engineering">Network Engineering</option>
+                                    <option value="Cyber Security">Cyber Security</option>
+                                    <option value="Cloud Architecture">Cloud Architecture</option>
+                                    <option value="Full Stack Development">Full Stack Development</option>
+                                    <option value="General Education">General Education</option>
+                                </select>
+                                <input name="custom_category" id="category-custom-input" placeholder="Type custom category name..." class="hidden w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-md mt-2 focus:outline-none focus:border-primary">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-label-lg font-bold text-on-surface mb-xs">Difficulty Level</label>
+                                <select name="level" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-md cursor-pointer focus:outline-none focus:border-primary">
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate" selected>Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                    <option value="Expert">Expert</option>
+                                </select>
+                            </div>
+                            
+
+                        </div>
+                        
+                        <!-- Description with AI Generator button -->
+                        <div>
+                            <div class="flex justify-between items-center mb-xs">
+                                <label class="block text-label-lg font-bold text-on-surface">Course Description</label>
+                                <button type="button" onclick="generateAIDescription()" class="px-3 py-1 bg-primary/10 text-primary text-label-sm font-bold rounded-full hover:bg-primary hover:text-white transition-all flex items-center gap-1 active:scale-95">
+                                    <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                                    Generate AI Description
+                                </button>
+                            </div>
+                            <textarea name="description" id="course-description" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-md focus:outline-none focus:border-primary" placeholder="Provide a detailed overview of what students will learn..." rows="6"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:col-span-4 space-y-gutter slide-from-right">
+                <div class="bg-surface-container-lowest rounded-2xl p-xl shadow-xl border border-outline-variant/20 space-y-lg">
+                    <h2 class="text-headline-sm font-headline-sm text-on-surface font-bold flex items-center gap-sm">
+                        <span class="material-symbols-outlined text-primary">image</span>
+                        Thumbnail Image URL
+                    </h2>
+                    <div class="space-y-md">
+                        <input name="thumbnail" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-md focus:outline-none focus:border-primary" placeholder="https://images.unsplash.com/... (optional)" type="text">
+                        <p class="text-body-sm text-on-surface-variant">Recommended resolution: 1200x800 px.</p>
+                    </div>
+
+                    <button type="submit" class="w-full bg-primary text-white py-3.5 rounded-xl font-label-lg font-bold hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">publish</span>
+                        Publish Course
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+<script>
+    function toggleCustomCategory() {
+        const select = document.getElementById('category-select');
+        const customInput = document.getElementById('category-custom-input');
+        if (customInput.classList.contains('hidden')) {
+            customInput.classList.remove('hidden');
+            customInput.focus();
+        } else {
+            customInput.classList.add('hidden');
+        }
+    }
+
+    function generateAIDescription() {
+        const titleInput = document.getElementById('course-title').value.trim();
+        const categorySelect = document.getElementById('category-select').value;
+        const descTextarea = document.getElementById('course-description');
+
+        const title = titleInput || "Advanced Applied Engineering";
+        
+        descTextarea.value = `Welcome to '${title}', a comprehensive track in ${categorySelect} designed to equip learners with industry-ready skills.\n\nIn this course, students will master fundamental principles, hands-on lab exercises, micro-service architectures, and real-world deployment workflows. Includes interactive quizzes, certified projects, and 24/7 AI tutor guidance.`;
+        
+        alert('✨ AI Course Description generated successfully!');
+    }
+</script>
+{% endblock %}

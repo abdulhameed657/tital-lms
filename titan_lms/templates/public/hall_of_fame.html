@@ -1,0 +1,328 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}Titan LMS | Hall of Fame{% endblock %}
+
+{% block head %}
+<style>
+    .gold-glow {
+        box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+    }
+    .silver-glow {
+        box-shadow: 0 8px 25px rgba(192, 192, 192, 0.25);
+    }
+    .bronze-glow {
+        box-shadow: 0 8px 25px rgba(205, 127, 50, 0.25);
+    }
+    .streak-fire {
+        color: #ff5722;
+        animation: flicker 1.5s infinite alternate;
+    }
+    @keyframes flicker {
+        0% { opacity: 0.8; transform: scale(1); }
+        100% { opacity: 1; transform: scale(1.1); }
+    }
+</style>
+{% endblock %}
+
+{% block public_content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-10 space-y-14">
+    
+    <!-- ═════════════════════════ HEADER ═════════════════════════ -->
+    <header class="text-center space-y-3">
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0054cb]/10 border border-[#0054cb]/20 text-[#0054cb] text-xs font-bold uppercase tracking-widest">
+            🏆 Academic Excellence
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-black text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">The Academic Hall of Fame</h1>
+        <p class="text-sm md:text-base text-[#424654] max-w-2xl mx-auto font-medium">Celebrating elite scholars, top achievers, and verified graduates leading the future of technology.</p>
+    </header>
+
+    <!-- ═════════════════════════ 1. TOP ACHIEVERS PODIUM ═════════════════════════ -->
+    {% if podium and podium|length > 0 %}
+    <section class="space-y-6">
+        <div class="text-center">
+            <h2 class="text-2xl font-black text-[#1c1c17] flex items-center justify-center gap-2" style="font-family:'Montserrat',sans-serif;">
+                <span>🏆 Top Achievers</span>
+            </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end max-w-5xl mx-auto pt-8">
+            
+            <!-- 🥈 SILVER: 2nd Place -->
+            {% if podium|length > 1 %}
+            {% set p2 = podium[1] %}
+            <div class="bg-white rounded-3xl p-6 border-2 border-slate-300 silver-glow flex flex-col items-center text-center relative group hover:-translate-y-2 transition-all duration-300 order-2 md:order-1">
+                <div class="absolute -top-6 bg-slate-200 text-slate-800 text-xs font-black px-4 py-1 rounded-full border border-slate-300 shadow-md flex items-center gap-1">
+                    <span>🥈</span> #2 Rank
+                </div>
+                <div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-slate-400 to-slate-200 shadow-md mt-2 group-hover:scale-105 transition-transform">
+                    <img class="w-full h-full object-cover rounded-full" src="{{ p2.avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}" alt="{{ p2.name }}">
+                </div>
+                <h3 class="font-extrabold text-lg text-[#1c1c17] mt-3 line-clamp-1" style="font-family:'Montserrat',sans-serif;">{{ p2.name }}</h3>
+                <span class="text-[11px] font-bold text-[#0054cb] bg-[#0054cb]/10 px-3 py-0.5 rounded-full mt-1">Titan Scholar</span>
+                
+                <div class="grid grid-cols-3 gap-2 w-full mt-5 pt-4 border-t border-gray-100 text-center">
+                    <div>
+                        <span class="block font-black text-sm text-[#0054cb]">{{ p2.points }}</span>
+                        <span class="text-[10px] text-gray-500 font-bold uppercase">XP</span>
+                    </div>
+                    <div>
+                        <span class="block font-black text-sm text-orange-500">🔥 {{ p2.streak }}</span>
+                        <span class="text-[10px] text-gray-500 font-bold uppercase">Streak</span>
+                    </div>
+                    <div>
+                        <span class="block font-black text-sm text-gray-800">🎓 {{ p2.certificates|length }}</span>
+                        <span class="text-[10px] text-gray-500 font-bold uppercase">Certs</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 🥇 GOLD: 1st Place (Center - Elevated & Bigger) -->
+            {% if podium|length > 0 %}
+            {% set p1 = podium[0] %}
+            <div class="bg-gradient-to-b from-white via-amber-50/40 to-white rounded-3xl p-7 border-4 border-amber-400 gold-glow flex flex-col items-center text-center relative group hover:-translate-y-3 transition-all duration-300 order-1 md:order-2 md:-translate-y-4">
+                <div class="absolute -top-7 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 text-xs font-black px-5 py-1.5 rounded-full border border-amber-300 shadow-xl flex items-center gap-1.5 animate-bounce">
+                    <span>👑</span> 🥇 #1 Titan Champion
+                </div>
+                <div class="w-28 h-28 rounded-full p-1.5 bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 shadow-xl mt-3 group-hover:scale-110 transition-transform">
+                    <img class="w-full h-full object-cover rounded-full" src="{{ p1.avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}" alt="{{ p1.name }}">
+                </div>
+                <h3 class="font-black text-xl text-[#1c1c17] mt-3 line-clamp-1" style="font-family:'Montserrat',sans-serif;">{{ p1.name }}</h3>
+                <div class="flex items-center gap-1.5 mt-1">
+                    <span class="text-xs font-black text-amber-700 bg-amber-200/80 px-3.5 py-0.5 rounded-full">🏆 Top Scholar</span>
+                    <span class="text-[11px] font-bold text-emerald-600 flex items-center gap-0.5" title="Verified by Titan LMS">✓ Verified</span>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-2 w-full mt-6 pt-4 border-t border-amber-200/60 text-center bg-amber-50/50 p-3 rounded-2xl">
+                    <div>
+                        <span class="block font-black text-base text-[#0054cb]">{{ p1.points }}</span>
+                        <span class="text-[10px] text-gray-600 font-extrabold uppercase">XP Points</span>
+                    </div>
+                    <div>
+                        <span class="block font-black text-base text-orange-500">🔥 {{ p1.streak }}</span>
+                        <span class="text-[10px] text-gray-600 font-extrabold uppercase">Streak</span>
+                    </div>
+                    <div>
+                        <span class="block font-black text-base text-gray-900">🎓 {{ p1.certificates|length }}</span>
+                        <span class="text-[10px] text-gray-600 font-extrabold uppercase">Certs</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 🥉 BRONZE: 3rd Place -->
+            {% if podium|length > 2 %}
+            {% set p3 = podium[2] %}
+            <div class="bg-white rounded-3xl p-6 border-2 border-amber-700/40 bronze-glow flex flex-col items-center text-center relative group hover:-translate-y-2 transition-all duration-300 order-3">
+                <div class="absolute -top-6 bg-amber-100 text-amber-900 text-xs font-black px-4 py-1 rounded-full border border-amber-300 shadow-md flex items-center gap-1">
+                    <span>🥉</span> #3 Rank
+                </div>
+                <div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-amber-700 to-amber-400 shadow-md mt-2 group-hover:scale-105 transition-transform">
+                    <img class="w-full h-full object-cover rounded-full" src="{{ p3.avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}" alt="{{ p3.name }}">
+                </div>
+                <h3 class="font-extrabold text-lg text-[#1c1c17] mt-3 line-clamp-1" style="font-family:'Montserrat',sans-serif;">{{ p3.name }}</h3>
+                <span class="text-[11px] font-bold text-[#0054cb] bg-[#0054cb]/10 px-3 py-0.5 rounded-full mt-1">Titan Scholar</span>
+                
+                <div class="grid grid-cols-3 gap-2 w-full mt-5 pt-4 border-t border-gray-100 text-center">
+                    <div>
+                        <span class="block font-black text-sm text-[#0054cb]">{{ p3.points }}</span>
+                        <span class="text-[10px] text-gray-500 font-bold uppercase">XP</span>
+                    </div>
+                    <div>
+                        <span class="block font-black text-sm text-orange-500">🔥 {{ p3.streak }}</span>
+                        <span class="text-[10px] text-gray-500 font-bold uppercase">Streak</span>
+                    </div>
+                    <div>
+                        <span class="block font-black text-sm text-gray-800">🎓 {{ p3.certificates|length }}</span>
+                        <span class="text-[10px] text-gray-500 font-bold uppercase">Certs</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ═════════════════════════ 2. ACHIEVEMENT STATS BAR ═════════════════════════ -->
+    <section class="bg-gradient-to-r from-[#0054cb] via-[#0040a0] to-[#0a2540] rounded-3xl p-8 text-white shadow-xl">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-white/10">
+            <div class="space-y-1">
+                <span class="text-3xl md:text-4xl font-black text-amber-300">👨‍🎓 {{ "{:,}".format(stats.students_count) }}+</span>
+                <p class="text-xs font-bold text-blue-100 uppercase tracking-wider">Students Recognized</p>
+            </div>
+            <div class="space-y-1 pt-4 md:pt-0">
+                <span class="text-3xl md:text-4xl font-black text-amber-300">🏆 {{ "{:,}".format(stats.certs_count) }}</span>
+                <p class="text-xs font-bold text-blue-100 uppercase tracking-wider">Certificates Earned</p>
+            </div>
+            <div class="space-y-1 pt-4 md:pt-0">
+                <span class="text-3xl md:text-4xl font-black text-amber-300">🔥 {{ "{:,}".format(stats.streak_sum) }}</span>
+                <p class="text-xs font-bold text-blue-100 uppercase tracking-wider">Streak Days</p>
+            </div>
+            <div class="space-y-1 pt-4 md:pt-0">
+                <span class="text-3xl md:text-4xl font-black text-amber-300">📚 {{ "{:,}".format(stats.courses_completed) }}</span>
+                <p class="text-xs font-bold text-blue-100 uppercase tracking-wider">Courses Completed</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═════════════════════════ 3. CATEGORY FILTERS & SCHOLAR CARDS ═════════════════════════ -->
+    <section class="space-y-8">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-200 pb-4">
+            <h2 class="text-2xl font-black text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">🎖️ Recognized Scholars</h2>
+            
+            <!-- Category Filter Horizontal Pills -->
+            <div class="flex items-center gap-2 overflow-x-auto max-w-full pb-2 md:pb-0 scrollbar-none" id="categoryFilters">
+                <button onclick="filterCategory('all', this)" class="cat-pill active px-4 py-2 rounded-full text-xs font-bold bg-[#0054cb] text-white transition-all shadow-sm">All Achievers</button>
+                <button onclick="filterCategory('xp', this)" class="cat-pill px-4 py-2 rounded-full text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Top XP</button>
+                <button onclick="filterCategory('streak', this)" class="cat-pill px-4 py-2 rounded-full text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Longest Streak</button>
+                <button onclick="filterCategory('certs', this)" class="cat-pill px-4 py-2 rounded-full text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Most Certificates</button>
+            </div>
+        </div>
+
+        <!-- Scholar Cards Grid (Exact Mockup Chamfer Cut Corner & Gradient Wrap Shape) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="scholarGrid">
+            {% for student in students %}
+            <div class="scholar-card p-[3px] pl-2.5 bg-gradient-to-b from-[#0054cb] via-[#0040a0] to-[#0a2540] rounded-tl-[28px] rounded-bl-[28px] rounded-br-[28px] rounded-tr-[75px] shadow-xl group hover:-translate-y-2 transition-all duration-300 relative flex flex-col justify-between"
+                 data-xp="{{ student.points }}" data-streak="{{ student.streak }}" data-certs="{{ student.certificates|length }}">
+                
+                <div class="w-full bg-white p-6 rounded-tl-[24px] rounded-bl-[24px] rounded-br-[24px] rounded-tr-[70px] flex flex-col justify-between h-full">
+                    <!-- Rank Badge -->
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-[#0054cb]/10 text-[#0054cb] font-black text-xs px-3 py-1 rounded-full">
+                            #{{ "%02d"|format(loop.index) }} Rank
+                        </span>
+                        <!-- Verified Scholar Badge with Tooltip -->
+                        <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full cursor-help group/tooltip"
+                              title="Verified by Titan LMS • Achievement verified on Aug 2026">
+                            <span class="material-symbols-outlined text-sm">verified</span>
+                            <span>Verified Scholar</span>
+                        </span>
+                    </div>
+
+                    <!-- User Info -->
+                    <div class="space-y-3 flex-1">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-[#0054cb] via-[#a88924] to-[#cba72f] shadow-md group-hover:scale-105 transition-transform mb-2">
+                                <img class="w-full h-full object-cover rounded-full" src="{{ student.avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}" alt="{{ student.name }}">
+                            </div>
+                            <h3 class="font-extrabold text-lg text-[#1c1c17] leading-snug group-hover:text-[#0054cb] transition-colors" style="font-family:'Montserrat',sans-serif;">{{ student.name }}</h3>
+                            <p class="text-xs font-bold text-[#0054cb] uppercase tracking-wider mt-0.5">ELITE SCHOLAR</p>
+                            <div class="w-8 h-[2.5px] bg-[#0054cb] rounded-full my-2 opacity-80"></div>
+                        </div>
+
+                        <!-- Clean Bio (Privacy Enforced) -->
+                        <p class="text-xs text-gray-600 font-medium leading-relaxed line-clamp-2 text-center">
+                            {{ student.display_bio }}
+                        </p>
+
+                        <!-- Top Skill Badges -->
+                        <div class="flex flex-wrap justify-center gap-1.5 pt-1">
+                            <span class="text-[10px] font-bold bg-blue-50 text-[#0054cb] px-2.5 py-0.5 rounded-md">Python</span>
+                            <span class="text-[10px] font-bold bg-amber-50 text-amber-700 px-2.5 py-0.5 rounded-md">Web Development</span>
+                            <span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-md">Backend</span>
+                        </div>
+                    </div>
+
+                    <!-- Stat Badges & Footer Action -->
+                    <div class="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3 text-xs font-black">
+                            <span class="text-[#0054cb]">{{ student.points }} XP</span>
+                            <span class="text-orange-500">🔥 {{ student.streak }}</span>
+                            <span class="text-gray-700">🎓 {{ student.certificates|length }}</span>
+                        </div>
+
+                        <a href="{{ url_for('public.portfolio', user_id=student.id) }}" 
+                           class="text-xs font-black text-[#0054cb] hover:text-[#0040a0] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                            <span>View Profile</span>
+                            <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ═════════════════════════ 7. THIS MONTH'S RISING STARS ═════════════════════════ -->
+    <section class="space-y-6">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🚀</span>
+            <div>
+                <h2 class="text-2xl font-black text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">This Month's Rising Stars</h2>
+                <p class="text-xs text-gray-500 font-medium">Students making extraordinary progress in the last 30 days.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {% for star in rising_stars %}
+            <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-md flex items-center gap-4 hover:border-amber-400 transition-all">
+                <div class="w-14 h-14 rounded-full overflow-hidden p-0.5 bg-gradient-to-tr from-amber-400 to-yellow-300 shrink-0">
+                    <img src="{{ star.avatar_url }}" alt="{{ star.name }}" class="w-full h-full object-cover rounded-full">
+                </div>
+                <div class="space-y-1">
+                    <h4 class="font-extrabold text-base text-[#1c1c17]">{{ star.name }}</h4>
+                    <p class="text-xs font-bold text-emerald-600">{{ star.xp_gain }}</p>
+                    <span class="inline-block text-[10px] font-black text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">{{ star.rank_jump }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ═════════════════════════ 8. ACHIEVEMENT WALL ═════════════════════════ -->
+    <section class="space-y-6">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🎯</span>
+            <div>
+                <h2 class="text-2xl font-black text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">Recent Achievements Wall</h2>
+                <p class="text-xs text-gray-500 font-medium">Live stream of academic milestones and certifications unlocked.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for item in recent_achievements %}
+            <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm flex items-center justify-between hover:bg-blue-50/50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center font-bold">
+                        <span class="material-symbols-outlined text-xl {{ item.color }}">{{ item.icon }}</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-[#1c1c17]">{{ item.title }}</h4>
+                        <p class="text-xs text-gray-500">Unlocked by <strong class="text-gray-800">{{ item.user }}</strong></p>
+                    </div>
+                </div>
+                <span class="text-[11px] font-semibold text-gray-400">{{ item.time }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+</div>
+
+<script>
+function filterCategory(category, btn) {
+  // Toggle pill active styling
+  document.querySelectorAll('#categoryFilters .cat-pill').forEach(b => {
+    b.classList.remove('bg-[#0054cb]', 'text-white');
+    b.classList.add('bg-gray-100', 'text-gray-700');
+  });
+  btn.classList.remove('bg-gray-100', 'text-gray-700');
+  btn.classList.add('bg-[#0054cb]', 'text-white');
+
+  const cards = Array.from(document.querySelectorAll('#scholarGrid .scholar-card'));
+  
+  if (category === 'xp') {
+    cards.sort((a, b) => parseInt(b.dataset.xp) - parseInt(a.dataset.xp));
+  } else if (category === 'streak') {
+    cards.sort((a, b) => parseInt(b.dataset.streak) - parseInt(a.dataset.streak));
+  } else if (category === 'certs') {
+    cards.sort((a, b) => parseInt(b.dataset.certs) - parseInt(a.dataset.certs));
+  }
+
+  const container = document.getElementById('scholarGrid');
+  cards.forEach(card => container.appendChild(card));
+}
+</script>
+{% endblock %}

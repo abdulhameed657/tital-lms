@@ -1,0 +1,153 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Create New Course | Admin Panel{% endblock %}
+
+{% block admin_content %}
+<main class="max-w-6xl mx-auto px-4 py-8 space-y-8 pb-12">
+    <!-- Header Banner -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+        <div class="space-y-1">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#0054cb] text-xs font-bold uppercase tracking-wider">
+                <span class="w-2 h-2 rounded-full bg-[#0054cb]"></span>
+                <span>Curriculum Builder</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-black text-[#1c1c17] tracking-tight" style="font-family:'Montserrat',sans-serif;">
+                Create New Course
+            </h1>
+            <p class="text-xs md:text-sm text-gray-500 font-medium">
+                Initialize a course curriculum shell, assign an instructor, and publish it for students.
+            </p>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <form action="{{ url_for('admin.create_course') }}" method="POST">
+        <!-- Bento Layout Form -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left: Main Form Fields -->
+            <div class="lg:col-span-8 space-y-8">
+                <!-- Section: Basic Info -->
+                <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200/80 space-y-6">
+                    <h2 class="text-lg font-black text-[#1c1c17] flex items-center gap-2" style="font-family:'Montserrat',sans-serif;">
+                        <span class="material-symbols-outlined text-primary">info</span>
+                        General Course Information
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Course Title</label>
+                            <input name="title" id="course-title" required class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all" placeholder="e.g. Advanced Applied Network Security & Cloud Clusters" type="text">
+                        </div>
+
+                        <!-- Instructor Selection Dropdown -->
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Assign Course Instructor</label>
+                            <select name="instructor_id" required class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-bold cursor-pointer focus:outline-none focus:border-primary focus:bg-white transition-all">
+                                {% for inst in instructors %}
+                                <option value="{{ inst.id }}">{{ inst.name }} ({{ inst.email }})</option>
+                                {% else %}
+                                <option value="">No instructors available - Please assign role to staff first</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <!-- Category with Custom Input option -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider">Category</label>
+                                    <button type="button" onclick="toggleCustomCategory()" class="text-[10px] text-primary font-bold hover:underline">+ New Category</button>
+                                </div>
+                                <select name="category" id="category-select" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold cursor-pointer focus:outline-none focus:border-primary focus:bg-white transition-all">
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Network Engineering">Network Engineering</option>
+                                    <option value="Cyber Security">Cyber Security</option>
+                                    <option value="Cloud Architecture">Cloud Architecture</option>
+                                    <option value="Full Stack Development">Full Stack Development</option>
+                                    <option value="General Education">General Education</option>
+                                </select>
+                                <input name="custom_category" id="category-custom-input" placeholder="Type custom category name..." class="hidden w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold mt-2 focus:outline-none focus:border-primary focus:bg-white transition-all">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Difficulty Level</label>
+                                <select name="level" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold cursor-pointer focus:outline-none focus:border-primary focus:bg-white transition-all">
+                                    <option value="Beginner">Beginner</option>
+                                    <option value="Intermediate" selected>Intermediate</option>
+                                    <option value="Advanced">Advanced</option>
+                                    <option value="Expert">Expert</option>
+                                </select>
+                            </div>
+                            
+                                <input name="price" value="0" type="hidden">
+
+                            <div>
+                                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Student Capacity (Seats)</label>
+                                <input name="student_limit" value="100" min="1" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all" type="number" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Description with AI Generator button -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider">Course Description</label>
+                                <button type="button" onclick="generateAIDescription()" class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-extrabold rounded-full hover:bg-primary hover:text-white transition-all flex items-center gap-1 active:scale-95">
+                                    <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                                    Generate AI Description
+                                </button>
+                            </div>
+                            <textarea name="description" id="course-description" required class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all" placeholder="Provide a detailed overview of what students will learn..." rows="6"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:col-span-4 space-y-8">
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-6">
+                    <h2 class="text-base font-black text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">
+                        Thumbnail & Publishing
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Thumbnail Image URL</label>
+                            <input name="thumbnail" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl p-3.5 text-sm font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all" placeholder="https://images.unsplash.com/... (optional)" type="text">
+                        </div>
+                        <p class="text-[11px] text-gray-500 font-medium">Recommended resolution: 1200x800 px.</p>
+                    </div>
+
+                    <button type="submit" class="w-full bg-primary hover:bg-[#004bb5] active:scale-95 text-white py-3.5 rounded-2xl font-bold text-xs shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">publish</span>
+                        Create & Publish Course
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+<script>
+    function toggleCustomCategory() {
+        const select = document.getElementById('category-select');
+        const customInput = document.getElementById('category-custom-input');
+        if (customInput.classList.contains('hidden')) {
+            customInput.classList.remove('hidden');
+            customInput.focus();
+        } else {
+            customInput.classList.add('hidden');
+        }
+    }
+
+    function generateAIDescription() {
+        const titleInput = document.getElementById('course-title').value.trim();
+        const categorySelect = document.getElementById('category-select').value;
+        const descTextarea = document.getElementById('course-description');
+
+        const title = titleInput || "Advanced Applied Engineering";
+        
+        descTextarea.value = `Welcome to '${title}', a comprehensive track in ${categorySelect} designed to equip learners with industry-ready skills.\n\nIn this course, students will master fundamental principles, hands-on lab exercises, micro-service architectures, and real-world deployment workflows. Includes interactive quizzes, certified projects, and 24/7 AI tutor guidance.`;
+        
+        alert('✨ AI Course Description generated successfully!');
+    }
+</script>
+{% endblock %}

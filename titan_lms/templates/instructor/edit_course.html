@@ -1,0 +1,266 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Edit Course & Modules | Titan LMS{% endblock %}
+
+{% block instructor_content %}
+<div class="p-lg md:p-xl max-w-5xl mx-auto space-y-lg">
+    <!-- Header -->
+    <div class="flex items-center justify-between bg-white p-lg rounded-3xl border-2 border-outline-variant/20 shadow-xl">
+        <div class="flex items-center gap-md">
+            <a href="{{ url_for('instructor.course_management') }}" class="w-10 h-10 rounded-2xl bg-surface-container hover:bg-primary/10 text-on-surface hover:text-primary transition-all flex items-center justify-center">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-headline-sm font-extrabold text-on-surface">Edit Course & Curriculum Modules</h1>
+                <p class="text-body-sm text-outline">Manage course details, update existing modules, or add new video/quiz modules.</p>
+            </div>
+        </div>
+        <span class="px-3.5 py-1 text-xs font-bold uppercase rounded-full {% if course.status == 'published' %}bg-emerald-100 text-emerald-700 border border-emerald-300{% else %}bg-gray-100 text-gray-700 border border-gray-300{% endif %}">
+            Status: {{ course.status }}
+        </span>
+    </div>
+
+    <!-- Edit Course Details Card -->
+    <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-2xl space-y-md">
+        <h3 class="text-headline-sm font-bold text-on-surface border-b border-outline-variant/10 pb-2 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">tune</span> 1. Course Information
+        </h3>
+        
+        <form action="{{ url_for('instructor.edit_course', course_id=course.id) }}" method="POST" class="space-y-md">
+            <input type="hidden" name="action" value="update_meta">
+            
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Course Title</label>
+                <input type="text" name="title" value="{{ course.title }}" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary" required>
+            </div>
+
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Detailed Description</label>
+                <textarea name="description" rows="4" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-medium focus:outline-none focus:border-primary" required>{{ course.description }}</textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Category</label>
+                    <select name="category" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary cursor-pointer">
+                        <option value="Technology" {% if course.category == 'Technology' %}selected{% endif %}>Technology & Programming</option>
+                        <option value="Data Science" {% if course.category == 'Data Science' %}selected{% endif %}>Data Science & AI</option>
+                        <option value="Design" {% if course.category == 'Design' %}selected{% endif %}>UI/UX & Graphic Design</option>
+                        <option value="Business" {% if course.category == 'Business' %}selected{% endif %}>Business & Entrepreneurship</option>
+                        <option value="General" {% if course.category == 'General' %}selected{% endif %}>General Studies</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Difficulty Level</label>
+                    <select name="level" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary cursor-pointer">
+                        <option value="Beginner" {% if course.level == 'Beginner' %}selected{% endif %}>Beginner</option>
+                        <option value="Intermediate" {% if course.level == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+                        <option value="Advanced" {% if course.level == 'Advanced' %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Thumbnail Image URL</label>
+                <input type="url" name="thumbnail" value="{{ course.thumbnail }}" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-mono text-xs focus:outline-none focus:border-primary">
+            </div>
+
+            <div class="flex justify-end gap-md pt-md border-t border-outline-variant/10">
+                <button type="submit" class="px-6 py-2.5 bg-primary text-white font-bold text-xs rounded-xl shadow hover:bg-primary-container transition-all">Save Course Info</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modules Section -->
+    <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-2xl space-y-lg">
+        <div class="flex justify-between items-center border-b border-outline-variant/10 pb-3">
+            <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">view_list</span> 2. Curriculum Modules ({{ course.lessons|length }})
+            </h3>
+            <button onclick="document.getElementById('add-module-box').scrollIntoView({behavior: 'smooth'})" class="px-3.5 py-1.5 bg-primary/10 text-primary hover:bg-primary hover:text-white font-bold text-xs rounded-xl transition-all flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">add</span> Add New Module
+            </button>
+        </div>
+
+        <!-- Modules List -->
+        <div class="space-y-md">
+            {% for lesson in course.lessons %}
+            <div class="p-md bg-surface-container-low rounded-2xl border border-outline-variant/20 flex flex-col sm:flex-row sm:items-center justify-between gap-md shadow-sm">
+                <div class="flex items-center gap-md">
+                    <span class="w-8 h-8 rounded-xl bg-primary text-white font-bold text-xs flex items-center justify-center shrink-0">
+                        {{ lesson.order }}
+                    </span>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-bold text-on-surface text-body-md">{{ lesson.title }}</h4>
+                            <span class="px-2 py-0.5 bg-slate-200 text-slate-800 text-[10px] font-bold uppercase rounded-md">{{ lesson.content_type }}</span>
+                        </div>
+                        <p class="text-xs text-outline font-mono truncate max-w-md mt-0.5">{{ lesson.content or 'No content URL specified' }}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    {% if lesson.content_type == 'quiz' and lesson.quizzes %}
+                    <a href="{{ url_for('instructor.edit_quiz', quiz_id=lesson.quizzes[0].id) }}" class="p-2 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-xl hover:bg-indigo-100 transition-colors flex items-center gap-1 text-xs font-bold" title="Edit Quiz & MCQs">
+                        <span class="material-symbols-outlined text-sm">quiz</span> Edit Quiz Questions
+                    </a>
+                    {% endif %}
+                    <!-- Edit Module Trigger -->
+                    <button onclick="openEditModuleModal({{ lesson.id }}, '{{ lesson.title }}', '{{ lesson.content_type }}', '{{ lesson.content|escape }}', {{ lesson.duration }})" class="p-2 bg-white text-primary border border-outline-variant/30 rounded-xl hover:bg-primary/10 transition-colors" title="Edit Module">
+                        <span class="material-symbols-outlined text-sm">edit</span>
+                    </button>
+                    <!-- Delete Module Form -->
+                    <form action="{{ url_for('instructor.delete_lesson', lesson_id=lesson.id) }}" method="POST" onsubmit="return confirm('Delete module {{ lesson.title }}?');">
+                        <button type="submit" class="p-2 bg-white text-red-600 border border-outline-variant/30 rounded-xl hover:bg-red-50 transition-colors" title="Delete Module">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-body-md text-on-surface-variant text-center py-md">No modules added yet.</p>
+            {% endfor %}
+        </div>
+
+        <!-- AI Quiz & Assessment Generator Box -->
+        <div class="bg-gradient-to-r from-purple-900/10 via-indigo-900/10 to-primary/10 p-lg rounded-2xl border-2 border-indigo-200/50 space-y-md">
+            <div class="flex items-center justify-between">
+                <h4 class="font-bold text-on-surface text-body-md flex items-center gap-2 text-primary">
+                    <span class="material-symbols-outlined">auto_awesome</span> ⚡ Instant AI Quiz & MCQ Generator
+                </h4>
+                <span class="px-3 py-1 bg-primary text-white text-[10px] font-bold rounded-full uppercase">Gemini AI</span>
+            </div>
+            <p class="text-xs text-outline font-medium">Specify a topic name and AI will automatically generate structured MCQs, evaluation choices, and answer keys directly into your course modules!</p>
+            <form action="{{ url_for('instructor.ai_generate_quiz') }}" method="POST" class="grid grid-cols-1 sm:grid-cols-12 gap-md items-end">
+                <input type="hidden" name="course_id" value="{{ course.id }}">
+                <div class="sm:col-span-6">
+                    <label class="block text-xs font-bold text-on-surface mb-1">Quiz Topic / Skill Focus</label>
+                    <input type="text" name="topic" placeholder="e.g. Master Python Asyncio & Threading" class="w-full bg-white border-2 border-outline-variant/30 rounded-xl p-md text-xs font-bold focus:outline-none focus:border-primary" required>
+                </div>
+                <div class="sm:col-span-3">
+                    <label class="block text-xs font-bold text-on-surface mb-1">Questions Count</label>
+                    <select name="question_count" class="w-full bg-white border-2 border-outline-variant/30 rounded-xl p-md text-xs font-bold focus:outline-none focus:border-primary">
+                        <option value="3">3 MCQs</option>
+                        <option value="5" selected>5 MCQs</option>
+                        <option value="10">10 MCQs</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-3">
+                    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow hover:bg-indigo-700 transition-all flex items-center justify-center gap-1 text-xs">
+                        <span class="material-symbols-outlined text-sm">auto_awesome</span> Generate Quiz
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Add Module Form Box -->
+        <div id="add-module-box" class="bg-surface-container-low p-lg rounded-2xl border-2 border-dashed border-outline-variant/30 space-y-md">
+            <h4 class="font-bold text-on-surface text-body-md flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">playlist_add</span> Add New Module to this Course
+            </h4>
+            <form action="{{ url_for('instructor.edit_course', course_id=course.id) }}" method="POST" class="space-y-md">
+                <input type="hidden" name="action" value="add_module">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Module Title</label>
+                    <input type="text" name="module_title" placeholder="e.g. Lesson 1: Introduction to Python Variables" class="w-full bg-white border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary" required>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                    <div>
+                        <label class="block text-label-md font-bold text-on-surface mb-1">Content Format</label>
+                        <select name="module_content_type" class="w-full bg-white border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary cursor-pointer">
+                            <option value="video">Video Lecture (YouTube Link)</option>
+                            <option value="text">Reading Document / Notes</option>
+                            <option value="quiz">Interactive Quiz</option>
+                            <option value="lab">Interactive Code Sandbox Lab</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-label-md font-bold text-on-surface mb-1">Duration (Minutes)</label>
+                        <input type="number" name="module_duration" value="15" class="w-full bg-white border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Single Video / Notes Content</label>
+                    <input type="text" name="module_content" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="w-full bg-white border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-mono text-xs focus:outline-none focus:border-primary">
+                </div>
+
+                <div class="bg-blue-50/50 p-md rounded-xl border border-blue-200/50 space-y-1">
+                    <label class="block text-label-md font-bold text-primary flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">video_library</span> Bulk Video Links Upload (Multiple YouTube Links at Once)
+                    </label>
+                    <textarea name="bulk_video_urls" rows="3" class="w-full bg-white border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-mono text-xs focus:outline-none focus:border-primary" placeholder="Paste multiple YouTube URLs (one link per line):&#10;https://www.youtube.com/watch?v=link1&#10;https://www.youtube.com/watch?v=link2&#10;https://www.youtube.com/watch?v=link3"></textarea>
+                    <p class="text-[11px] text-outline">💡 Tip: Har line par ek YouTube video ka link dalein. Tamam videos ek hi waqt mein course modules mein add ho jayengi!</p>
+                </div>
+
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-xl shadow hover:bg-primary-container transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">video_call</span> Upload & Create Video Modules
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Module Modal -->
+<div id="edit-module-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-md">
+    <div class="bg-white rounded-3xl p-xl max-w-lg w-full border-2 border-outline-variant/20 shadow-2xl space-y-md relative">
+        <div class="flex justify-between items-center border-b border-outline-variant/10 pb-md">
+            <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">edit_note</span> Edit Curriculum Module
+            </h3>
+            <button onclick="closeEditModuleModal()" class="text-outline hover:text-on-surface">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form id="edit-module-form" method="POST" class="space-y-md">
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Module Title</label>
+                <input type="text" id="edit-mod-title" name="title" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary" required>
+            </div>
+            <div class="grid grid-cols-2 gap-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Format</label>
+                    <select id="edit-mod-type" name="content_type" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary cursor-pointer">
+                        <option value="video">Video</option>
+                        <option value="text">Text / Article</option>
+                        <option value="quiz">Quiz</option>
+                        <option value="lab">Lab</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Duration (Min)</label>
+                    <input type="number" id="edit-mod-duration" name="duration" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+                </div>
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">YouTube URL / Material Content</label>
+                <input type="text" id="edit-mod-content" name="content" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-mono text-xs focus:outline-none focus:border-primary">
+            </div>
+
+            <div class="flex justify-end gap-2 pt-md border-t border-outline-variant/10">
+                <button type="button" onclick="closeEditModuleModal()" class="px-4 py-2 bg-surface-container text-on-surface font-bold text-xs rounded-xl">Cancel</button>
+                <button type="submit" class="px-5 py-2 bg-primary text-white font-bold text-xs rounded-xl shadow hover:bg-primary-container">Save Module</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditModuleModal(id, title, type, content, duration) {
+    const modal = document.getElementById('edit-module-modal');
+    const form = document.getElementById('edit-module-form');
+    form.action = `/instructor/lessons/${id}/edit`;
+    document.getElementById('edit-mod-title').value = title;
+    document.getElementById('edit-mod-type').value = type;
+    document.getElementById('edit-mod-content').value = content;
+    document.getElementById('edit-mod-duration').value = duration;
+    modal.classList.remove('hidden');
+}
+
+function closeEditModuleModal() {
+    document.getElementById('edit-module-modal').classList.add('hidden');
+}
+</script>
+{% endblock %}

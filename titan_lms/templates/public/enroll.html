@@ -1,0 +1,484 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}Student Registration Form | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+
+  .smit-enroll-page {
+    font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #1e293b;
+  }
+
+  /* ── Exact SMIT Input Box Styling with high specificity to override Tailwind Forms ── */
+  .smit-enroll-page .smit-input {
+    width: 100% !important;
+    border-radius: 0.75rem !important;
+    border: 2px solid #d1d5db !important;
+    background-color: rgba(245, 245, 245, 0.22) !important;
+    color: #0f172a !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+    font-family: "Montserrat", system-ui, sans-serif !important;
+    transition: all 0.3s ease !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+  }
+
+  /* Single-line inputs & dropdowns */
+  .smit-enroll-page input.smit-input,
+  .smit-enroll-page select.smit-input {
+    height: 3.25rem !important;
+    /* Exactly 52px */
+    padding: 0 1rem !important;
+  }
+
+  /* Select dropdown custom arrow */
+  .smit-enroll-page select.smit-input {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-position: right 1rem center !important;
+    background-repeat: no-repeat !important;
+    background-size: 1.25rem !important;
+    padding-right: 2.5rem !important;
+  }
+
+  /* Textarea vertical padding */
+  .smit-enroll-page textarea.smit-input {
+    padding: 0.875rem 1rem !important;
+  }
+
+  .smit-enroll-page .smit-input:hover {
+    border-color: #9ca3af !important;
+  }
+
+  .smit-enroll-page .smit-input:focus {
+    border-color: #0b1fb7 !important;
+    background-color: rgba(245, 245, 245, 0.22) !important;
+    box-shadow: 0 0 0 3px rgba(11, 115, 183, 0.08) !important;
+  }
+
+  /* ── Section Title (SMIT Style) ── */
+  .smit-section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d2d2d;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ── Labels ── */
+  .smit-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-family: "Montserrat", system-ui, sans-serif;
+  }
+
+  .smit-label .req {
+    color: #0B73B7;
+  }
+
+  /* ── Upload Box ── */
+  .smit-upload-box {
+    border: 2px dashed #d1d5db;
+    border-radius: 0.75rem;
+    background-color: rgba(245, 245, 245, 0.22);
+    transition: all 0.3s ease;
+  }
+
+  .smit-upload-box:hover {
+    border-color: hsl(240, 100%, 31%);
+    background-color: #f0f7ff;
+  }
+</style>
+{% endblock %}
+
+{% block public_content %}
+<div class="smit-enroll-page">
+
+  <!-- ── Hero Banner (SMIT Style) ── -->
+  <div class="relative w-full text-white py-6 sm:py-8 md:py-12 shadow-lg overflow-hidden"
+    style="background: linear-gradient(to right, #1100cb, #0076ce);">
+    <div class="relative z-10 w-full mx-auto max-w-6xl px-4 sm:px-6 md:px-10">
+      <nav class="flex items-center text-xs sm:text-sm text-white/90 mb-3 sm:mb-4">
+        <a class="hover:text-white hover:underline transition-all duration-200 flex items-center gap-1"
+          href="{{ url_for('public.home') }}">
+          <span class="material-symbols-outlined text-base">school</span>
+          <span class="hidden sm:inline">Home</span>
+        </a>
+        <span class="material-symbols-outlined text-sm mx-1 sm:mx-2 text-white/70">chevron_right</span>
+        <span class="font-semibold text-white">Enroll Now</span>
+      </nav>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight mb-2 sm:mb-3"
+        style="font-family: 'Montserrat', sans-serif;">Registration Form</h1>
+      <p class="text-sm sm:text-base md:text-lg text-white/90 max-w-3xl leading-relaxed">Start your journey towards
+        excellence. Fill out the form to apply for our courses</p>
+    </div>
+    <div
+      class="absolute top-0 right-0 w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 bg-white/5 rounded-full blur-2xl sm:blur-3xl -translate-y-1/2 translate-x-1/2">
+    </div>
+    <div
+      class="absolute bottom-0 left-0 w-48 h-48 sm:w-64 sm:h-64 md:w-96 md:h-96 bg-white/5 rounded-full blur-2xl sm:blur-3xl translate-y-1/2 -translate-x-1/2">
+    </div>
+  </div>
+
+  <!-- ── Form Container ── -->
+  <div class="py-6 sm:py-8">
+    <div class="max-w-6xl px-4 sm:px-6 md:px-10 mx-auto">
+      <form action="{{ url_for('public.enroll') }}" method="POST" enctype="multipart/form-data">
+        {% if request.args.get('code') %}
+        <input type="hidden" name="access_code" value="{{ request.args.get('code') }}">
+        {% endif %}
+
+        <!-- SECTION 1: Location & Course Details -->
+        <div class="mb-8 py-8">
+          <h3 class="smit-section-title mb-4">
+            <span class="material-symbols-outlined" style="color: #0B73B7;">location_on</span>
+            Location & Course Details
+          </h3>
+
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <label class="smit-label">Select Country<span class="req">*</span></label>
+              <select name="country" required class="smit-input">
+                <option value="" disabled selected>Select country</option>
+                <option value="Pakistan">Pakistan</option>
+                <option value="United Arab Emirates">United Arab Emirates</option>
+                <option value="Saudi Arabia">Saudi Arabia</option>
+                <option value="Overseas">Overseas</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="smit-label">Select class preference<span class="req">*</span></label>
+              <select name="class_preference" required class="smit-input">
+                <option value="" disabled selected>Select class preference</option>
+                <option value="On-Campus">On-Campus (Physical Labs)</option>
+                <option value="Online Virtual Class">Online Virtual Class</option>
+                <option value="Hybrid Mode">Hybrid Mode</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="smit-label">Select Gender<span class="req">*</span></label>
+              <select name="gender" required class="smit-input">
+                <option value="" disabled selected>Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="smit-label">Select City<span class="req">*</span></label>
+              <select name="city" required class="smit-input">
+                <option value="" disabled selected>Select city</option>
+                {% for city in cities %}
+                <option value="{{ city }}">{{ city }}</option>
+                {% else %}
+                <option value="Karachi">Karachi</option>
+                <option value="Lahore">Lahore</option>
+                <option value="Islamabad">Islamabad</option>
+                <option value="Rawalpindi">Rawalpindi</option>
+                <option value="Peshawar">Peshawar</option>
+                <option value="Quetta">Quetta</option>
+                <option value="Faisalabad">Faisalabad</option>
+                <option value="Multan">Multan</option>
+                <option value="Other">Other City</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div>
+              <label class="smit-label">Select Course<span class="req">*</span></label>
+              <select name="course_name" required class="smit-input">
+                {% if preselected_course %}
+                <option value="{{ preselected_course.title }}" selected>{{ preselected_course.title }}</option>
+                {% else %}
+                <option value="" disabled selected>Select course</option>
+                {% for c in courses %}
+                <option value="{{ c.title }}">{{ c.title }}</option>
+                {% else %}
+                <option value="Full-Stack Web Development">Full-Stack Web Development</option>
+                <option value="AI & Machine Learning Engineering">AI & Machine Learning Engineering</option>
+                <option value="Cloud Native & DevOps">Cloud Native & DevOps</option>
+                <option value="UI/UX Product Design">UI/UX Product Design</option>
+                {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+
+            <div>
+              <label class="smit-label">Select Campus<span class="req">*</span></label>
+              <select name="campus_name" required class="smit-input">
+                <option value="" disabled selected>Select campus</option>
+                {% for cp in campuses %}
+                <option value="{{ cp.title }}">{{ cp.title }} ({{ cp.city }})</option>
+                {% else %}
+                <option value="Titan Clifton Campus (Karachi)">Titan Clifton Campus (Karachi)</option>
+                <option value="Titan Gulberg Campus (Lahore)">Titan Gulberg Campus (Lahore)</option>
+                <option value="Titan Blue Area Campus (Islamabad)">Titan Blue Area Campus (Islamabad)</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: Personal Information -->
+        <div class="mb-8 py-8 border-t border-gray-200">
+          <h3 class="smit-section-title mb-4">
+            <span class="material-symbols-outlined" style="color: #0B73B7;">person</span>
+            Personal Information
+          </h3>
+
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <label class="smit-label">Full Name<span class="req">*</span></label>
+              <input type="text" name="full_name" required placeholder="Enter your full name" class="smit-input">
+            </div>
+
+            <div>
+              <label class="smit-label">Father Name<span class="req">*</span></label>
+              <input type="text" name="father_name" required placeholder="Enter father's name" class="smit-input">
+            </div>
+
+            <div>
+              <label class="smit-label">Date of Birth<span class="req">*</span></label>
+              <input type="date" name="dob" required class="smit-input">
+            </div>
+
+            <div>
+              <label class="smit-label">Email<span class="req">*</span></label>
+              <input type="email" name="email" required placeholder="your.email@example.com" class="smit-input">
+            </div>
+
+            <div>
+              <label class="smit-label">Password (for Login)<span class="req">*</span></label>
+              <input type="password" name="password" required placeholder="Create portal password" class="smit-input">
+            </div>
+
+            <div>
+              <label class="smit-label">Phone<span class="req">*</span></label>
+              <input type="tel" name="phone" required placeholder="Enter phone number" class="smit-input">
+            </div>
+
+            <div>
+              <label class="smit-label">Father's Phone<span class="req">*</span></label>
+              <input type="tel" name="father_phone" required placeholder="Enter phone number" class="smit-input">
+            </div>
+
+            <div>
+              <label class="smit-label">ID Number<span class="req">*</span></label>
+              <input type="text" name="id_number" required placeholder="Enter ID number" class="smit-input">
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="smit-label">Father's ID Number<span class="req">*</span></label>
+              <input type="text" name="father_id_number" required placeholder="Enter ID number" class="smit-input">
+            </div>
+
+            <div class="sm:col-span-2">
+              <div class="flex justify-between items-center">
+                <label class="smit-label">Address<span class="req">*</span></label>
+                <span class="text-xs text-gray-400 font-medium">(0/220 characters)</span>
+              </div>
+              <textarea name="address" required rows="3"
+                placeholder="Enter your complete address (minimum 10 characters)" class="smit-input"
+                style="resize: vertical;"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: Education & Technical Details -->
+        <div class="mb-8 py-8 border-t border-gray-200">
+          <h3 class="smit-section-title mb-4">
+            <span class="material-symbols-outlined" style="color: #0B73B7;">school</span>
+            Education & Technical Details
+          </h3>
+
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <label class="smit-label">Computer Proficiency<span class="req">*</span></label>
+              <select name="computer_proficiency" required class="smit-input">
+                <option value="" disabled selected>Select your computer proficiency</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="smit-label">Last Qualification<span class="req">*</span></label>
+              <select name="last_qualification" required class="smit-input">
+                <option value="" disabled selected>Last qualification</option>
+                <option value="Matric / O-Levels">Matric / O-Levels</option>
+                <option value="Intermediate / A-Levels">Intermediate / A-Levels</option>
+                <option value="Undergraduate Degree (BS/BSc)">Undergraduate Degree</option>
+                <option value="Master's / Doctorate">Master's / Doctorate</option>
+              </select>
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="smit-label">Where did you hear about us?<span class="req">*</span></label>
+              <select name="heard_from" required class="smit-input">
+                <option value="" disabled selected>Where did you hear about us?</option>
+                <option value="Social Media">Social Media</option>
+                <option value="Friend/Alumni">Friend / Alumni Recommendation</option>
+                <option value="Google Search">Google Search</option>
+                <option value="Banner">Campus Banner</option>
+              </select>
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="smit-label">Do you have a Laptop?<span class="req">*</span></label>
+              <div class="flex items-center gap-6 pt-1">
+                <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer">
+                  <input type="radio" name="has_laptop" value="Yes" checked class="w-4 h-4 accent-[#0B73B7]">
+                  <span>Yes</span>
+                </label>
+                <label class="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 cursor-pointer">
+                  <input type="radio" name="has_laptop" value="No" class="w-4 h-4 accent-[#0B73B7]">
+                  <span>No</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 4: Upload Picture -->
+        <div class="mb-8 py-8 border-t border-gray-200">
+          <h3 class="smit-section-title mb-4">
+            <span class="material-symbols-outlined" style="color: #0033c1;">upload</span>
+            Upload Picture
+          </h3>
+
+          <div class="smit-upload-box p-8 text-center space-y-4">
+            <div class="w-14 h-14 mx-auto rounded-full bg-[#0B73B7]/10 text-[#0B73B7] flex items-center justify-center">
+              <span class="material-symbols-outlined text-2xl">cloud_upload</span>
+            </div>
+
+            <div>
+              <label for="avatar_input"
+                class="inline-flex items-center gap-2 px-6 py-2.5 text-white font-bold text-sm rounded-xl shadow cursor-pointer transition-all hover:shadow-lg"
+                style="background: #0c00b1;">
+                <span class="material-symbols-outlined text-lg">add</span>
+                <span>+ Upload Picture</span>
+              </label>
+              <input type="file" id="avatar_input" name="avatar" accept="image/*" class="hidden"
+                onchange="previewAvatar(this)">
+            </div>
+
+            <div id="avatar_filename" class="text-xs text-gray-400 font-medium space-y-1">
+              <p>• With white or blue background</p>
+              <p>• File size must be less than 1MB</p>
+              <p>• File type: jpg, jpeg, png</p>
+              <p>• Upload your recent passport size picture</p>
+              <p>• Your Face should be clearly visible without any Glasses</p>
+            </div>
+
+            <div id="preview_box" class="hidden pt-2">
+              <img id="avatar_img_preview" src="" alt="Preview"
+                class="w-24 h-24 rounded-full mx-auto object-cover border-2 shadow-md" style="border-color: #0B73B7;">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 5: Terms and Conditions -->
+        <div class="mb-8 py-8 border-t border-gray-200">
+          <h3 class="smit-section-title mb-4">
+            <span class="material-symbols-outlined" style="color: #0B73B7;">shield</span>
+            Terms and Conditions
+          </h3>
+
+          <div class="p-6 rounded-2xl bg-blue-50/50 border border-blue-100 space-y-4 text-xs text-gray-600 font-medium">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" required class="mt-0.5 w-4 h-4 accent-[#0B73B7] rounded border-gray-300">
+              <span>I hereby solemnly declare that all information provided in this application is true and accurate to
+                the best of my knowledge. Furthermore, I agree to abide by all current and future rules, regulations,
+                and policies established by Titan LMS.</span>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" required class="mt-0.5 w-4 h-4 accent-[#0B73B7] rounded border-gray-300">
+              <span>I accept the responsibility to maintain good conduct throughout the program and commit to focusing
+                solely on learning. I will not engage in any political, unethical, or unrelated activities during my
+                enrollment. Any violation may result in immediate cancellation of my admission.</span>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" required class="mt-0.5 w-4 h-4 accent-[#0B73B7] rounded border-gray-300">
+              <span>Upon completion of the course, I agree to successfully complete any project assigned by Titan LMS as
+                part of the program requirements.</span>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" required class="mt-0.5 w-4 h-4 accent-[#0B73B7] rounded border-gray-300">
+              <span>Female students are required to wear an abaya or hijab while attending classes.</span>
+            </label>
+
+            <div class="pt-2 text-[11px] text-gray-500">
+              By submitting this form, you agree to our <a href="#" class="underline font-semibold"
+                style="color: #0B73B7;">Privacy Policy</a> and <a href="#" class="underline font-semibold"
+                style="color: #0B73B7;">Terms of Service</a>.
+            </div>
+          </div>
+        </div>
+
+        <!-- Notice Box -->
+        <div class="p-4 rounded-xl bg-blue-50 border border-blue-200 flex items-start gap-3 text-xs text-gray-700 mb-6">
+          <span class="material-symbols-outlined text-base mt-0.5" style="color: #0B73B7;">info</span>
+          <div>
+            <strong class="font-bold text-gray-900 block mb-0.5">Important Notice:</strong>
+            Please ensure all information provided is accurate. Incomplete or false information may result in rejection
+            of your application.
+          </div>
+        </div>
+
+        <!-- CAPTCHA Box -->
+        <div class="p-4 rounded-xl border-2 border-gray-200 bg-white inline-flex items-center gap-4 mb-6">
+          <label class="flex items-center gap-3 cursor-pointer text-sm font-semibold text-gray-700">
+            <input type="checkbox" required class="w-5 h-5 accent-[#0B73B7] rounded border-gray-300">
+            <span>I'm not a robot</span>
+          </label>
+          <div class="text-[10px] text-gray-400 text-right pl-4 border-l border-gray-200">
+            <span class="material-symbols-outlined text-gray-400 block text-lg">sync</span>
+            reCAPTCHA
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+          <button type="submit"
+            class="w-full py-3.5 text-white font-extrabold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 hover:shadow-lg active:scale-[0.99]"
+            style="background: linear-gradient(to right, #001078, #0066b4);">
+            <span class="material-symbols-outlined text-lg">article</span>
+            <span>Submit Registration</span>
+          </button>
+        </div>
+
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById('avatar_img_preview').src = e.target.result;
+        document.getElementById('preview_box').classList.remove('hidden');
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
+{% endblock %}

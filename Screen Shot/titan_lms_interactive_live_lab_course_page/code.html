@@ -1,0 +1,408 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Titan LMS - Course Lab</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#575d78",
+                        "on-tertiary-container": "#4e3d00",
+                        "on-primary-fixed": "#001847",
+                        "inverse-surface": "#31312b",
+                        "background": "#fcf9f1",
+                        "tertiary": "#735c00",
+                        "primary-container": "#2c6dec",
+                        "tertiary-fixed": "#ffe088",
+                        "primary-fixed-dim": "#b1c5ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1c1c17",
+                        "on-secondary-fixed": "#141a32",
+                        "surface-container-highest": "#e5e2da",
+                        "surface-bright": "#fcf9f1",
+                        "on-surface-variant": "#424654",
+                        "surface-tint": "#0056d0",
+                        "inverse-primary": "#b1c5ff",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#ebe8e0",
+                        "secondary-container": "#d8defe",
+                        "tertiary-container": "#cba72f",
+                        "surface-container-low": "#f6f3eb",
+                        "on-surface": "#1c1c17",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#dce1ff",
+                        "secondary-fixed-dim": "#bfc5e4",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-primary-fixed-variant": "#0040a0",
+                        "on-primary-container": "#fefcff",
+                        "on-error-container": "#93000a",
+                        "outline": "#737786",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f3f1e9",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "outline-variant": "#c2c6d7",
+                        "on-secondary-fixed-variant": "#3f465f",
+                        "on-secondary-container": "#5b617d",
+                        "error": "#ba1a1a",
+                        "surface-container": "#f1eee6",
+                        "surface-dim": "#dcdad2",
+                        "on-secondary": "#ffffff",
+                        "surface": "#fcf9f1",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#dae2ff",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "primary": "#0054cb",
+                        "surface-variant": "#e5e2da"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "lg": "24px",
+                        "margin-desktop": "40px",
+                        "base": "4px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "xxl": "64px",
+                        "md": "16px",
+                        "container-max": "1280px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Montserrat"],
+                        "label-lg": ["Inter"],
+                        "display-lg-mobile": ["Montserrat"],
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Montserrat"],
+                        "headline-md": ["Montserrat"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-lg": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "label-md": ["12px", {"lineHeight": "1", "fontWeight": "500"}],
+                        "label-sm": ["10px", {"lineHeight": "1", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-nav {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .terminal-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #2c6dec;
+            border-radius: 10px;
+        }
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .pulse-gold {
+            animation: pulse-gold 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-gold {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .7; transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary/20">
+<!-- TopNavBar -->
+<nav class="bg-surface/70 dark:bg-on-surface/80 backdrop-blur-xl docked full-width top-0 sticky z-50 shadow-sm">
+<div class="flex justify-between items-center w-full px-gutter py-md max-w-container-max mx-auto">
+<div class="flex items-center gap-xl">
+<div class="h-10 w-10 flex-shrink-0"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRYRk0W4zk2q1kUKHn0IzYiYBpLq4U9dmFq2a9n9s7P4SGitmjyDBiSRC3y8UN7PtHV7hM5B9pD1fgewqsyOFa17w4l0UA4ixqUzPszH0gQs9X-E2pFiLHOMUunJ-OLxQdsuo_r-lWsy3sqrckS9nWiE6F9S0gFIcbrnLQcoPJB64vFe8rf4XD7u25vaV24Bmt0XoLXK25fULK97zA80Fh24VjT_PJeLuiJcfhGWYieEU-PA0QbnF5_3E8FmiZX92fRA" alt="Titan Logo" class="h-full w-auto object-contain"></div>
+<div class="hidden md:flex gap-lg">
+<a class="text-on-surface-variant dark:text-secondary-fixed-dim font-medium hover:text-primary dark:hover:text-primary-fixed-dim transition-all duration-300" href="#">Dashboard</a>
+<a class="text-primary dark:text-primary-fixed-dim border-b-2 border-primary font-bold pb-1" href="#">Courses</a>
+<a class="text-on-surface-variant dark:text-secondary-fixed-dim font-medium hover:text-primary dark:hover:text-primary-fixed-dim transition-all duration-300" href="#">Analytics</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-2 scale-95 active:scale-90 transition-transform">search</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-2 scale-95 active:scale-90 transition-transform relative">
+                    notifications
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="w-10 h-10 rounded-full border-2 border-primary/20 overflow-hidden ml-sm cursor-pointer hover:border-primary transition-colors">
+<img class="w-full h-full object-cover" data-alt="A professional high-resolution profile portrait of a confident enterprise learner in a modern corporate setting. The lighting is crisp and cool-toned, reflecting a high-performance academic environment. The background is a blurred office with deep navy and electric blue digital interfaces. The overall aesthetic is premium, clean, and modern corporate." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxe3YAlH54zrz8faa5ZQql8cphSrQJaiXUBHJdj2MyvNH1QA-VCf8V3Sd6s2pwcpkcM6iQGMZF0FuAVG7FWFRPgUQZIVKZfCe30U40bECcFPlWQ5BOuslIK4Dyx1AM4BFJzUZKvWhI9VRkBBqb7gZu59bNPZTT66QFK8wt26686aq18Zzl90QpIiiUB0f4Yrb4QdDTxVS0Sfm--KFBKHOKFlz4gkjRCkRttYRclgKRblOFd7ZKKOLZ">
+</div>
+</div>
+</div>
+</nav>
+<main class="max-w-container-max mx-auto p-gutter lg:py-xl">
+<!-- Header & Breadcrumbs -->
+<div class="mb-lg">
+<div class="flex items-center gap-sm text-label-md text-on-surface-variant mb-sm">
+<span class="">Advanced Cloud Engineering</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-bold">Module 4: Live Cluster Deployment</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Architecting Scalable Constellations</h1>
+</div>
+<!-- Layout Grid: Video | Lab -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg h-auto lg:h-[calc(100vh-280px)] min-h-[600px]">
+<!-- Video Column (Left) -->
+<div class="lg:col-span-5 flex flex-col gap-md h-full">
+<div class="relative rounded-xl overflow-hidden bg-on-surface shadow-xl aspect-video lg:aspect-auto lg:flex-1 group">
+<div class="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all">
+<button class="w-16 h-16 rounded-full bg-primary/90 text-white flex items-center justify-center shadow-[0_0_20px_rgba(0,84,203,0.5)] scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<div class="w-full h-full bg-cover bg-center" data-alt="A sophisticated cinematic video frame capturing a high-end cloud architecture visualization. Flowing lines of electric blue light connect digital nodes against a deep navy blue background. Gold data points pulse occasionally, suggesting a premium technological flow. The aesthetic is glassmorphic, modern corporate, and highly authoritative." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAWmR7laWENp1ENsbrwO5zPqPCf9wA9d0LwemB1_2NbRipYA9Qmo8po4DhUbZ-6LYJB44o7-TlcTBlb9BEzbAMw_5LSKIPxY5WM7PKFMPz0Kjvl_hAkv-MA1-3G0lfFs5Sc0KKu_dXz_lZBOIXrpSGIW-gEjICu-SDTPam4y4mkcmrdGuOoPIe2pf4KhOyJaL6saLy_g6-qsXY6Qcdcbsr56hik9XmOE-ycN7z2iKDV5DEA5WMZ3P8M')"></div>
+<!-- Progress Overlay -->
+<div class="absolute bottom-0 left-0 w-full p-md bg-gradient-to-t from-black/80 to-transparent">
+<div class="w-full h-1 bg-white/20 rounded-full mb-sm overflow-hidden">
+<div class="w-3/4 h-full bg-primary"></div>
+</div>
+<div class="flex justify-between text-white text-label-sm">
+<span class="">14:32 / 21:05</span>
+<span class="text-tertiary-fixed font-bold">Live Lab Active</span>
+</div>
+</div>
+</div>
+<!-- Chapter Markers / Progress Gate -->
+<div class="bg-surface-container-low rounded-xl p-md border border-outline-variant/30 flex-shrink-0 overflow-y-auto">
+<h3 class="font-headline-sm text-headline-sm mb-md px-sm">Course Progression</h3>
+<div class="space-y-sm">
+<!-- Complete -->
+<div class="flex items-center gap-md p-sm bg-surface-container-high rounded-lg cursor-pointer hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-tertiary-container" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div class="flex-1">
+<p class="text-label-lg font-label-lg leading-none">Introduction to Nodes</p>
+<p class="text-label-sm text-on-surface-variant">04:12</p>
+</div>
+</div>
+<!-- Current -->
+<div class="flex items-center gap-md p-sm bg-primary/10 border-l-4 border-primary rounded-r-lg">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+<div class="flex-1">
+<p class="text-label-lg font-label-lg leading-none text-primary">Live Cluster Setup</p>
+<p class="text-label-sm text-primary/70">Playing • 14:32</p>
+</div>
+</div>
+<!-- Locked Progress Gate -->
+<div class="flex items-center gap-md p-sm opacity-60 relative group">
+<span class="material-symbols-outlined text-on-surface-variant">lock</span>
+<div class="flex-1">
+<p class="text-label-lg font-label-lg leading-none">Advanced Routing</p>
+<p class="text-label-sm">Locked • Lab Required</p>
+</div>
+<!-- Tooltip -->
+<div class="absolute inset-0 bg-secondary-container/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg px-md">
+<p class="text-label-sm font-bold text-on-secondary-container text-center">Complete Lab Tasks to Unlock</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Lab Sandbox Column (Right) -->
+<div class="lg:col-span-7 flex flex-col gap-md h-full bg-on-surface rounded-xl overflow-hidden shadow-2xl relative border border-outline/20">
+<!-- Editor Header -->
+<div class="flex items-center justify-between px-md py-sm bg-on-surface-variant/20 border-b border-outline/20">
+<div class="flex items-center gap-md">
+<div class="flex gap-1.5">
+<div class="w-3 h-3 rounded-full bg-error/80"></div>
+<div class="w-3 h-3 rounded-full bg-tertiary-container/80"></div>
+<div class="w-3 h-3 rounded-full bg-primary/80"></div>
+</div>
+<span class="text-label-sm text-outline-variant font-medium uppercase tracking-widest flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">terminal</span> titan-cloud-terminal
+                        </span>
+</div>
+<div class="flex gap-sm">
+<button class="bg-primary hover:bg-primary-container text-white px-md py-1.5 rounded-lg text-label-md font-label-lg flex items-center gap-sm transition-all active:scale-95 shadow-lg">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span> Run Lab
+                        </button>
+<button class="bg-surface-container-highest/10 hover:bg-surface-container-highest/20 text-outline-variant px-md py-1.5 rounded-lg text-label-md font-label-lg flex items-center gap-sm transition-all">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span> Reset
+                        </button>
+</div>
+</div>
+<!-- Code Editor / Terminal Area -->
+<div class="flex-1 flex flex-col overflow-hidden font-mono text-sm leading-relaxed p-lg terminal-scroll overflow-y-auto">
+<div class="text-tertiary-container mb-sm flex items-center gap-md">
+<span class="bg-tertiary-container/20 text-[10px] px-2 py-0.5 rounded border border-tertiary-container/30 uppercase font-bold">Instruction</span>
+<span class="">Deploy the primary cluster node using the following configuration.</span>
+</div>
+<div class="space-y-2">
+<div class="flex gap-md group">
+<span class="w-8 text-on-surface-variant text-right select-none opacity-40">1</span>
+<span class="text-secondary-fixed"><span class="text-primary-fixed-dim">titan</span> deploy-cluster --zone <span class="text-tertiary-fixed">"us-east-alpha"</span></span>
+</div>
+<div class="flex gap-md group">
+<span class="w-8 text-on-surface-variant text-right select-none opacity-40">2</span>
+<span class="text-secondary-fixed">--nodes <span class="text-primary-fixed-dim">3</span> --instance-type <span class="text-tertiary-fixed">"t-ultra-performance"</span></span>
+</div>
+<div class="flex gap-md group">
+<span class="w-8 text-on-surface-variant text-right select-none opacity-40">3</span>
+<span class="text-secondary-fixed">--auth-key <span class="text-tertiary-fixed">"$TITAN_KEY_8821"</span></span>
+</div>
+<div class="flex gap-md group animate-pulse">
+<span class="w-8 text-on-surface-variant text-right select-none opacity-40">4</span>
+<span class="text-primary-fixed-dim flex items-center">
+                                _<span class="w-2 h-5 bg-primary ml-1"></span>
+</span>
+</div>
+</div>
+<!-- Sandbox Visualization Overlay -->
+<div class="mt-xxl pt-xl border-t border-outline/10">
+<div class="flex justify-between items-center mb-md">
+<h4 class="text-label-lg font-label-lg text-outline-variant uppercase tracking-widest">Network Constellation Status</h4>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-primary pulse-gold"></span>
+<span class="text-label-sm text-primary-fixed-dim">Active Nodes</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-on-surface-variant"></span>
+<span class="text-label-sm text-on-surface-variant">Pending</span>
+</div>
+</div>
+</div>
+<!-- Visualized Live Lab Graph -->
+<div class="relative h-48 bg-surface-container-highest/5 rounded-xl border border-outline/10 overflow-hidden flex items-center justify-center">
+
+<div class="relative z-10 flex gap-xl items-center">
+<div class="w-16 h-16 rounded-full border-2 border-primary/50 flex items-center justify-center bg-primary/10 shadow-[0_0_30px_rgba(0,84,203,0.3)]">
+<span class="material-symbols-outlined text-primary text-3xl">hub</span>
+</div>
+<div class="w-24 h-px bg-gradient-to-r from-primary to-transparent"></div>
+<div class="w-12 h-12 rounded-full border border-outline/30 flex items-center justify-center bg-on-surface-variant/10">
+<span class="material-symbols-outlined text-outline text-xl">cloud</span>
+</div>
+<div class="w-12 h-12 rounded-full border border-outline/30 flex items-center justify-center bg-on-surface-variant/10">
+<span class="material-symbols-outlined text-outline text-xl">dns</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Titan AI Mentor Widget -->
+<div class="absolute bottom-6 right-6 w-80 bg-surface-container shadow-2xl rounded-2xl border border-primary/30 flex flex-col transform transition-transform duration-500 translate-y-2 opacity-100 z-20" id="ai-mentor">
+<div class="p-md bg-primary text-white rounded-t-2xl flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-headline-sm text-label-lg tracking-tight">Titan AI Mentor</span>
+</div>
+<button class="material-symbols-outlined text-[20px] hover:bg-white/20 rounded" onclick="document.getElementById('ai-mentor').classList.toggle('translate-y-[calc(100%-50px)]')">keyboard_arrow_down</button>
+</div>
+<div class="p-md">
+<div class="flex gap-md mb-md">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-[18px]">smart_toy</span>
+</div>
+<div class="text-body-sm text-on-surface leading-relaxed italic">
+                                "I see you're configuring the zone. For best latency in this simulation, try <span class="text-primary font-bold">us-east-beta</span> instead of alpha. Need the full command?"
+                            </div>
+</div>
+<div class="flex gap-sm">
+<button class="flex-1 py-1.5 border border-primary text-primary text-label-sm font-bold rounded-lg hover:bg-primary/5 transition-colors">Apply Tip</button>
+<button class="flex-1 py-1.5 bg-surface-container-highest text-on-surface-variant text-label-sm font-bold rounded-lg">Skip</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Course Footer Controls -->
+<div class="mt-xl flex flex-col md:flex-row justify-between items-center gap-lg border-t border-outline-variant/20 pt-lg">
+<div class="flex items-center gap-xl">
+<div class="flex flex-col">
+<span class="text-label-sm text-on-surface-variant uppercase tracking-wider">Course Progression</span>
+<div class="flex items-center gap-md">
+<div class="w-48 h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="w-3/4 h-full bg-gradient-to-r from-primary to-primary-container"></div>
+</div>
+<span class="font-headline-sm text-headline-sm text-primary">75%</span>
+</div>
+</div>
+<div class="h-10 w-px bg-outline-variant/30 hidden md:block"></div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-tertiary-container" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="text-label-lg font-bold">350 QP Gained</span>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="px-xl py-md border-2 border-on-surface-variant text-on-surface-variant font-headline-sm text-label-lg rounded-lg hover:bg-on-surface-variant/5 transition-all">Previous Lesson</button>
+<button class="px-xl py-md bg-primary text-white font-headline-sm text-label-lg rounded-lg shadow-[0_4px_20px_rgba(0,84,203,0.3)] hover:scale-105 transition-all flex items-center gap-md group">
+                    Next Lesson
+                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-on-surface w-full py-xxl mt-xxl">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop max-w-container-max mx-auto gap-lg">
+<div class="flex flex-col gap-sm">
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCusZf2rqwGcRXZP063ogohQHMjVkPN34GxDpxw9Z0Gw_mzE8hOeZfoWAf8FO3kWUcbfw47amhcSpta4A8tNyB6tuGy5mabB4JwXmApiyjUa7qdKOzPb3qp0RbdmUlzQIrz_PDTEJ0ZeShjibFKHayV9hOFrtDWiqDRkUshbLocsUH_9c7E96HY67Ri8cTTG1JTXU17p9HlT6irfudwHoXpAR6IpEFgjuKNQyMkBo_iNbYQhpe_TOdcaw6jZFLaEyHO1g" alt="Titan Logo" class="h-8 w-auto object-contain mb-2">
+<p class="text-body-sm font-body-sm text-on-surface-variant dark:text-secondary-fixed-dim">© 2024 Titan LMS. Engineering Academic Ambition.</p>
+</div>
+<div class="flex gap-xl">
+<a class="text-label-md font-label-md text-on-surface-variant dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-tertiary-fixed-dim underline transition-all" href="#">Privacy Policy</a>
+<a class="text-label-md font-label-md text-on-surface-variant dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-tertiary-fixed-dim underline transition-all" href="#">Terms of Service</a>
+<a class="text-label-md font-label-md text-on-surface-variant dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-tertiary-fixed-dim underline transition-all" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions for terminal typing effect
+        const terminalLine = document.querySelector('.animate-pulse');
+        let dots = 0;
+        setInterval(() => {
+            dots = (dots + 1) % 4;
+            // Simulated activity logic would go here
+        }, 500);
+
+        // Logic for floating AI mentor widget persistence/states
+        window.addEventListener('scroll', () => {
+            const mentor = document.getElementById('ai-mentor');
+            if (window.scrollY > 300) {
+                mentor.classList.add('scale-100');
+            }
+        });
+    </script>
+
+
+
+
+
+
+</body></html>

@@ -1,0 +1,186 @@
+{% extends "layouts/admin.html" %}
+
+{% block title %}Coupons & Discount Approvals | Admin Console{% endblock %}
+
+{% block admin_content %}
+<div class="p-lg md:p-xl max-w-container-max mx-auto space-y-lg">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-md bg-white p-xl rounded-3xl border border-outline-variant/20 shadow-xl">
+        <div>
+            <div class="flex items-center gap-2">
+                <h1 class="text-headline-md font-bold text-on-surface">Discount Coupon Approval Portal</h1>
+                <span class="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full">Governance</span>
+            </div>
+            <p class="text-body-md text-on-surface-variant">Review, approve, or reject discount promotional codes submitted by faculty members.</p>
+        </div>
+        <div class="flex items-center gap-md">
+            <span class="px-4 py-2 bg-amber-50 text-amber-700 font-bold rounded-2xl border border-amber-200 text-xs flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">hourglass_empty</span>
+                {{ pending_coupons|length }} Pending Approvals
+            </span>
+        </div>
+    </div>
+
+    <!-- Pending Approvals Section -->
+    <div class="bg-white p-xl rounded-3xl border border-outline-variant/20 shadow-xl space-y-md">
+        <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2 border-b border-outline-variant/10 pb-md">
+            <span class="material-symbols-outlined text-amber-600">pending_actions</span>
+            Pending Approval Requests ({{ pending_coupons|length }})
+        </h3>
+        
+        <div class="space-y-sm">
+            {% for c in pending_coupons %}
+            <div class="p-lg bg-amber-50/40 rounded-2xl border-2 border-amber-200/60 flex flex-col md:flex-row md:items-center justify-between gap-md shadow-sm">
+                <div class="flex items-center gap-md">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-800 font-mono font-extrabold flex items-center justify-center text-sm border border-amber-400/40">
+                        {{ c.code }}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-bold text-on-surface text-body-md">{{ c.discount_percent }}% OFF Discount Code</h4>
+                            <span class="px-2 py-0.5 bg-amber-200 text-amber-900 font-bold text-[10px] uppercase rounded-md">Pending</span>
+                        </div>
+                        <p class="text-xs text-outline font-medium mt-0.5">Submitted by: <strong class="text-on-surface">{{ c.instructor.name if c.instructor else 'Faculty Member' }}</strong> • Max Uses: {{ c.max_uses or 100 }}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-md">
+                    <!-- Reject Form -->
+                    <form action="{{ url_for('admin.reject_coupon', coupon_id=c.id) }}" method="POST">
+                        <button type="submit" class="px-md py-2 bg-red-50 text-red-700 border border-red-200 rounded-xl font-bold hover:bg-red-100 transition-all text-xs flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">cancel</span> Reject
+                        </button>
+                    </form>
+                    <!-- Approve Form -->
+                    <form action="{{ url_for('admin.approve_coupon', coupon_id=c.id) }}" method="POST">
+                        <button type="submit" class="px-lg py-2 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all text-xs flex items-center gap-1 shadow-md">
+                            <span class="material-symbols-outlined text-sm">check_circle</span> Approve & Publish
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-body-md text-on-surface-variant text-center py-lg">🎉 No pending coupon approval requests at this time.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Approved / Active Coupons Section -->
+    <div class="bg-white p-xl rounded-3xl border border-outline-variant/20 shadow-xl space-y-md">
+        <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2 border-b border-outline-variant/10 pb-md">
+            <span class="material-symbols-outlined text-emerald-600">verified</span>
+            All Active & Historical Coupons ({{ all_coupons|length }})
+        </h3>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-outline-variant/20 text-label-md text-outline">
+                        <th class="py-3 px-4">Coupon Code</th>
+                        <th class="py-3 px-4">Instructor</th>
+                        <th class="py-3 px-4">Discount</th>
+                        <th class="py-3 px-4">Redemptions</th>
+                        <th class="py-3 px-4">Status</th>
+                        <th class="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10 text-body-sm">
+                    {% for c in all_coupons %}
+                    <tr class="hover:bg-surface-container-low transition-colors">
+                        <td class="py-3 px-4 font-mono font-bold text-primary">{{ c.code }}</td>
+                        <td class="py-3 px-4 font-medium">{{ c.instructor.name if c.instructor else 'System' }}</td>
+                        <td class="py-3 px-4 font-bold text-emerald-600">{{ c.discount_percent }}% OFF</td>
+                        <td class="py-3 px-4">{{ c.times_used or 0 }} / {{ c.max_uses or 100 }}</td>
+                        <td class="py-3 px-4">
+                            {% if c.status == 'approved' %}
+                                <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold text-xs rounded-full">Approved</span>
+                            {% elif c.status == 'rejected' %}
+                                <span class="px-2.5 py-1 bg-red-100 text-red-800 font-bold text-xs rounded-full">Rejected</span>
+                            {% else %}
+                                <span class="px-2.5 py-1 bg-amber-100 text-amber-800 font-bold text-xs rounded-full">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-right flex items-center justify-end gap-2">
+                            {% if c.status != 'approved' %}
+                            <form action="{{ url_for('admin.approve_coupon', coupon_id=c.id) }}" method="POST" class="inline">
+                                <button type="submit" class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg font-bold text-xs hover:bg-emerald-700 transition-colors">
+                                    Approve
+                                </button>
+                            </form>
+                            {% endif %}
+                            <button type="button" onclick="openAdminEditCouponModal({{ c.id }}, '{{ c.code }}', {{ c.discount_percent }}, {{ c.max_uses or 100 }}, '{{ c.status }}')" class="px-2.5 py-1 bg-amber-500 text-white rounded-lg font-bold text-xs hover:bg-amber-600 transition-colors" title="Edit Coupon">
+                                ✏️ Edit
+                            </button>
+                            <form action="{{ url_for('admin.delete_coupon', coupon_id=c.id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete coupon {{ c.code }}?');">
+                                <button type="submit" class="px-2.5 py-1 bg-red-600 text-white rounded-lg font-bold text-xs hover:bg-red-700 transition-colors" title="Delete Coupon">
+                                    🗑️ Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="py-md text-center text-on-surface-variant">No coupons found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Edit Coupon Modal -->
+<div id="adminEditCouponModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center hidden">
+    <div class="bg-white p-xl rounded-3xl border-2 border-outline-variant/30 shadow-2xl max-w-md w-full mx-4 space-y-md">
+        <div class="flex items-center justify-between border-b border-outline-variant/10 pb-3">
+            <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">edit</span> Edit Promo Coupon
+            </h3>
+            <button type="button" onclick="closeAdminEditCouponModal()" class="text-outline hover:text-on-surface">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form id="adminEditCouponForm" method="POST" class="space-y-md">
+            <div>
+                <label class="block text-xs font-bold text-on-surface mb-1">Coupon Code</label>
+                <input type="text" name="code" id="admin_edit_code" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm font-mono font-bold focus:outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-on-surface mb-1">Discount Percent (%)</label>
+                <input type="number" name="discount_percent" id="admin_edit_discount" min="1" max="100" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-on-surface mb-1">Max Uses Limit</label>
+                <input type="number" name="max_uses" id="admin_edit_max_uses" min="1" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-on-surface mb-1">Status</label>
+                <select name="status" id="admin_edit_status" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+                    <option value="approved">Approved</option>
+                    <option value="pending_approval">Pending Approval</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="flex items-center justify-end gap-md pt-2">
+                <button type="button" onclick="closeAdminEditCouponModal()" class="px-md py-2 text-xs font-bold text-outline hover:text-on-surface">Cancel</button>
+                <button type="submit" class="px-lg py-2 bg-primary text-white font-bold text-xs rounded-xl shadow-md hover:bg-primary-container transition-all">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAdminEditCouponModal(id, code, discount, maxUses, status) {
+    document.getElementById('adminEditCouponForm').action = "/admin/coupons/" + id + "/edit";
+    document.getElementById('admin_edit_code').value = code;
+    document.getElementById('admin_edit_discount').value = discount;
+    document.getElementById('admin_edit_max_uses').value = maxUses;
+    document.getElementById('admin_edit_status').value = status;
+    document.getElementById('adminEditCouponModal').classList.remove('hidden');
+}
+
+function closeAdminEditCouponModal() {
+    document.getElementById('adminEditCouponModal').classList.add('hidden');
+}
+</script>
+{% endblock %}

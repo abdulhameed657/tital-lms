@@ -1,0 +1,257 @@
+{% extends "layouts/public.html" %}
+
+{% block title %}{{ city_name }} Campuses | Titan LMS{% endblock %}
+
+{% block head %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+
+  .city-campuses-page {
+    background: #fcf9f1;
+    color: #1c1c17;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .campus-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 84, 203, 0.12);
+    border-radius: 1.5rem;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .campus-card:hover {
+    border-color: #0054cb;
+    box-shadow: 0 20px 40px -10px rgba(0, 84, 203, 0.15);
+    transform: translateY(-4px);
+  }
+
+  .modal-blur-bg {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+</style>
+{% endblock %}
+
+{% block public_content %}
+<div class="city-campuses-page py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto space-y-10">
+    
+    <!-- Top Breadcrumb & Header -->
+    <div class="space-y-4">
+      <a href="{{ url_for('public.campuses') }}" class="inline-flex items-center gap-2 text-sm font-bold text-[#0054cb] hover:underline">
+        <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Pakistan Map
+      </a>
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <span class="text-xs font-extrabold text-[#735c00] uppercase tracking-widest">Regional Hub Directory</span>
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-[#1c1c17] mt-1" style="font-family:'Montserrat',sans-serif;">
+            Campuses in <span class="text-[#0054cb]">{{ city_name }}</span>
+          </h1>
+        </div>
+        <div class="px-5 py-2.5 bg-[#0054cb]/10 text-[#0054cb] font-extrabold text-sm rounded-full border border-[#0054cb]/20 flex items-center gap-2">
+          <span class="material-symbols-outlined text-base">domain</span>
+          <span>{{ campuses|length if campuses|length > 0 else 1 }} Active Campus Hub{% if campuses|length != 1 %}es{% endif %}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campus Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% if campuses and campuses|length > 0 %}
+        {% for c in campuses %}
+        <div class="campus-card flex flex-col justify-between group">
+          <div class="relative w-full h-56 bg-slate-900 overflow-hidden">
+            <img src="{{ c.image_url or 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=600' }}" alt="{{ c.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute bottom-4 left-4 bg-[#0054cb] text-white text-xs font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
+              {{ c.region or 'TITAN NODE' }}
+            </span>
+          </div>
+
+          <div class="p-6 space-y-4 flex-1 flex flex-col justify-between">
+            <div class="space-y-2">
+              <h3 class="text-xl font-bold text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">{{ c.title }}</h3>
+              <p class="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-[#0054cb]">location_on</span>
+                <span>{{ c.address }}</span>
+              </p>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
+              {% if c.phone %}
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-[#0054cb]">call</span>
+                <span>{{ c.phone }}</span>
+              </div>
+              {% endif %}
+              {% if c.email %}
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-[#0054cb]">mail</span>
+                <span>{{ c.email }}</span>
+              </div>
+              {% endif %}
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-[#0054cb]">groups</span>
+                <span><strong class="text-slate-900">{{ c.active_students }}</strong> Active Students Enrolled</span>
+              </div>
+            </div>
+
+            {% if c.description %}
+            <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">{{ c.description }}</p>
+            {% endif %}
+
+            <button onclick="openModalDetails('{{ c.title|e }}', '{{ c.city|e }}', '{{ (c.region or '')|e }}', '{{ (c.address)|e }}', '{{ (c.phone or '')|e }}', '{{ (c.email or '')|e }}', '{{ (c.description or '')|e }}', '{{ c.active_students }}', '{{ c.image_url or '' }}', '{{ c.video_url or '' }}')" class="w-full py-3 bg-[#0054cb] hover:bg-[#0040a0] active:scale-[0.98] text-white font-extrabold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-sm mt-2">
+              <span>View Details & Virtual Tour</span>
+              <span class="material-symbols-outlined text-lg">videocam</span>
+            </button>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <!-- Default Demo Hub Card for selected City -->
+        <div class="campus-card flex flex-col justify-between group">
+          <div class="relative w-full h-56 bg-slate-900 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=600" alt="{{ city_name }} Central Campus" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+            <span class="absolute bottom-4 left-4 bg-[#0054cb] text-white text-xs font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
+              TITAN {{ city_name|upper }} HQ
+            </span>
+          </div>
+
+          <div class="p-6 space-y-4 flex-1 flex flex-col justify-between">
+            <div class="space-y-2">
+              <h3 class="text-xl font-bold text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">Titan Main {{ city_name }} Campus</h3>
+              <p class="text-xs text-slate-500 font-semibold flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm text-[#0054cb]">location_on</span>
+                <span>Main University Road, Tech Block, {{ city_name }}</span>
+              </p>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-slate-100 text-xs font-semibold text-slate-600">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-[#0054cb]">call</span>
+                <span>+92 42 111 848 261</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-[#0054cb]">mail</span>
+                <span>{{ city_name|lower }}.campus@titanlms.com</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-[#0054cb]">groups</span>
+                <span><strong class="text-slate-900">3,400+</strong> Active Students Enrolled</span>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed">State-of-the-art AI research labs, digital classrooms, high-speed fiber internet and interactive project arenas.</p>
+
+            <button onclick="openModalDetails('Titan Main {{ city_name }} Campus', '{{ city_name }}', 'TITAN {{ city_name|upper }} HQ', 'Main University Road, Tech Block, {{ city_name }}', '+92 42 111 848 261', '{{ city_name|lower }}.campus@titanlms.com', 'State-of-the-art AI research labs, digital classrooms, high-speed fiber internet and interactive project arenas.', '3,400', 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=600', 'https://assets.mixkit.co/videos/preview/mixkit-modern-office-space-with-employees-42861-large.mp4')" class="w-full py-3 bg-[#0054cb] hover:bg-[#0040a0] active:scale-[0.98] text-white font-extrabold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-sm mt-2">
+              <span>View Details & Virtual Tour</span>
+              <span class="material-symbols-outlined text-lg">videocam</span>
+            </button>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal: Campus Video & Detail Viewer -->
+<div id="cityCampusModal" class="fixed inset-0 z-50 bg-slate-950/70 modal-blur-bg flex items-center justify-center p-4 hidden">
+  <div class="bg-white max-w-lg w-full rounded-3xl overflow-hidden shadow-2xl border border-slate-200 relative animate-fade-in-up">
+    
+    <button onclick="closeCityModal()" class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-slate-900/60 hover:bg-slate-900 text-white flex items-center justify-center transition-all backdrop-blur-md">
+      <span class="material-symbols-outlined text-lg">close</span>
+    </button>
+
+    <div class="relative w-full h-56 bg-slate-900 overflow-hidden">
+      <img id="viewImg" src="" alt="Campus Cover" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+      <span id="viewRegion" class="absolute bottom-4 left-4 bg-[#0054cb] text-white text-xs font-extrabold uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md">
+        TITAN NODE
+      </span>
+    </div>
+
+    <div class="p-6 space-y-5">
+      <div>
+        <h2 id="viewTitle" class="text-2xl font-black text-[#1c1c17]" style="font-family:'Montserrat',sans-serif;">Campus Title</h2>
+        <p id="viewAddress" class="text-xs font-bold text-slate-500 mt-1 flex items-center gap-1">
+          <span class="material-symbols-outlined text-sm text-[#0054cb]">location_on</span>
+          <span>Address</span>
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200/60 text-xs font-semibold text-slate-700">
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase font-bold">Contact Phone</span>
+          <span id="viewPhone" class="text-slate-900 font-bold">+92 21 3587 0099</span>
+        </div>
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase font-bold">Active Students</span>
+          <span id="viewStudents" class="text-[#0054cb] font-extrabold">1,200+</span>
+        </div>
+      </div>
+
+      <div id="viewDescriptionBox">
+        <p id="viewDescription" class="text-xs text-slate-600 leading-relaxed"></p>
+      </div>
+
+      <!-- Virtual Tour Video Box -->
+      <div id="modalVideoBox" class="hidden rounded-2xl overflow-hidden border border-slate-200 bg-black aspect-video relative shadow-inner">
+        <video id="modalVideoPlayer" class="w-full h-full object-cover" controls autoplay loop muted>
+          <source id="videoSource" src="" type="video/mp4">
+        </video>
+      </div>
+
+      <button id="modalPlayBtn" onclick="startModalVideo()" class="w-full py-3.5 bg-[#0054cb] hover:bg-[#0040a0] text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
+        <span>Play Virtual Tour Video</span>
+        <span class="material-symbols-outlined text-lg">play_circle</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentVideoUrl = "";
+
+  function openModalDetails(title, city, region, address, phone, email, description, students, img, video) {
+    document.getElementById('viewTitle').innerText = title;
+    document.getElementById('viewRegion').innerText = region || "TITAN CAMPUS NODE";
+    document.getElementById('viewAddress').innerText = address;
+    document.getElementById('viewPhone').innerText = phone || "N/A";
+    document.getElementById('viewStudents').innerText = students + " Students";
+    document.getElementById('viewDescription').innerText = description || "Modern educational facilities equipped with AI labs and smart classrooms.";
+    document.getElementById('viewImg').src = img || "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=600";
+
+    currentVideoUrl = video || "https://assets.mixkit.co/videos/preview/mixkit-modern-office-space-with-employees-42861-large.mp4";
+
+    // Reset video state
+    document.getElementById('modalVideoBox').classList.add('hidden');
+    document.getElementById('modalPlayBtn').style.display = "flex";
+    const player = document.getElementById('modalVideoPlayer');
+    if (player) player.pause();
+
+    document.getElementById('cityCampusModal').classList.remove('hidden');
+  }
+
+  function closeCityModal() {
+    document.getElementById('cityCampusModal').classList.add('hidden');
+    const player = document.getElementById('modalVideoPlayer');
+    if (player) player.pause();
+  }
+
+  function startModalVideo() {
+    const videoBox = document.getElementById('modalVideoBox');
+    const player = document.getElementById('modalVideoPlayer');
+    const source = document.getElementById('videoSource');
+
+    source.src = currentVideoUrl;
+    player.load();
+    videoBox.classList.remove('hidden');
+    player.play();
+
+    document.getElementById('modalPlayBtn').style.display = "none";
+  }
+</script>
+{% endblock %}

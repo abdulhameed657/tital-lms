@@ -1,0 +1,710 @@
+{% extends "base.html" %}
+
+{% block layout %}
+<div x-data="{ mobileSidebar: false }">
+    <style>
+        .glass-nav {
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+        }
+
+        /* Slide in from bottom */
+        @keyframes slideFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-from-bottom {
+            animation: slideFromBottom 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        /* Slide in from top */
+        @keyframes slideFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-from-top {
+            animation: slideFromTop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        /* Slide in from left */
+        @keyframes slideFromLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-from-left {
+            animation: slideFromLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        /* Slide in from right */
+        @keyframes slideFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-from-right {
+            animation: slideFromRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        /* Zoom in scale effect */
+        @keyframes zoomInEffect {
+            from {
+                opacity: 0;
+                transform: scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .zoom-in-effect {
+            animation: zoomInEffect 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        /* Sidebar scrollable nav */
+        #sidebar-nav {
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        #sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #sidebar-nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #sidebar-nav::-webkit-scrollbar-thumb {
+            background: #c2c6d7;
+            border-radius: 10px;
+        }
+
+        #sidebar-nav::-webkit-scrollbar-thumb:hover {
+            background: #0054cb;
+        }
+    </style>
+
+    <!-- Mobile Slide-Over Sidebar Drawer -->
+    <div x-show="mobileSidebar" class="relative z-50 md:hidden" style="display: none;">
+        <div x-show="mobileSidebar" x-transition.opacity @click="mobileSidebar = false"
+            class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"></div>
+        <div x-show="mobileSidebar" x-transition:enter="transition ease-out duration-300 transform"
+            x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="-translate-x-full"
+            class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 shadow-2xl p-4 overflow-y-auto space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg border border-primary/30 overflow-hidden shrink-0 shadow-sm">
+                        <img src="/static/logo.png" alt="Titan Logo" class="w-full h-full object-cover">
+                    </div>
+                    <span class="font-extrabold text-sm text-slate-900 dark:text-white">{{ current_tenant.name ~ '
+                        Student' if current_tenant else 'Titan Student Portal' }}</span>
+                </div>
+                <button @click="mobileSidebar = false"
+                    class="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
+            </div>
+            <nav class="space-y-1">
+                <!-- Dashboard -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'dashboard' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.dashboard') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'dashboard' %}font-variation-settings: 'FILL' 1;{% endif %}">dashboard</span>
+                    Dashboard
+                </a>
+                <!-- Attendance -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'attendance' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.attendance') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'attendance' %}font-variation-settings: 'FILL' 1;{% endif %}">how_to_reg</span>
+                    Attendance Portal
+                </a>
+                <!-- Apply for Leave -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'leave' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.leave_application') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'leave' %}font-variation-settings: 'FILL' 1;{% endif %}">event_busy</span>
+                    Apply for Leave
+                </a>
+                <!-- AI Study Planner -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'study_planner' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.study_planner') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'study_planner' %}font-variation-settings: 'FILL' 1;{% endif %}">auto_awesome</span>
+                    AI Study Planner
+                </a>
+                <!-- Course Resources -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'resources' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.resources') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'resources' %}font-variation-settings: 'FILL' 1;{% endif %}">folder_open</span>
+                    Course Resources
+                </a>
+                <!-- Class Schedule -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'schedules' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.schedules') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'schedules' %}font-variation-settings: 'FILL' 1;{% endif %}">calendar_clock</span>
+                    Class Schedule
+                </a>
+                <!-- Events Calendar -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'events' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.events') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'events' %}font-variation-settings: 'FILL' 1;{% endif %}">event</span>
+                    Events Calendar
+                </a>
+                <!-- Social Feed -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'social' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.social_dashboard') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'social' %}font-variation-settings: 'FILL' 1;{% endif %}">hub</span>
+                    Social Feed
+                </a>
+                <!-- Browse Catalog -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'courses' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.catalog') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'courses' %}font-variation-settings: 'FILL' 1;{% endif %}">school</span>
+                    Browse Catalog
+                </a>
+                <!-- Analytics -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'analytics' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.performance_analytics') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'analytics' %}font-variation-settings: 'FILL' 1;{% endif %}">analytics</span>
+                    Analytics
+                </a>
+                <!-- Leaderboard -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'leaderboard' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.leaderboard') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'leaderboard' %}font-variation-settings: 'FILL' 1;{% endif %}">leaderboard</span>
+                    Leaderboard
+                </a>
+                <!-- My Quizzes -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'quizzes' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.my_quizzes') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'quizzes' %}font-variation-settings: 'FILL' 1;{% endif %}">quiz</span>
+                    My Quizzes
+                </a>
+                <!-- My Assignments -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'assignments' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.my_assignments') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'assignments' %}font-variation-settings: 'FILL' 1;{% endif %}">assignment</span>
+                    Assignments
+                </a>
+                <!-- Certificates -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'certificates' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.my_certificates') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'certificates' %}font-variation-settings: 'FILL' 1;{% endif %}">workspace_premium</span>
+                    Certificates
+                </a>
+                <!-- Gamification & XP Store -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'rewards' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.rewards_store') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'rewards' %}font-variation-settings: 'FILL' 1;{% endif %}">emoji_events</span>
+                    Gamification &amp; XP Store
+                </a>
+                <!-- Notifications -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'notifications' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.notification_center') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'notifications' %}font-variation-settings: 'FILL' 1;{% endif %}">notifications</span>
+                    Notifications
+                </a>
+                <!-- Account Settings & Profile -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs {% if active_page == 'profile' %}bg-primary/10 text-primary border-l-4 border-primary{% else %}text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}"
+                    href="{{ url_for('student.profile') }}">
+                    <span class="material-symbols-outlined text-lg"
+                        style="{% if active_page == 'profile' %}font-variation-settings: 'FILL' 1;{% endif %}">settings</span>
+                    Account Profile &amp; Settings
+                </a>
+
+                <!-- AI Innovation Hub Prominent Mobile Button -->
+                <a href="{{ url_for('student.ai_hub') }}"
+                    class="w-full bg-[#0054cb] hover:bg-[#0041a3] text-white rounded-xl py-2.5 px-3 flex items-center justify-center gap-2 shadow-md font-bold text-xs active:scale-95 transition-all mt-4 mb-2">
+                    <span class="material-symbols-outlined text-lg">smart_toy</span>
+                    AI Innovation Hub
+                </a>
+
+                <!-- Log Out -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 pt-3 border-t border-slate-100 dark:border-slate-800 mt-2"
+                    href="{{ url_for('auth.logout') }}">
+                    <span class="material-symbols-outlined text-lg">logout</span> Log Out
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- SideNavBar (Desktop Only) -->
+    <aside id="student-sidebar" data-lenis-prevent
+        class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-64 bg-surface-container/80 dark:bg-inverse-surface/80 glass-nav shadow-xl border-r border-outline-variant/20 z-50">
+        <!-- Fixed Sidebar Brand Card (White background & bottom divider) -->
+        <div
+            class="px-4 pt-5 pb-3 shrink-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-outline-variant/20 shadow-sm mb-2">
+            <div class="px-3 py-3 bg-white dark:bg-slate-800 rounded-2xl border-2 border-primary/20 shadow-md">
+                <a href="{{ url_for('public.home') }}" class="flex items-center gap-sm">
+                    <div class="w-10 h-10 overflow-hidden rounded-xl shadow-md shrink-0 border border-primary/30">
+                        <img src="/static/logo.png" alt="Titan Logo" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h1 class="text-base text-on-surface tracking-tight leading-none font-extrabold"
+                            style="font-family: Inter, sans-serif;">
+                            {{ current_tenant.name if current_tenant else 'Titan LMS' }}</h1>
+                        <p class="text-label-sm uppercase tracking-widest text-primary font-extrabold">Student Workspace
+                        </p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Scrollable Pages Navigation Container -->
+        <div id="sidebar-nav" class="flex-1 px-4 py-2 overflow-y-auto">
+            <nav class="space-y-1.5">
+                <!-- Dashboard -->
+                <a class="flex items-center gap-md {% if active_page == 'dashboard' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.dashboard') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'dashboard' %}font-variation-settings: 'FILL' 1;{% endif %}">dashboard</span>
+                    <span class="text-label-lg font-label-lg">Dashboard</span>
+                </a>
+
+                <!-- Smart Attendance Portal -->
+                <a class="flex items-center gap-md {% if active_page == 'attendance' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.attendance') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'attendance' %}font-variation-settings: 'FILL' 1;{% endif %}">how_to_reg</span>
+                    <span class="text-label-lg font-label-lg">Attendance Portal</span>
+                </a>
+
+                <!-- Apply for Leave -->
+                <a class="flex items-center gap-md {% if active_page == 'leave' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.leave_application') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'leave' %}font-variation-settings: 'FILL' 1;{% endif %}">event_busy</span>
+                    <span class="text-label-lg font-label-lg">Apply for Leave</span>
+                </a>
+
+                <!-- AI Study Planner -->
+                <a class="flex items-center gap-md {% if active_page == 'study_planner' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.study_planner') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'study_planner' %}font-variation-settings: 'FILL' 1;{% endif %}">auto_awesome</span>
+                    <span class="text-label-lg font-label-lg">AI Study Planner</span>
+                </a>
+
+                <!-- Course Resources & Study Material -->
+                <a class="flex items-center gap-md {% if active_page == 'resources' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.resources') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'resources' %}font-variation-settings: 'FILL' 1;{% endif %}">folder_open</span>
+                    <span class="text-label-lg font-label-lg">Course Resources</span>
+                </a>
+
+                <!-- Class Schedules & Timetable -->
+                <a class="flex items-center gap-md {% if active_page == 'schedules' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.schedules') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'schedules' %}font-variation-settings: 'FILL' 1;{% endif %}">calendar_clock</span>
+                    <span class="text-label-lg font-label-lg">Class Schedule</span>
+                </a>
+
+                <!-- Events Calendar -->
+                <a class="flex items-center gap-md {% if active_page == 'events' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.events') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'events' %}font-variation-settings: 'FILL' 1;{% endif %}">event</span>
+                    <span class="text-label-lg font-label-lg">Events Calendar</span>
+                </a>
+
+                <!-- Social Feed -->
+                <a class="flex items-center gap-md {% if active_page == 'social' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.social_dashboard') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'social' %}font-variation-settings: 'FILL' 1;{% endif %}">hub</span>
+                    <span class="text-label-lg font-label-lg">Social Feed</span>
+                </a>
+
+                <!-- Courses Catalog -->
+                <a class="flex items-center gap-md {% if active_page == 'courses' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.catalog') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'courses' %}font-variation-settings: 'FILL' 1;{% endif %}">school</span>
+                    <span class="text-label-lg font-label-lg">Browse Catalog</span>
+                </a>
+
+                <!-- Analytics -->
+                <a class="flex items-center gap-md {% if active_page == 'analytics' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.performance_analytics') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'analytics' %}font-variation-settings: 'FILL' 1;{% endif %}">analytics</span>
+                    <span class="text-label-lg font-label-lg">Analytics</span>
+                </a>
+
+                <!-- Leaderboard -->
+                <a class="flex items-center gap-md {% if active_page == 'leaderboard' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.leaderboard') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'leaderboard' %}font-variation-settings: 'FILL' 1;{% endif %}">leaderboard</span>
+                    <span class="text-label-lg font-label-lg">Leaderboard</span>
+                </a>
+
+
+                <!-- My Quizzes -->
+                <a class="flex items-center gap-md {% if active_page == 'quizzes' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.my_quizzes') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'quizzes' %}font-variation-settings: 'FILL' 1;{% endif %}">quiz</span>
+                    <span class="text-label-lg font-label-lg">My Quizzes</span>
+                </a>
+
+                <!-- My Assignments -->
+                <a class="flex items-center gap-md {% if active_page == 'assignments' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.my_assignments') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'assignments' %}font-variation-settings: 'FILL' 1;{% endif %}">assignment</span>
+                    <span class="text-label-lg font-label-lg">Assignments</span>
+                </a>
+
+                <!-- My Certificates -->
+                <a class="flex items-center gap-md {% if active_page == 'certificates' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.my_certificates') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'certificates' %}font-variation-settings: 'FILL' 1;{% endif %}">workspace_premium</span>
+                    <span class="text-label-lg font-label-lg">Certificates</span>
+                </a>
+
+
+
+
+
+                <!-- Live Code Sandbox -->
+                <a class="flex items-center gap-md {% if active_page == 'code_sandbox' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.code_sandbox') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'code_sandbox' %}font-variation-settings: 'FILL' 1;{% endif %}">terminal</span>
+                    <span class="text-label-lg font-label-lg">Code Sandbox</span>
+                </a>
+
+                <!-- AI Flashcards -->
+                <a class="flex items-center gap-md {% if active_page == 'flashcards' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.flashcards') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'flashcards' %}font-variation-settings: 'FILL' 1;{% endif %}">style</span>
+                    <span class="text-label-lg font-label-lg">AI Flashcards</span>
+                </a>
+
+                <!-- Live Classes & Reminders -->
+                <a class="flex items-center gap-md {% if active_page == 'live_classes' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.live_classes') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'live_classes' %}font-variation-settings: 'FILL' 1;{% endif %}">broadcast_on_home</span>
+                    <span class="text-label-lg font-label-lg flex-1">Live Classes</span>
+                </a>
+
+                <!-- Messages -->
+                <a class="flex items-center gap-md {% if active_page == 'messages' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-all duration-200 translate-x-1{% else %}text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary hover:translate-x-1 transition-all duration-200{% endif %}"
+                    href="{{ url_for('student.messages') }}">
+                    <span class="material-symbols-outlined"
+                        style="{% if active_page == 'messages' %}font-variation-settings: 'FILL' 1;{% endif %}">mail</span>
+                    <span class="text-label-lg font-label-lg flex-1">Messages</span>
+                    {% if unread_messages > 0 %}
+                    <span class="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-bold">{{ unread_messages
+                        }}</span>
+                    {% endif %}
+                </a>
+            </nav>
+        </div>
+
+        <!-- Sidebar Bottom Footer Box (Highlighted Bottom Section) -->
+        <div
+            class="mt-auto px-4 py-4 m-3 bg-white/70 dark:bg-slate-800/70 rounded-2xl border-2 border-outline-variant/30 shadow-md space-y-2">
+            <a href="{{ url_for('student.ai_hub') }}"
+                class="w-full bg-primary text-white rounded-xl py-2.5 flex items-center justify-center gap-2 shadow-md active:scale-95 transition-transform font-bold text-xs hover:bg-primary-container">
+                <span class="material-symbols-outlined text-sm">smart_toy</span>
+                AI Innovation Hub
+            </a>
+            <div class="space-y-1 border-t border-outline-variant/20 pt-2">
+                <a class="flex items-center gap-md text-on-surface hover:text-primary font-bold px-3 py-2 rounded-xl hover:bg-primary/10 transition-all {% if active_page == 'profile' %}bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3{% endif %}"
+                    href="{{ url_for('student.profile') }}">
+                    <span class="material-symbols-outlined text-sm text-primary">person</span>
+                    <span class="text-label-md">Profile</span>
+                </a>
+                <a class="flex items-center gap-md text-red-600 hover:text-red-700 font-bold px-3 py-2 rounded-xl hover:bg-red-50 transition-all"
+                    href="{{ url_for('auth.logout') }}">
+                    <span class="material-symbols-outlined text-sm text-red-600">logout</span>
+                    <span class="text-label-md">Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="md:ml-64 min-h-screen flex flex-col bg-background page-reveal">
+        <!-- TopNavBar -->
+        <header
+            class="sticky top-0 w-full z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shadow-sm">
+            <div class="flex justify-between items-center w-full px-4 sm:px-6 md:px-8 py-3 max-w-7xl mx-auto">
+                <div class="flex items-center gap-3">
+                    <!-- Prominent Mobile Hamburger Menu Button -->
+                    <button @click="mobileSidebar = !mobileSidebar"
+                        class="md:hidden flex items-center gap-1 bg-primary/10 border border-primary/30 text-primary px-3 py-1.5 rounded-xl font-bold text-xs shadow-xs active:scale-95 transition-all">
+                        <span class="material-symbols-outlined text-lg"
+                            x-text="mobileSidebar ? 'close' : 'menu'">menu</span>
+                        <span class="font-extrabold" x-text="mobileSidebar ? 'Close' : 'Menu'">Menu</span>
+                    </button>
+                    <!-- Mobile Logo -->
+                    <a href="{{ url_for('public.home') }}" class="flex items-center gap-sm md:hidden">
+                        <div class="w-8 h-8 overflow-hidden rounded-lg shadow-md shrink-0">
+                            <img src="/static/logo.png" alt="Titan Logo" class="w-full h-full object-cover">
+                        </div>
+                    </a>
+                    <!-- Page Title / Search placeholder -->
+                    <div
+                        class="hidden sm:flex items-center bg-surface-container px-4 py-2 rounded-full border border-outline-variant/30 w-80">
+                        <span class="material-symbols-outlined text-outline">search</span>
+                        <input class="bg-transparent border-none focus:ring-0 text-body-sm w-full"
+                            placeholder="Search courses, lessons..." type="text">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-md">
+
+
+                    <!-- Real-Time Alerts Notification Popover -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open"
+                            class="p-2 text-on-surface-variant hover:text-primary transition-all active:scale-90 relative rounded-full hover:bg-slate-100 touch-target"
+                            aria-label="Notifications">
+                            <span class="material-symbols-outlined">notifications</span>
+                            {% if unread_notifications > 0 %}
+                            <span
+                                class="absolute top-2 right-2 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface animate-pulse"></span>
+                            {% endif %}
+                        </button>
+
+                        <!-- Popover Dropdown Panel -->
+                        <div x-show="open" @click.away="open = false" x-transition
+                            class="absolute -right-12 sm:right-0 mt-3 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 overflow-hidden space-y-0"
+                            style="display: none;">
+                            <div class="p-md bg-slate-900 text-white flex justify-between items-center">
+                                <h4 class="font-bold text-xs flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">notifications_active</span> In-App
+                                    Notifications
+                                </h4>
+                                <span
+                                    class="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold">Real-time</span>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto divide-y divide-slate-100">
+                                {% if unread_notifications_list %}
+                                {% for n in unread_notifications_list %}
+                                <div
+                                    class="p-md hover:bg-slate-50 transition-colors text-xs space-y-0.5 {% if not n.is_read %}bg-blue-50/60 font-semibold{% endif %}">
+                                    <p class="font-bold text-slate-800 flex items-center justify-between">
+                                        <span>{{ n.title }}</span>
+                                        <span class="text-[10px] font-normal text-slate-400">{{
+                                            n.created_at.strftime('%b %d, %H:%M') if n.created_at else '' }}</span>
+                                    </p>
+                                    <p class="text-slate-600 text-[11px] leading-snug">{{ n.content }}</p>
+                                </div>
+                                {% endfor %}
+                                {% else %}
+                                <div class="p-md text-xs text-slate-500 text-center py-6">
+                                    No notifications yet.
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="p-xs bg-slate-50 border-t border-slate-100 text-center">
+                                <a href="{{ url_for('student.notification_center') }}"
+                                    class="text-[11px] font-bold text-primary hover:underline">View Notification
+                                    Center</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-8 w-px bg-outline-variant/30 mx-1 sm:mx-2"></div>
+
+                    <!-- User Profile Summary -->
+                    <a href="{{ url_for('public.portfolio', user_id=current_user.id) }}"
+                        class="flex items-center gap-2 sm:gap-3 touch-target">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-label-md font-bold text-on-surface">{{ current_user.name }}</p>
+                            <p class="text-label-sm text-primary uppercase font-bold">{{ current_user.role.upper() }} •
+                                {{
+                                current_user.points }} pts</p>
+                        </div>
+                        <div
+                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-primary-container shrink-0">
+                            <img class="w-full h-full object-cover"
+                                src="{{ current_user.avatar_url or 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150' }}"
+                                alt="Avatar">
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Student Page Content -->
+        <div class="flex-1 slide-from-bottom">
+            {% block student_content %}{% block main_content %}{% endblock %}{% endblock %}
+        </div>
+
+        <!-- Footer (Titan Shared Component) -->
+        <footer
+            class="w-full py-8 sm:py-xxl bg-surface-container-highest mt-8 sm:mt-xxl border-t border-outline-variant/10">
+            <div
+                class="flex flex-col md:flex-row justify-between items-center px-4 sm:px-margin-desktop max-w-container-max mx-auto gap-4 sm:gap-lg text-center md:text-left">
+                <div>
+                    <div class="flex items-center justify-center md:justify-start gap-sm mb-2">
+                        <div class="w-8 h-8 overflow-hidden rounded-lg shadow-sm shrink-0">
+                            <img src="/static/logo.png" alt="Titan Logo" class="w-full h-full object-cover">
+                        </div>
+                        <h2 class="font-headline-sm text-primary">{{ current_tenant.name if current_tenant else 'Titan
+                            LMS' }}</h2>
+                    </div>
+                    <p class="text-body-sm text-on-surface-variant mt-sm">© 2024 {{ current_tenant.name if
+                        current_tenant else 'Titan LMS' }}. Engineering Academic
+                        Ambition.
+                    </p>
+                </div>
+                <div class="flex flex-wrap justify-center gap-3 sm:gap-lg text-xs sm:text-sm">
+                    <a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all"
+                        href="#">Privacy Policy</a>
+                    <a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all"
+                        href="#">Terms of Service</a>
+                    <a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all"
+                        href="#">Contact Support</a>
+                    <a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all"
+                        href="#">Security</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        (function () {
+            const sidebar = document.getElementById('student-sidebar');
+            const navEl = document.getElementById('sidebar-nav');
+            if (!sidebar || !navEl) return;
+
+            let autoScrollInterval = null;
+            const TRIGGER_ZONE = 80;   // px from bottom to trigger auto-scroll
+            const SCROLL_SPEED = 20;    // px per frame
+
+            sidebar.addEventListener('mousemove', function (e) {
+                const rect = sidebar.getBoundingClientRect();
+                const distFromBottom = rect.bottom - e.clientY;
+                const distFromTop = e.clientY - rect.top;
+
+                // Clear any existing auto-scroll
+                if (autoScrollInterval) {
+                    clearInterval(autoScrollInterval);
+                    autoScrollInterval = null;
+                }
+
+                if (distFromBottom < TRIGGER_ZONE && distFromBottom > 0) {
+                    // Mouse near bottom → scroll down
+                    autoScrollInterval = setInterval(() => {
+                        navEl.scrollTop += SCROLL_SPEED;
+                    }, 16);
+                } else if (distFromTop < TRIGGER_ZONE && distFromTop > 0) {
+                    // Mouse near top → scroll up
+                    autoScrollInterval = setInterval(() => {
+                        navEl.scrollTop -= SCROLL_SPEED;
+                    }, 16);
+                }
+            });
+
+            sidebar.addEventListener('mouseleave', function () {
+                if (autoScrollInterval) {
+                    clearInterval(autoScrollInterval);
+                    autoScrollInterval = null;
+                }
+            });
+        })();
+    </script>
+
+    <!-- 5-Second Real-Time Backend Sync & Auto-Refresh -->
+    <script>
+        (function () {
+            let lastNotifs = null;
+            let lastMsgs = null;
+            let lastResCount = null;
+            let lastDlCount = null;
+
+            function syncBackendHeartbeat() {
+                fetch('/api/heartbeat')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.authenticated) return;
+
+                        if (lastNotifs !== null && lastMsgs !== null) {
+                            if (data.unread_notifications > lastNotifs || data.unread_messages > lastMsgs) {
+                                console.log('⚡ Real-time Event Received: Auto-refreshing dashboard...');
+                                if (window.location.pathname.includes('/student/leave') || window.location.pathname.includes('/student/dashboard')) {
+                                    window.location.reload();
+                                }
+                            }
+                            if (lastResCount !== null && (data.total_resources !== lastResCount || data.total_downloads !== lastDlCount)) {
+                                if (window.location.pathname.includes('/resources')) {
+                                    console.log('⚡ Real-time Resource Update Received: Refreshing counts...');
+                                    window.location.reload();
+                                }
+                            }
+                        }
+                        lastNotifs = data.unread_notifications;
+                        lastMsgs = data.unread_messages;
+                        lastResCount = data.total_resources;
+                        lastDlCount = data.total_downloads;
+                    })
+                    .catch(err => console.debug('Sync:', err));
+            }
+
+            // Execute every 5 seconds (5000ms)
+            setInterval(syncBackendHeartbeat, 5000);
+            setTimeout(syncBackendHeartbeat, 1000);
+        })();
+    </script>
+    {% include 'components/review_modal.html' %}
+</div>
+{% endblock %}

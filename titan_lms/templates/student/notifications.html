@@ -1,0 +1,44 @@
+{% extends "layouts/instructor.html" if current_user.role == 'instructor' else ("layouts/admin.html" if current_user.role == 'admin' else "layouts/student.html") %}
+
+{% block title %}Notification Center | Titan LMS{% endblock %}
+
+{% block main_content %}
+<div class="max-w-3xl mx-auto px-gutter py-xl space-y-lg">
+    <!-- Header -->
+    <div class="flex justify-between items-center border-b border-outline-variant/10 pb-4">
+        <div>
+            <h1 class="text-headline-md font-headline-lg text-on-surface">Notification Center</h1>
+            <p class="text-body-sm text-on-surface-variant">Stay updated with academic timelines and unlocked achievements.</p>
+        </div>
+        <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-label-sm font-bold uppercase">{{ notifications|length }} total</span>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="space-y-sm bg-white rounded-xl border border-outline-variant/20 shadow-sm p-md">
+        {% for notif in notifications %}
+        <div class="flex gap-md p-md rounded-lg hover:bg-surface-container-low transition-colors items-start {% if not notif.is_read %}bg-primary/5 border-l-4 border-primary{% endif %}">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 {% if notif.type == 'achievement' %}bg-tertiary/10 text-tertiary{% else %}bg-primary/10 text-primary{% endif %}">
+                {% if notif.type == 'achievement' %}
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                {% else %}
+                    <span class="material-symbols-outlined">info</span>
+                {% endif %}
+            </div>
+            <div class="flex-grow min-w-0">
+                <div class="flex justify-between items-start mb-1">
+                    <h4 class="font-bold text-on-surface text-body-sm leading-tight">{{ notif.title }}</h4>
+                    <span class="text-[10px] text-outline-variant uppercase font-mono">{{ notif.created_at.strftime('%b %d, %H:%M') }}</span>
+                </div>
+                <p class="text-body-sm text-on-surface-variant leading-relaxed">{{ notif.content }}</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="p-12 text-center space-y-sm">
+            <span class="material-symbols-outlined text-outline text-5xl">notifications_off</span>
+            <h5 class="font-headline-sm text-headline-sm text-on-surface">No notifications at this time</h5>
+            <p class="text-body-sm text-on-surface-variant">When new assignments, replies, or grades are posted, they will appear here.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

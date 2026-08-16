@@ -1,0 +1,424 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Ultra AI Course & Curriculum Wizard | Titan LMS{% endblock %}
+
+{% block instructor_content %}
+<style>
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+</style>
+
+<div class="p-lg md:p-xl max-w-container-max mx-auto space-y-lg animate-fade-in-up">
+    <!-- Header with Pulse Orb -->
+    <div
+        class="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-950 p-xl rounded-3xl border-2 border-blue-400/40 shadow-2xl shadow-blue-900/30 text-white flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div class="flex items-center gap-md">
+            <div
+                class="w-14 h-14 rounded-2xl bg-white/15 border border-white/30 text-white flex items-center justify-center font-bold shrink-0 shadow-lg backdrop-blur-md">
+                <span class="material-symbols-outlined text-3xl animate-spin">auto_awesome</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-headline-md font-extrabold tracking-tight">AI Multi-Step Course & Curriculum Wizard
+                    </h1>
+                    <span
+                        class="px-3 py-1 bg-white/20 text-white border border-white/30 text-xs font-bold rounded-full uppercase backdrop-blur-md">Titan
+                        GPT Engine</span>
+                </div>
+                <p class="text-body-sm text-blue-100 mt-1">Interactive 3-step AI wizard. Synthesize modules,
+                    edit/delete/add curriculum units, and launch your course catalog.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Step Indicator (Clickable Tabs) -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 text-center">
+        <div id="step-tab-1" onclick="gotoStep(1)"
+            class="bg-white p-md rounded-2xl border-2 border-primary shadow-md cursor-pointer hover:scale-[1.02] transition-all">
+            <span class="text-xs font-bold text-primary uppercase block">Step 1</span>
+            <span class="text-sm font-bold text-on-surface">Prompt & Video Config</span>
+        </div>
+        <div id="step-tab-2" onclick="gotoStep(2)"
+            class="bg-white p-md rounded-2xl border-2 border-outline-variant/20 shadow-sm opacity-50 cursor-pointer hover:opacity-100 transition-all">
+            <span class="text-xs font-bold text-outline uppercase block">Step 2</span>
+            <span class="text-sm font-bold text-on-surface">Edit, Add & Manage Modules</span>
+        </div>
+        <div id="step-tab-3" onclick="gotoStep(3)"
+            class="bg-white p-md rounded-2xl border-2 border-outline-variant/20 shadow-sm opacity-50 cursor-pointer hover:opacity-100 transition-all">
+            <span class="text-xs font-bold text-outline uppercase block">Step 3</span>
+            <span class="text-sm font-bold text-on-surface">Course Catalog Launch</span>
+        </div>
+    </div>
+
+    <!-- Multi-Step Form Wrapper -->
+    <form method="POST" action="{{ url_for('instructor.ai_course_builder') }}" id="wizard-form">
+        <!-- STEP 1 VIEW -->
+        <div id="step-1-view"
+            class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-md hover:border-primary/40 transition-all duration-300">
+            <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                <span
+                    class="w-8 h-8 rounded-full bg-primary/10 text-primary text-sm flex items-center justify-center font-bold">1</span>
+                Course Prompt & Configuration
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <div class="space-y-md">
+                    <div>
+                        <label class="block text-label-md font-bold text-on-surface mb-1">Course Topic / Prompt
+                            Subject</label>
+                        <input id="prompt-topic" type="text" name="topic"
+                            placeholder="e.g. Master Machine Learning with Python"
+                            class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary font-bold"
+                            required onkeyup="updatePreview()">
+                    </div>
+                    <div>
+                        <label class="block text-label-md font-bold text-on-surface mb-1">Target Audience</label>
+                        <select id="prompt-audience" name="audience"
+                            class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+                            <option>Beginner Developers</option>
+                            <option selected>Intermediate Engineers</option>
+                            <option>Enterprise Executives</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-md">
+                    <div>
+                        <label class="block text-label-md font-bold text-on-surface mb-1">Difficulty Level</label>
+                        <select name="level"
+                            class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary">
+                            <option>Beginner</option>
+                            <option selected>Intermediate</option>
+                            <option>Advanced</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-label-md font-bold text-on-surface mb-1">Lecture Video / YouTube Link
+                            (Optional)</label>
+                        <input id="prompt-video" type="text" name="video_url"
+                            placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                            class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-mono text-xs focus:outline-none focus:border-primary">
+                        <p class="text-[11px] text-outline mt-1">🎬 Paste any YouTube URL to set as the primary video
+                            lecture module.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-md">
+                <button type="button" onclick="gotoStep(2)"
+                    class="bg-primary text-white font-bold px-8 py-3.5 rounded-xl hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                    Proceed to Step 2: Edit & Manage Modules <span
+                        class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 2 VIEW -->
+        <div id="step-2-view"
+            class="hidden bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-md hover:border-primary/40 transition-all duration-300">
+            <div class="flex justify-between items-center border-b border-outline-variant/10 pb-md">
+                <div>
+                    <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                        <span
+                            class="w-8 h-8 rounded-full bg-tertiary/10 text-tertiary text-sm flex items-center justify-center font-bold">2</span>
+                        Curriculum Unit Management (Edit, Delete & Add Modules)
+                    </h3>
+                    <p class="text-xs text-outline font-medium mt-1">Modify AI-generated module titles, add new custom
+                        lessons, or delete modules before publishing.</p>
+                </div>
+                <button type="button" onclick="addNewModuleCard()"
+                    class="px-4 py-2.5 bg-primary/10 text-primary border border-primary/20 rounded-xl font-bold text-xs hover:bg-primary/20 transition-all flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">post_add</span> ➕ Add New Module
+                </button>
+            </div>
+
+            <div id="modules-list-container" class="space-y-md">
+                <!-- Module Card 1 -->
+                <div class="p-lg bg-surface-container-low rounded-2xl border-2 border-outline-variant/20 space-y-sm relative group/mcard"
+                    id="mcard-1">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-primary uppercase">Module 1 Unit</span>
+                        <button type="button" onclick="removeModuleCard('mcard-1')"
+                            class="text-red-600 hover:text-red-800 text-xs font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">delete</span> Delete Module
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-md">
+                        <div class="md:col-span-6">
+                            <label class="block text-[11px] font-bold text-outline mb-1">Module Title</label>
+                            <input type="text" name="module_title[]" id="m1-title-input"
+                                value="Introduction to Selected Subject"
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-bold focus:border-primary"
+                                required>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-[11px] font-bold text-outline mb-1">Content Type</label>
+                            <select name="module_type[]"
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-bold focus:border-primary">
+                                <option value="text" selected>Text Lesson</option>
+                                <option value="video">Video Stream</option>
+                                <option value="quiz">AI Quiz</option>
+                                <option value="lab">Interactive Lab</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-[11px] font-bold text-outline mb-1">Content / Video URL</label>
+                            <input type="text" name="module_content[]" placeholder="Content text or YouTube URL"
+                                value="Overview of core concepts & principles."
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-mono focus:border-primary">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module Card 2 -->
+                <div class="p-lg bg-surface-container-low rounded-2xl border-2 border-outline-variant/20 space-y-sm relative group/mcard"
+                    id="mcard-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-tertiary uppercase">Module 2 Unit</span>
+                        <button type="button" onclick="removeModuleCard('mcard-2')"
+                            class="text-red-600 hover:text-red-800 text-xs font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">delete</span> Delete Module
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-md">
+                        <div class="md:col-span-6">
+                            <label class="block text-[11px] font-bold text-outline mb-1">Module Title</label>
+                            <input type="text" name="module_title[]" id="m2-title-input"
+                                value="Advanced Practical Architecture Masterclass"
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-bold focus:border-primary"
+                                required>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-[11px] font-bold text-outline mb-1">Content Type</label>
+                            <select name="module_type[]"
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-bold focus:border-primary">
+                                <option value="text">Text Lesson</option>
+                                <option value="video" selected>Video Stream</option>
+                                <option value="quiz">AI Quiz</option>
+                                <option value="lab">Interactive Lab</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-[11px] font-bold text-outline mb-1">Content / Video URL</label>
+                            <input type="text" name="module_content[]" id="m2-url-input" placeholder="YouTube URL"
+                                value="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-mono focus:border-primary">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module Card 3 -->
+                <div class="p-lg bg-surface-container-low rounded-2xl border-2 border-outline-variant/20 space-y-sm relative group/mcard"
+                    id="mcard-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-purple-600 uppercase">Module 3 Unit</span>
+                        <button type="button" onclick="removeModuleCard('mcard-3')"
+                            class="text-red-600 hover:text-red-800 text-xs font-bold flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">delete</span> Delete Module
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-md">
+                        <div class="md:col-span-6">
+                            <label class="block text-[11px] font-bold text-outline mb-1">Module Title</label>
+                            <input type="text" name="module_title[]" value="Comprehensive Final AI Assessment"
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-bold focus:border-primary"
+                                required>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-[11px] font-bold text-outline mb-1">Content Type</label>
+                            <select name="module_type[]"
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-bold focus:border-primary">
+                                <option value="text">Text Lesson</option>
+                                <option value="video">Video Stream</option>
+                                <option value="quiz" selected>AI Quiz</option>
+                                <option value="lab">Interactive Lab</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-[11px] font-bold text-outline mb-1">Content / Quiz Info</label>
+                            <input type="text" name="module_content[]" value="AI generated evaluation quiz module."
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-mono focus:border-primary">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-md border-t border-outline-variant/10">
+                <button type="button" onclick="gotoStep(1)"
+                    class="px-6 py-3 bg-surface-container text-on-surface font-bold text-xs rounded-xl hover:bg-primary/10 transition-colors flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Step 1
+                </button>
+                <button type="button" onclick="gotoStep(3)"
+                    class="bg-primary text-white font-bold px-8 py-3.5 rounded-xl hover:shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                    Proceed to Step 3: Course Catalog Launch <span
+                        class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 3 VIEW -->
+        <div id="step-3-view"
+            class="hidden bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl space-y-md hover:border-primary/40 transition-all duration-300">
+            <h3 class="text-headline-sm font-bold text-on-surface flex items-center gap-2">
+                <span
+                    class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 text-sm flex items-center justify-center font-bold">3</span>
+                Course Catalog Launch
+            </h3>
+
+            <div class="max-w-3xl mx-auto py-md w-full">
+                <!-- Summary Card -->
+                <div class="bg-slate-50 p-xl rounded-2xl border border-slate-200 space-y-md text-left shadow-sm">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-md">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Course Subject Title</span>
+                        <span id="sum-title" class="text-sm font-extrabold text-gray-900">Master Machine Learning with
+                            Python</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-md">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Target Audience</span>
+                        <span id="sum-audience" class="text-sm font-bold text-blue-600">Intermediate Engineers</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-md">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Modules Configured</span>
+                        <span id="sum-modules-count" class="text-sm font-extrabold text-emerald-600">3 Units</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-xs">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Status</span>
+                        <span class="text-xs font-extrabold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">Ready to
+                            Publish</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-md border-t border-outline-variant/10">
+                <button type="button" onclick="gotoStep(2)"
+                    class="px-6 py-3 bg-surface-container text-on-surface font-bold text-xs rounded-xl hover:bg-primary/10 transition-colors flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Step 2
+                </button>
+                <button type="submit"
+                    class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold px-10 py-4 rounded-xl shadow-xl shadow-emerald-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 text-sm">
+                    <span class="material-symbols-outlined text-base">rocket_launch</span> 🚀 Publish Course to Catalog
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    let moduleCounter = 3;
+
+    function gotoStep(stepNum) {
+        document.getElementById('step-1-view').classList.add('hidden');
+        document.getElementById('step-2-view').classList.add('hidden');
+        document.getElementById('step-3-view').classList.add('hidden');
+
+        for (let i = 1; i <= 3; i++) {
+            const tab = document.getElementById(`step-tab-${i}`);
+            tab.className = "bg-white p-md rounded-2xl border-2 border-outline-variant/20 shadow-sm opacity-50 cursor-pointer hover:opacity-100 transition-all";
+            tab.querySelector('span:first-child').className = "text-xs font-bold text-outline uppercase block";
+        }
+
+        document.getElementById(`step-${stepNum}-view`).classList.remove('hidden');
+
+        const activeTab = document.getElementById(`step-tab-${stepNum}`);
+        activeTab.className = "bg-white p-md rounded-2xl border-2 border-primary shadow-md cursor-pointer hover:scale-[1.02] transition-all";
+        activeTab.querySelector('span:first-child').className = "text-xs font-bold text-primary uppercase block";
+
+        updatePreview();
+    }
+
+    function updatePreview() {
+        const val = document.getElementById('prompt-topic').value || 'Fullstack AI Engineering';
+        const aud = document.getElementById('prompt-audience').value;
+        const vid = document.getElementById('prompt-video').value;
+
+        document.getElementById('sum-title').innerText = val;
+        document.getElementById('sum-audience').innerText = aud;
+
+        if (document.getElementById('m1-title-input')) {
+            document.getElementById('m1-title-input').value = `Introduction to ${val}`;
+        }
+        if (document.getElementById('m2-title-input')) {
+            document.getElementById('m2-title-input').value = `Advanced ${val} Architecture Masterclass`;
+        }
+        if (vid && document.getElementById('m2-url-input')) {
+            document.getElementById('m2-url-input').value = vid;
+        }
+
+        updateSummaryPrice();
+    }
+
+    function updateSummaryPrice() {
+        const priceInput = document.getElementById('price-input');
+        if (priceInput) {
+            const priceVal = parseFloat(priceInput.value) || 0;
+            const instructorShare = (priceVal * 0.7).toFixed(2);
+            const earningsElem = document.getElementById('sum-instructor-earnings');
+            if (earningsElem) earningsElem.innerText = `Rs. ${instructorShare}`;
+        }
+
+        const container = document.getElementById('modules-list-container');
+        const countElem = document.getElementById('sum-modules-count');
+        if (container && countElem) {
+            const cardsCount = container.querySelectorAll(':scope > div').length;
+            countElem.innerText = `${cardsCount} Units`;
+        }
+    }
+
+    function addNewModuleCard() {
+        moduleCounter++;
+        const container = document.getElementById('modules-list-container');
+        const cardId = `mcard-${moduleCounter}`;
+        const cardHTML = `
+        <div class="p-lg bg-surface-container-low rounded-2xl border-2 border-outline-variant/20 space-y-sm relative group/mcard" id="${cardId}">
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-blue-600 uppercase">Module Unit ${moduleCounter}</span>
+                <button type="button" onclick="removeModuleCard('${cardId}')" class="text-red-600 hover:text-red-800 text-xs font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">delete</span> Delete Module
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-md">
+                <div class="md:col-span-6">
+                    <label class="block text-[11px] font-bold text-outline mb-1">Module Title</label>
+                    <input type="text" name="module_title[]" placeholder="e.g. Hands-on Project Implementation" class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-bold focus:border-primary" required>
+                </div>
+                <div class="md:col-span-3">
+                    <label class="block text-[11px] font-bold text-outline mb-1">Content Type</label>
+                    <select name="module_type[]" class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-bold focus:border-primary">
+                        <option value="text" selected>Text Lesson</option>
+                        <option value="video">Video Stream</option>
+                        <option value="quiz">AI Quiz</option>
+                        <option value="lab">Interactive Lab</option>
+                    </select>
+                </div>
+                <div class="md:col-span-3">
+                    <label class="block text-[11px] font-bold text-outline mb-1">Content / Video URL</label>
+                    <input type="text" name="module_content[]" placeholder="Content text or YouTube link" class="w-full bg-white border border-outline-variant/30 rounded-xl p-md text-xs font-mono focus:border-primary">
+                </div>
+            </div>
+        </div>
+    `;
+        container.insertAdjacentHTML('beforeend', cardHTML);
+        updateSummaryPrice();
+    }
+
+    function removeModuleCard(id) {
+        const card = document.getElementById(id);
+        if (card) {
+            card.remove();
+            updateSummaryPrice();
+        }
+    }
+</script>
+{% endblock %}

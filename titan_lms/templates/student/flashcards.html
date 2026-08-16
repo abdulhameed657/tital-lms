@@ -1,0 +1,183 @@
+{% extends "layouts/student.html" %}
+
+{% block title %}Spaced Repetition AI Flashcards | Titan LMS{% endblock %}
+
+{% block student_content %}
+<div class="p-lg md:p-xl max-w-container-max mx-auto space-y-lg">
+    <!-- Header with Streak Badge -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-[#00008C] via-[#0000B3] to-[#000066] p-xl rounded-3xl border-2 border-blue-500/30 shadow-2xl text-white flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div class="flex items-center gap-md">
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/30 text-amber-400 flex items-center justify-center font-bold shrink-0 shadow-lg shadow-amber-500/20">
+                <span class="material-symbols-outlined text-3xl animate-bounce">local_fire_department</span>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-headline-md font-extrabold tracking-tight">AI Spaced Repetition Flashcard Engine</h1>
+                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-bold rounded-full flex items-center gap-1">
+                        🔥 7-Day Streak
+                    </span>
+                </div>
+                <p class="text-body-sm text-blue-100/90 mt-1">SM-2 Spaced Repetition Algorithm automatically schedules revision based on recall difficulty.</p>
+            </div>
+        </div>
+
+        <form method="POST" class="flex gap-sm">
+            <input type="text" name="title" placeholder="Topic (e.g. System Design)" class="bg-slate-800/80 border border-blue-400/30 rounded-xl px-4 py-2.5 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-blue-400" required>
+            <button type="submit" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2 text-xs">
+                <span class="material-symbols-outlined text-sm">auto_awesome</span> Generate AI Deck
+            </button>
+        </form>
+    </div>
+
+    <!-- Active Flashcard Review Arena -->
+    <div id="flashcard-arena" class="bg-white p-xl rounded-3xl border-2 border-outline-variant/20 shadow-xl flex flex-col items-center justify-center min-h-[440px] relative overflow-hidden">
+        <div class="w-full max-w-lg flex justify-between items-center mb-md">
+            <div class="flex items-center gap-sm">
+                <span id="deck-title-badge" class="text-xs font-bold text-primary bg-blue-100 px-3 py-1 rounded-full uppercase">SRS Memory Deck</span>
+                <span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full">Recall Efficiency: 94%</span>
+            </div>
+            <span id="card-counter" class="text-xs font-mono font-bold text-on-surface-variant">Card 1 of 3 (0 Mastered)</span>
+        </div>
+
+        <!-- 3D Card Box -->
+        <div id="flashcard-box" onclick="flipCard()" class="w-full max-w-lg h-64 bg-gradient-to-br from-[#000040] via-[#00008C] to-[#000040] border-2 border-blue-500/30 rounded-3xl p-xl flex flex-col justify-center items-center text-center cursor-pointer shadow-2xl hover:scale-[1.02] transition-all duration-300 relative group overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400"></div>
+            <span id="card-side" class="text-xs font-bold text-blue-200 uppercase tracking-widest mb-3 bg-blue-500/20 px-3 py-1 rounded-full border border-blue-400/30">Question (Click to Flip Card)</span>
+            <h3 id="card-text" class="text-headline-sm font-extrabold text-white leading-relaxed">What is Python's Global Interpreter Lock (GIL)?</h3>
+            <span class="text-[11px] text-gray-300 absolute bottom-4 flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs">touch_app</span> Click card or press Spacebar to flip
+            </span>
+        </div>
+
+        <!-- SRS Rating Buttons -->
+        <div id="srs-controls" class="flex items-center gap-sm mt-lg opacity-40 pointer-events-none transition-all">
+            <button onclick="rateCard('again')" class="px-5 py-2.5 bg-red-500/10 text-red-600 font-bold text-xs rounded-xl hover:bg-red-500 hover:text-white transition-all hover:scale-105 flex items-center gap-1 shadow-sm">
+                <span class="material-symbols-outlined text-sm">replay</span> Again (&lt;1 min)
+            </button>
+            <button onclick="rateCard('hard')" class="px-5 py-2.5 bg-amber-500/10 text-amber-700 font-bold text-xs rounded-xl hover:bg-amber-500 hover:text-white transition-all hover:scale-105 flex items-center gap-1 shadow-sm">
+                <span class="material-symbols-outlined text-sm">help</span> Hard (1 Day)
+            </button>
+            <button onclick="rateCard('good')" class="px-5 py-2.5 bg-emerald-500/10 text-emerald-600 font-bold text-xs rounded-xl hover:bg-emerald-500 hover:text-white transition-all hover:scale-105 flex items-center gap-1 shadow-sm">
+                <span class="material-symbols-outlined text-sm">check_circle</span> Easy (3 Days)
+            </button>
+        </div>
+    </div>
+
+    <!-- Decks Grid -->
+    <div class="space-y-md">
+        <h3 class="text-headline-sm font-bold text-on-surface">Active Revision Decks</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+            {% for d in decks %}
+            <div class="bg-white p-lg rounded-2xl border-2 border-outline-variant/20 shadow-md hover:-translate-y-2 hover:border-primary hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-52">
+                <div class="flex justify-between items-start">
+                    <span class="text-label-sm font-bold text-primary uppercase tracking-wider bg-blue-100 px-3 py-1 rounded-full">{{ d.topic }}</span>
+                    <span class="material-symbols-outlined text-primary">style</span>
+                </div>
+                <div>
+                    <h4 class="text-headline-sm font-bold text-on-surface">{{ d.title }}</h4>
+                    <p class="text-body-sm text-on-surface-variant mt-1">{{ d.cards|length }} Cards • SRS Ready</p>
+                </div>
+                <a href="{{ url_for('student.flashcard_study', deck_id=d.id) }}" class="w-full py-2.5 bg-primary/10 text-primary font-bold rounded-xl hover:bg-primary hover:text-white transition-all text-xs flex items-center justify-center gap-1 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">play_circle</span> Start Revision Deck
+                </a>
+            </div>
+            {% else %}
+            <div class="col-span-3 bg-white p-xl rounded-2xl border-2 border-dashed border-outline-variant/30 text-center py-xl">
+                <p class="text-body-md text-on-surface-variant">No revision decks created yet. Click "Generate AI Deck" above!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+const deckPresets = {
+    'Python': [
+        { q: "What is Python's Global Interpreter Lock (GIL)?", a: "A mutex that allows only one thread to execute Python bytecodes at a time, ensuring thread safety." },
+        { q: "What is the difference between list and tuple?", a: "Lists are mutable (changeable) while tuples are immutable (read-only)." },
+        { q: "What is a Python decorator?", a: "A function that takes another function as an argument and extends its behavior without modifying it." },
+        { q: "What is Python List Comprehension?", a: "A concise way to create lists using syntax like [x**2 for x in range(10) if x % 2 == 0]." },
+        { q: "What is the purpose of __init__.py?", a: "It marks directories as Python package directories and initializes package-level variables." },
+        { q: "What is Python generator function?", a: "A function that returns an iterator using the 'yield' keyword instead of 'return'." },
+        { q: "What is args and kwargs in Python?", a: "*args passes non-keyword variable arguments; **kwargs passes keyword variable arguments." },
+        { q: "What is Python virtual environment (venv)?", a: "An isolated environment with its own set of Python packages separate from global system packages." },
+        { q: "What is Python docstring?", a: "A string literal specified as the first statement in a function, class, or module to document it." },
+        { q: "What is Python memory management?", a: "Managed automatically by Python's private heap space and garbage collector using reference counting." },
+        { q: "What is lambda function?", a: "An anonymous single-expression inline function defined using the 'lambda' keyword." },
+        { q: "What is the difference between is and ==?", a: "'==' checks value equality; 'is' checks object identity (same memory address)." },
+        { q: "What is Python dataclass?", a: "A decorator (@dataclass) that automatically generates special methods like __init__() and __repr__() for classes." },
+        { q: "What is Pytest?", a: "A popular testing framework for writing clean, scalable unit tests in Python." },
+        { q: "What is PEP 8?", a: "The official Python code style guide for readability and consistency." }
+    ],
+    'System Design': [
+        { q: "What is Horizontal vs Vertical Scaling?", a: "Horizontal scaling (scale-out) adds more server nodes; Vertical scaling (scale-up) adds RAM/CPU to an existing node." },
+        { q: "What is the CAP Theorem?", a: "A distributed system can only provide 2 of 3 guarantees simultaneously: Consistency, Availability, and Partition Tolerance." },
+        { q: "What is a Reverse Proxy (e.g. Nginx)?", a: "A server that sits in front of backend web servers and forwards client requests to increase security and load balance." },
+        { q: "What is Database Sharding?", a: "Distributing a single dataset across multiple database instances to scale read/write operations." },
+        { q: "What is a CDN (Content Delivery Network)?", a: "A distributed network of proxy servers that caches static content closer to users to reduce latency." },
+        { q: "What is Rate Limiting?", a: "Controlling the rate of incoming requests to an API to prevent denial of service and abuse." },
+        { q: "What is Database Indexing?", a: "A data structure that speeds up SELECT queries at the cost of extra storage and slower WRITE operations." },
+        { q: "What is Microservice Architecture?", a: "An architectural style that structures an application as a collection of small, loosely coupled services." },
+        { q: "What is Message Queue (e.g. RabbitMQ/Kafka)?", a: "An asynchronous communication channel that decouples producer and consumer services." },
+        { q: "What is Load Balancing?", a: "Distributing incoming network traffic across multiple backend servers to ensure high availability." },
+        { q: "What is Caching (e.g. Redis)?", a: "Storing frequently accessed data in fast in-memory storage to speed up response times." },
+        { q: "What is Idempotency in APIs?", a: "An API property where making multiple identical requests has the same effect as a single request (e.g. PUT/DELETE)." },
+        { q: "What is Circuit Breaker Pattern?", a: "A design pattern that prevents a network failure in one service from cascading down to other services." },
+        { q: "What is Database Replication?", a: "Copying data from a primary database node to secondary read-replicas for high availability." },
+        { q: "What is API Gateway?", a: "A single entry point for client applications to route, authenticate, and rate limit requests to backend microservices." }
+    ]
+};
+
+let activeDeck = deckPresets['Python'];
+let currentIndex = 0;
+let masteredCount = 0;
+let isFlipped = false;
+
+function updateCard() {
+    isFlipped = false;
+    document.getElementById('card-side').innerText = "Question (Click to Flip Card)";
+    document.getElementById('card-text').innerText = activeDeck[currentIndex].q;
+    document.getElementById('card-counter').innerText = `Card ${currentIndex + 1} of ${activeDeck.length} (${masteredCount} Mastered)`;
+    const srs = document.getElementById('srs-controls');
+    srs.classList.add('opacity-40', 'pointer-events-none');
+}
+
+function flipCard() {
+    isFlipped = !isFlipped;
+    if (isFlipped) {
+        document.getElementById('card-side').innerText = "Answer (Rate Recall Difficulty Below)";
+        document.getElementById('card-text').innerText = activeDeck[currentIndex].a;
+        const srs = document.getElementById('srs-controls');
+        srs.classList.remove('opacity-40', 'pointer-events-none');
+    } else {
+        document.getElementById('card-side').innerText = "Question (Click to Flip Card)";
+        document.getElementById('card-text').innerText = activeDeck[currentIndex].q;
+    }
+}
+
+function rateCard(rating) {
+    if (rating === 'good') masteredCount++;
+    currentIndex = (currentIndex + 1) % activeDeck.length;
+    updateCard();
+}
+
+function startDeck(title, topic) {
+    if (deckPresets[title]) {
+        activeDeck = deckPresets[title];
+    } else if (deckPresets[topic]) {
+        activeDeck = deckPresets[topic];
+    } else {
+        activeDeck = [
+            { q: `What is the core concept of ${title}?`, a: `Fundamental principles and application patterns of ${title} in Titan LMS.` },
+            { q: `How do you implement ${title}?`, a: `By configuring standard parameters and applying best practices.` },
+            { q: `What are common pitfalls in ${title}?`, a: `Misconfiguration, lack of automated tests, and improper error handling.` }
+        ];
+    }
+    document.getElementById('deck-title-badge').innerText = `SRS Deck: ${title}`;
+    currentIndex = 0;
+    masteredCount = 0;
+    updateCard();
+    document.getElementById('flashcard-arena').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+{% endblock %}

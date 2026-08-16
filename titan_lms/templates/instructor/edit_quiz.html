@@ -1,0 +1,245 @@
+{% extends "layouts/instructor.html" %}
+
+{% block title %}Edit Quiz: {{ quiz.title }} | Instructor Portal{% endblock %}
+
+{% block instructor_content %}
+<div class="max-w-container-max mx-auto px-gutter py-xl space-y-xl">
+    <!-- Header & Breadcrumbs -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
+        <div>
+            <nav class="flex gap-xs text-label-sm text-outline mb-sm uppercase tracking-widest">
+                <span>Courses</span>
+                <span>/</span>
+                <a href="{{ url_for('instructor.edit_course', course_id=course.id) }}" class="text-primary hover:underline font-bold">{{ course.title }}</a>
+                <span>/</span>
+                <span class="text-on-surface">Quiz Editor</span>
+            </nav>
+            <h1 class="text-display-lg-mobile md:text-headline-lg font-headline-lg text-on-surface font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-3xl">quiz</span>
+                Edit Quiz: {{ quiz.title }}
+            </h1>
+            <p class="text-body-md text-on-surface-variant">Manage quiz settings, edit MCQs, add new questions, or publish changes to your course curriculum.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{{ url_for('instructor.edit_course', course_id=course.id) }}" class="bg-surface-container-high text-on-surface px-lg py-2.5 rounded-xl hover:bg-surface-container-highest transition-colors flex items-center gap-xs font-bold border border-outline-variant/20">
+                <span class="material-symbols-outlined text-sm">arrow_back</span> Return to Course Edit
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
+        
+        <!-- Left Column: Quiz Info & Questions -->
+        <div class="lg:col-span-8 space-y-xl">
+            
+            <!-- Quiz Info Form -->
+            <div class="bg-white p-xl rounded-3xl border border-outline-variant/20 shadow-xl space-y-md">
+                <h3 class="font-headline-sm text-headline-sm text-primary font-bold flex items-center gap-2 border-b border-outline-variant/10 pb-sm">
+                    <span class="material-symbols-outlined">settings</span> Quiz Settings & Information
+                </h3>
+                <form action="{{ url_for('instructor.edit_quiz', quiz_id=quiz.id) }}" method="POST" class="space-y-md">
+                    <input type="hidden" name="action" value="update_quiz_info">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+                        <div class="md:col-span-2">
+                            <label class="block text-label-md font-bold text-on-surface mb-1">Quiz Title</label>
+                            <input type="text" name="title" value="{{ quiz.title }}" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary" required>
+                        </div>
+                        <div>
+                            <label class="block text-label-md font-bold text-on-surface mb-1">Time Limit (Minutes)</label>
+                            <input type="number" name="time_limit_mins" value="{{ (quiz.time_limit or 600) // 60 }}" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary" min="1" required>
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-primary text-white px-lg py-2.5 rounded-xl font-bold hover:bg-primary-container shadow transition-all flex items-center gap-1 text-body-sm">
+                            <span class="material-symbols-outlined text-sm">save</span> Save Quiz Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Existing Questions List -->
+            <div class="space-y-md">
+                <div class="flex justify-between items-center px-sm">
+                    <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">format_list_bulleted</span> Questions List ({{ quiz.questions|length }})
+                    </h3>
+                    <a href="#add-question-card" class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">add_circle</span> Add New Question
+                    </a>
+                </div>
+
+                {% for q in quiz.questions %}
+                {% set choices = q.get_choices() %}
+                <div class="bg-white p-xl rounded-3xl border border-outline-variant/20 shadow-lg space-y-md relative group">
+                    <div class="flex justify-between items-start gap-md border-b border-outline-variant/10 pb-md">
+                        <div class="flex items-center gap-md">
+                            <span class="w-8 h-8 rounded-xl bg-primary text-white font-bold text-xs flex items-center justify-center shrink-0">
+                                Q{{ loop.index }}
+                            </span>
+                            <div>
+                                <span class="text-xs font-bold text-primary uppercase">Multiple Choice Question</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Delete Question Form -->
+                        <form action="{{ url_for('instructor.edit_quiz', quiz_id=quiz.id) }}" method="POST" onsubmit="return confirm('Delete Question {{ loop.index }}?');">
+                            <input type="hidden" name="action" value="delete_question">
+                            <input type="hidden" name="question_id" value="{{ q.id }}">
+                            <button type="submit" class="p-2 bg-red-50 text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition-colors flex items-center gap-1 text-xs font-bold" title="Delete Question">
+                                <span class="material-symbols-outlined text-sm">delete</span> Delete
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Update Question Form -->
+                    <form action="{{ url_for('instructor.edit_quiz', quiz_id=quiz.id) }}" method="POST" class="space-y-md">
+                        <input type="hidden" name="action" value="update_question">
+                        <input type="hidden" name="question_id" value="{{ q.id }}">
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface mb-1">Question Prompt</label>
+                            <textarea name="question_text" rows="2" class="w-full bg-surface-container-low border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary" required>{{ q.question_text }}</textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                            <div>
+                                <label class="block text-[11px] font-bold text-outline mb-1">Choice A</label>
+                                <input type="text" name="choice_a" value="{{ choices[0] if choices|length > 0 else '' }}" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-outline mb-1">Choice B</label>
+                                <input type="text" name="choice_b" value="{{ choices[1] if choices|length > 1 else '' }}" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-outline mb-1">Choice C</label>
+                                <input type="text" name="choice_c" value="{{ choices[2] if choices|length > 2 else '' }}" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-outline mb-1">Choice D</label>
+                                <input type="text" name="choice_d" value="{{ choices[3] if choices|length > 3 else '' }}" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-md items-end pt-xs">
+                            <div>
+                                <label class="block text-xs font-bold text-primary mb-1">Correct Answer Selection</label>
+                                <select name="correct_choice_index" class="w-full bg-blue-50 border-2 border-blue-200 rounded-xl p-sm text-xs font-bold text-primary focus:outline-none focus:border-primary">
+                                    <option value="0" {% if choices|length > 0 and q.correct_answer == choices[0] %}selected{% endif %}>Option A</option>
+                                    <option value="1" {% if choices|length > 1 and q.correct_answer == choices[1] %}selected{% endif %}>Option B</option>
+                                    <option value="2" {% if choices|length > 2 and q.correct_answer == choices[2] %}selected{% endif %}>Option C</option>
+                                    <option value="3" {% if choices|length > 3 and q.correct_answer == choices[3] %}selected{% endif %}>Option D</option>
+                                </select>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="w-full sm:w-auto bg-slate-900 text-white px-lg py-2.5 rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-1 text-xs shadow-md">
+                                    <span class="material-symbols-outlined text-sm">check_circle</span> Update Question {{ loop.index }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                <div class="bg-white p-xl rounded-3xl border-2 border-dashed border-outline-variant/30 text-center py-xl space-y-2">
+                    <span class="material-symbols-outlined text-slate-400 text-4xl">quiz</span>
+                    <p class="text-body-md font-bold text-on-surface">No questions in this quiz yet.</p>
+                    <p class="text-xs text-outline">Use the form below to add questions or generate questions using AI.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Add New Question Card -->
+            <div id="add-question-card" class="bg-gradient-to-r from-blue-50/70 via-indigo-50/70 to-purple-50/70 p-xl rounded-3xl border-2 border-primary/20 shadow-xl space-y-md">
+                <h3 class="font-headline-sm text-headline-sm text-primary font-bold flex items-center gap-2">
+                    <span class="material-symbols-outlined">post_add</span> Add New Question Manually
+                </h3>
+                <form action="{{ url_for('instructor.edit_quiz', quiz_id=quiz.id) }}" method="POST" class="space-y-md">
+                    <input type="hidden" name="action" value="add_question">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface mb-1">Question Prompt</label>
+                        <input type="text" name="question_text" placeholder="e.g. Which keyword is used to define a function in Python?" class="w-full bg-white border-2 border-outline-variant/30 rounded-xl p-md text-body-sm font-bold focus:outline-none focus:border-primary" required>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                        <div>
+                            <label class="block text-[11px] font-bold text-outline mb-1">Choice A</label>
+                            <input type="text" name="choice_a" placeholder="e.g. def" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-outline mb-1">Choice B</label>
+                            <input type="text" name="choice_b" placeholder="e.g. function" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-outline mb-1">Choice C</label>
+                            <input type="text" name="choice_c" placeholder="e.g. func" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-outline mb-1">Choice D</label>
+                            <input type="text" name="choice_d" placeholder="e.g. lambda" class="w-full bg-white border border-outline-variant/30 rounded-xl p-sm text-xs font-medium focus:border-primary" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md items-end pt-xs">
+                        <div>
+                            <label class="block text-xs font-bold text-primary mb-1">Which Choice is Correct?</label>
+                            <select name="correct_choice_index" class="w-full bg-white border-2 border-primary/30 rounded-xl p-sm text-xs font-bold text-primary focus:outline-none focus:border-primary">
+                                <option value="0" selected>Option A</option>
+                                <option value="1">Option B</option>
+                                <option value="2">Option C</option>
+                                <option value="3">Option D</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-primary-container transition-all flex items-center justify-center gap-1 text-xs shadow-md">
+                                <span class="material-symbols-outlined text-sm">add_circle</span> Add Question to Quiz
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column: Quick Actions & Danger Zone -->
+        <div class="lg:col-span-4 space-y-lg">
+            <!-- Quiz Summary Card -->
+            <div class="bg-white p-xl rounded-3xl border border-outline-variant/20 shadow-xl space-y-md">
+                <h4 class="font-bold text-on-surface text-body-lg border-b border-outline-variant/10 pb-2">Quiz Metadata</h4>
+                <div class="space-y-sm text-xs">
+                    <div class="flex justify-between py-1 border-b border-slate-100">
+                        <span class="text-outline font-medium">Belongs to Course:</span>
+                        <span class="font-bold text-on-surface">{{ course.title }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-slate-100">
+                        <span class="text-outline font-medium">Total Questions:</span>
+                        <span class="font-bold text-primary text-sm">{{ quiz.questions|length }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-slate-100">
+                        <span class="text-outline font-medium">Time Allocated:</span>
+                        <span class="font-bold text-on-surface">{{ (quiz.time_limit or 600) // 60 }} Minutes</span>
+                    </div>
+                </div>
+
+                <div class="pt-md">
+                    <a href="{{ url_for('instructor.edit_course', course_id=course.id) }}" class="w-full bg-slate-100 text-slate-800 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all flex items-center justify-center gap-2 text-xs">
+                        <span class="material-symbols-outlined text-sm">arrow_back</span> Return to Course Curriculum
+                    </a>
+                </div>
+            </div>
+
+            <!-- Delete Quiz Danger Zone -->
+            <div class="bg-red-50/60 p-xl rounded-3xl border-2 border-red-200 space-y-md">
+                <h4 class="font-bold text-red-700 text-body-md flex items-center gap-2">
+                    <span class="material-symbols-outlined text-red-600">warning</span> Danger Zone
+                </h4>
+                <p class="text-xs text-red-600 font-medium">Deleting this quiz will remove all of its questions and remove the evaluation module from the course.</p>
+                
+                <form action="{{ url_for('instructor.delete_quiz', quiz_id=quiz.id) }}" method="POST" onsubmit="return confirm('⚠️ Are you sure you want to permanently delete quiz {{ quiz.title }}?');">
+                    <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition-all flex items-center justify-center gap-2 text-xs shadow-md">
+                        <span class="material-symbols-outlined text-sm">delete_forever</span> Permanently Delete Quiz
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
