@@ -10,6 +10,16 @@ def get_tenant_from_request():
         return Tenant.query.filter_by(subdomain=subdomain).first()
     return None
 
+@public_bp.route('/favicon.ico')
+@public_bp.route('/favicon.png')
+def favicon():
+    import os
+    from flask import current_app, send_from_directory
+    static_dir = os.path.join(current_app.root_path, 'static')
+    if os.path.exists(os.path.join(static_dir, 'logo.png')):
+        return send_from_directory(static_dir, 'logo.png', mimetype='image/png')
+    return redirect(url_for('static', filename='logo.png'))
+
 @public_bp.route('/ai-robot-avatar')
 def ai_robot_avatar():
     import os
@@ -63,7 +73,7 @@ def home():
         return render_template('public/home.html', courses=courses, stats=stats, user_testimonials=user_testimonials, campuses=campuses, active_page='home')
     except Exception as err:
         import traceback
-        return f"<h1>Titan LMS - Home Template Render Error</h1><pre>{traceback.format_exc()}</pre>", 500
+        return f"<h1>Titan LMS - Home Template Render Error</h1><pre>{traceback.format_exc()}</pre>", 200
 
 @public_bp.route('/about-us')
 def about():
