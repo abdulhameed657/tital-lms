@@ -1,16 +1,13 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "includeFiles": [
-          "titan_lms/**"
-        ]
-      }
+  "functions": {
+    "api/index.py": {
+      "includeFiles": "titan_lms/**"
+    },
+    "index.py": {
+      "includeFiles": "titan_lms/**"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/(.*)",
