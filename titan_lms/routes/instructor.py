@@ -1551,51 +1551,48 @@ def attendance():
 @login_required
 @role_required('instructor')
 def profile():
-    import os
-    from datetime import datetime
-    from werkzeug.utils import secure_filename
-    from flask import current_app
-
     if request.method == 'POST':
-        new_name = request.form.get('full_name', '').strip()
-        new_email = request.form.get('email', '').strip().lower()
-        phone = request.form.get('phone', '').strip()
-        bio = request.form.get('bio', '').strip()
-        current_password = request.form.get('current_password', '').strip()
-        new_password = request.form.get('new_password', '').strip()
-
-        # Check email uniqueness if changed
-        if new_email != current_user.email:
-            existing = User.query.filter_by(email=new_email).first()
-            if existing:
-                flash("⚠️ This email address is already in use by another user.", "error")
-                return redirect(url_for('instructor.profile'))
-
-        # Handle Profile Picture Upload
-        pic_file = request.files.get('avatar')
-        if pic_file and pic_file.filename:
-            try:
-                import base64
-                file_content = pic_file.read()
-                if file_content:
-                    mime = pic_file.mimetype or 'image/jpeg'
-                    current_user.avatar_url = f"data:{mime};base64,{base64.b64encode(file_content).decode('utf-8')}"
-            except Exception as e:
-                pass
-
-        current_user.name = new_name
-        current_user.email = new_email
-        current_user.phone = phone
-        current_user.bio = bio
-        
-        # Handle password change with old password verification
-        if new_password:
-            if not current_password or not current_user.check_password(current_password):
-                flash("⚠️ Incorrect Current Password! Please enter your valid current password to authorize this change.", "error")
-                return redirect(url_for('instructor.profile'))
-            current_user.set_password(new_password)
-        
         try:
+            new_name = request.form.get('full_name', '').strip()
+            new_email = request.form.get('email', '').strip().lower()
+            phone = request.form.get('phone', '').strip()
+            bio = request.form.get('bio', '').strip()
+            current_password = request.form.get('current_password', '').strip()
+            new_password = request.form.get('new_password', '').strip()
+
+            # Check email uniqueness if changed
+            if new_email and new_email != current_user.email:
+                existing = User.query.filter_by(email=new_email).first()
+                if existing:
+                    flash("⚠️ This email address is already in use by another user.", "error")
+                    return redirect(url_for('instructor.profile'))
+
+            # Handle Profile Picture Upload
+            pic_file = request.files.get('avatar')
+            if pic_file and pic_file.filename:
+                try:
+                    import base64
+                    file_content = pic_file.read()
+                    if file_content:
+                        mime = pic_file.mimetype or 'image/jpeg'
+                        current_user.avatar_url = f"data:{mime};base64,{base64.b64encode(file_content).decode('utf-8')}"
+                except Exception:
+                    pass
+
+            if new_name:
+                current_user.name = new_name
+            if new_email:
+                current_user.email = new_email
+            current_user.phone = phone
+            current_user.bio = bio
+            
+            # Handle password change with old password verification
+            if new_password:
+                if not current_password or not current_user.check_password(current_password):
+                    flash("⚠️ Incorrect Current Password! Please enter your valid current password to authorize this change.", "error")
+                    return redirect(url_for('instructor.profile'))
+                current_user.set_password(new_password)
+            
             db.session.commit()
             flash("🎉 Profile details updated successfully!", "success")
         except Exception as e:

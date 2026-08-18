@@ -252,11 +252,14 @@ def enroll():
         avatar_url = None
         pic_file = request.files.get('avatar')
         if pic_file and pic_file.filename:
-            filename = secure_filename(f"avatar_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{pic_file.filename}")
-            upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'avatars')
-            os.makedirs(upload_folder, exist_ok=True)
-            pic_file.save(os.path.join(upload_folder, filename))
-            avatar_url = f"/static/uploads/avatars/{filename}"
+            try:
+                import base64
+                file_content = pic_file.read()
+                if file_content:
+                    mime = pic_file.mimetype or 'image/jpeg'
+                    avatar_url = f"data:{mime};base64,{base64.b64encode(file_content).decode('utf-8')}"
+            except Exception:
+                pass
 
         reg = StudentRegistration(
             full_name=request.form.get('full_name', '').strip(),

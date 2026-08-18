@@ -167,30 +167,23 @@ def create_app():
             db.create_all()
             
             # Auto-migration helper for SQLite/Postgres schema updates
-            try:
-                from sqlalchemy import text
-                db.session.execute(text("ALTER TABLE coupons ADD COLUMN status VARCHAR(30) DEFAULT 'approved'"))
-                db.session.commit()
-            except Exception:
-                db.session.rollback()
-            try:
-                from sqlalchemy import text
-                db.session.execute(text("ALTER TABLE users ADD COLUMN referral_code VARCHAR(20)"))
-                db.session.commit()
-            except Exception:
-                db.session.rollback()
-            try:
-                from sqlalchemy import text
-                db.session.execute(text("ALTER TABLE users ADD COLUMN assignment_points INTEGER DEFAULT 0"))
-                db.session.commit()
-            except Exception:
-                db.session.rollback()
-            try:
-                from sqlalchemy import text
-                db.session.execute(text("ALTER TABLE users ADD COLUMN quiz_points INTEGER DEFAULT 0"))
-                db.session.commit()
-            except Exception:
-                db.session.rollback()
+            for stmt in [
+                "ALTER TABLE users ADD COLUMN phone VARCHAR(50)",
+                "ALTER TABLE users ADD COLUMN bio TEXT",
+                "ALTER TABLE users ALTER COLUMN avatar_url TYPE TEXT",
+                "ALTER TABLE student_registrations ALTER COLUMN avatar_url TYPE TEXT",
+                "ALTER TABLE testimonials ALTER COLUMN avatar_url TYPE TEXT",
+                "ALTER TABLE coupons ADD COLUMN status VARCHAR(30) DEFAULT 'approved'",
+                "ALTER TABLE users ADD COLUMN referral_code VARCHAR(20)",
+                "ALTER TABLE users ADD COLUMN assignment_points INTEGER DEFAULT 0",
+                "ALTER TABLE users ADD COLUMN quiz_points INTEGER DEFAULT 0"
+            ]:
+                try:
+                    from sqlalchemy import text
+                    db.session.execute(text(stmt))
+                    db.session.commit()
+                except Exception:
+                    db.session.rollback()
             try:
                 from sqlalchemy import text
                 db.session.execute(text("ALTER TABLE quiz_battle_sessions ADD COLUMN timer_seconds INTEGER DEFAULT 15"))

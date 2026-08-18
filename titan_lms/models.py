@@ -13,7 +13,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='student')  # 'student', 'instructor', 'admin'
-    avatar_url = db.Column(db.String(500), nullable=True)
+    avatar_url = db.Column(db.Text, nullable=True)
     bio = db.Column(db.Text, nullable=True)
     phone = db.Column(db.String(50), nullable=True)
     points = db.Column(db.Integer, default=0)
@@ -580,7 +580,7 @@ class StudentRegistration(db.Model):
     last_qualification = db.Column(db.String(100), nullable=True)
     heard_from = db.Column(db.String(100), nullable=True)
     has_laptop = db.Column(db.String(10), default='Yes')
-    avatar_url = db.Column(db.String(500), nullable=True)
+    avatar_url = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(30), default='pending')  # 'pending', 'approved', 'rejected'
     access_code_used = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -594,7 +594,7 @@ class Testimonial(db.Model):
     role = db.Column(db.String(100), nullable=False, default='Student')
     rating = db.Column(db.Integer, default=5)
     content = db.Column(db.Text, nullable=False)
-    avatar_url = db.Column(db.String(500), nullable=True)
+    avatar_url = db.Column(db.Text, nullable=True)
     is_approved = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
