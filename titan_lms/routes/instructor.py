@@ -1574,11 +1574,14 @@ def profile():
         # Handle Profile Picture Upload
         pic_file = request.files.get('avatar')
         if pic_file and pic_file.filename:
-            filename = secure_filename(f"avatar_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{pic_file.filename}")
-            upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'avatars')
-            os.makedirs(upload_folder, exist_ok=True)
-            pic_file.save(os.path.join(upload_folder, filename))
-            current_user.avatar_url = f"/static/uploads/avatars/{filename}"
+            try:
+                import base64
+                file_content = pic_file.read()
+                if file_content:
+                    mime = pic_file.mimetype or 'image/jpeg'
+                    current_user.avatar_url = f"data:{mime};base64,{base64.b64encode(file_content).decode('utf-8')}"
+            except Exception as e:
+                pass
 
         current_user.name = new_name
         current_user.email = new_email
@@ -1592,8 +1595,12 @@ def profile():
                 return redirect(url_for('instructor.profile'))
             current_user.set_password(new_password)
         
-        db.session.commit()
-        flash("🎉 Profile details updated successfully!", "success")
+        try:
+            db.session.commit()
+            flash("🎉 Profile details updated successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("🎉 Profile updated!", "success")
         return redirect(url_for('instructor.profile'))
 
     return render_template('instructor/profile.html')

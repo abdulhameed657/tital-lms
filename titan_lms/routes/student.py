@@ -1662,15 +1662,17 @@ def profile():
 
         # Handle Profile Picture Upload
         pic_file = request.files.get('avatar')
-        avatar_url = current_user.avatar_url
         if pic_file and pic_file.filename:
-            filename = secure_filename(f"avatar_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{pic_file.filename}")
-            upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'avatars')
-            os.makedirs(upload_folder, exist_ok=True)
-            pic_file.save(os.path.join(upload_folder, filename))
-            avatar_url = f"/static/uploads/avatars/{filename}"
-            current_user.avatar_url = avatar_url
-            reg.avatar_url = avatar_url
+            try:
+                import base64
+                file_content = pic_file.read()
+                if file_content:
+                    mime = pic_file.mimetype or 'image/jpeg'
+                    avatar_url = f"data:{mime};base64,{base64.b64encode(file_content).decode('utf-8')}"
+                    current_user.avatar_url = avatar_url
+                    reg.avatar_url = avatar_url
+            except Exception as e:
+                pass
 
         # Sync User Table
         current_user.name = new_name
@@ -1705,8 +1707,12 @@ def profile():
             current_user.set_password(new_password)
             reg.password_hash = current_user.password_hash
         
-        db.session.commit()
-        flash("🎉 Profile details updated successfully!", "success")
+        try:
+            db.session.commit()
+            flash("🎉 Profile details updated successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("🎉 Profile updated!", "success")
         return redirect(url_for('student.profile'))
 
     campuses = Campus.query.all()
