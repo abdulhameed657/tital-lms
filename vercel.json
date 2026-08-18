@@ -6,14 +6,7 @@
       "use": "@vercel/python",
       "config": {
         "includeFiles": [
-          "titan_lms/**",
-          "titan_lms/templates/**",
-          "titan_lms/templates/**/*",
-          "titan_lms/static/**",
-          "titan_lms/static/**/*",
-          "../titan_lms/**",
-          "../titan_lms/templates/**",
-          "../titan_lms/templates/**/*"
+          "titan_lms/**"
         ]
       }
     }

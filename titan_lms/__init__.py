@@ -10,19 +10,11 @@ login_manager.login_message_category = 'info'
 import jinja2
 
 def create_app():
-    template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'templates'))
-    static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
-    app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+    package_dir = os.path.dirname(os.path.abspath(__file__))
+    template_dir = os.path.join(package_dir, 'templates')
+    static_dir = os.path.join(package_dir, 'static')
     
-    app.jinja_env.loader = jinja2.FileSystemLoader([
-        template_dir,
-        os.path.join(os.path.dirname(__file__), 'templates'),
-        os.path.join(os.getcwd(), 'titan_lms', 'templates'),
-        os.path.join(os.getcwd(), 'templates'),
-        '/var/task/titan_lms/templates',
-        '/var/task/templates',
-        '/var/task/api/templates'
-    ])
+    app = Flask('titan_lms', root_path=package_dir, template_folder=template_dir, static_folder=static_dir)
     
     # Configure App
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'titan-lms-super-secret-key-987654')
