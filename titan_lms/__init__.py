@@ -18,7 +18,10 @@ def create_app():
         template_dir,
         os.path.join(os.path.dirname(__file__), 'templates'),
         os.path.join(os.getcwd(), 'titan_lms', 'templates'),
-        '/var/task/titan_lms/templates'
+        os.path.join(os.getcwd(), 'templates'),
+        '/var/task/titan_lms/templates',
+        '/var/task/templates',
+        '/var/task/api/templates'
     ])
     
     # Configure App
