@@ -73,7 +73,9 @@ def home():
         return render_template('public/home.html', courses=courses, stats=stats, user_testimonials=user_testimonials, campuses=campuses, active_page='home')
     except Exception as err:
         import traceback
-        return f"<h1>Titan LMS - Home Template Render Error</h1><pre>{traceback.format_exc()}</pre>", 200
+        from flask import current_app
+        loader_paths = getattr(current_app.jinja_env.loader, 'searchpath', 'no-paths')
+        return f"<h1>Titan LMS - Home Template Render Error</h1><p>Jinja Search Paths: {loader_paths}</p><pre>{traceback.format_exc()}</pre>", 200
 
 @public_bp.route('/about-us')
 def about():

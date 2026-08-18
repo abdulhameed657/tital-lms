@@ -9,12 +9,44 @@ login_manager.login_message_category = 'info'
 
 import jinja2
 
+def find_template_dirs():
+    package_dir = os.path.dirname(os.path.abspath(__file__))
+    found_dirs = [
+        os.path.join(package_dir, 'templates'),
+        os.path.join(os.path.dirname(package_dir), 'templates'),
+        os.path.join(os.getcwd(), 'titan_lms', 'templates'),
+        os.path.join(os.getcwd(), 'templates')
+    ]
+    
+    search_root = '/var/task' if os.path.exists('/var/task') else os.getcwd()
+    try:
+        for root, dirs, files in os.walk(search_root):
+            if 'home.html' in files or 'public' in dirs:
+                if 'public' in dirs:
+                    found_dirs.append(root)
+                elif 'home.html' in files and os.path.basename(root) == 'public':
+                    found_dirs.append(os.path.dirname(root))
+    except Exception:
+        pass
+
+    seen = set()
+    result = []
+    for d in found_dirs:
+        if d and d not in seen:
+            seen.add(d)
+            result.append(d)
+    return result
+
 def create_app():
     package_dir = os.path.dirname(os.path.abspath(__file__))
     template_dir = os.path.join(package_dir, 'templates')
     static_dir = os.path.join(package_dir, 'static')
     
     app = Flask('titan_lms', root_path=package_dir, template_folder=template_dir, static_folder=static_dir)
+    
+    search_paths = find_template_dirs()
+    if search_paths:
+        app.jinja_env.loader = jinja2.FileSystemLoader(search_paths)
     
     # Configure App
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'titan-lms-super-secret-key-987654')
