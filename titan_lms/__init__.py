@@ -146,14 +146,20 @@ def create_app():
         try:
             from sqlalchemy import text
             db.session.execute(text("ALTER TABLE quiz_battle_sessions ADD COLUMN timer_seconds INTEGER DEFAULT 15"))
-            db.session.execute(text("ALTER TABLE quiz_battle_sessions ADD COLUMN question_start_time DATETIME"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+        try:
+            from sqlalchemy import text
+            db.session.execute(text("ALTER TABLE quiz_battle_sessions ADD COLUMN question_start_time TIMESTAMP"))
             db.session.commit()
         except Exception:
             db.session.rollback()
             
         try:
             from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE lessons ADD COLUMN due_date DATETIME"))
+            db.session.execute(text("ALTER TABLE lessons ADD COLUMN due_date TIMESTAMP"))
             db.session.commit()
         except Exception:
             db.session.rollback()
