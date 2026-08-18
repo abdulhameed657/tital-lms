@@ -8,7 +8,9 @@ login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'info'
 
 def create_app():
-    app = Flask(__name__)
+    template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'templates'))
+    static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
+    app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     
     # Configure App
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'titan-lms-super-secret-key-987654')
