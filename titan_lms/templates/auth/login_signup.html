@@ -275,11 +275,11 @@
 
     <!-- Right Side: Form Area (Clean Modern Card feel) -->
     <section
-        class="w-full md:w-1/2 lg:w-2/5 min-h-screen bg-surface flex flex-col justify-center px-4 sm:px-6 md:px-margin-desktop lg:px-xxl py-6 sm:py-xl animate-form-right relative overflow-hidden">
+        class="w-full md:w-1/2 lg:w-2/5 min-h-screen bg-surface flex flex-col justify-center px-4 sm:px-6 md:px-margin-desktop lg:px-xxl py-6 sm:py-xl animate-form-right relative overflow-hidden md:overflow-visible">
 
         <!-- Peeping Mascot Character (Emerge from LEFT / Picture side with native transparent PNG alpha channel & bottom fade mask) -->
         <div id="peeping-mascot" class="hidden md:block absolute pointer-events-none select-none z-30"
-            style="width: 320px; height: 500px; left: -260px; top: 26%; transform: scale(0) translateX(-60px) rotate(0deg); opacity: 0; -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 82%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 82%, rgba(0,0,0,0) 100%); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(-8px 10px 12px rgba(0,0,0,0.12));">
+            style="width: 280px; height: 440px; left: -270px; top: 26%; transform: scale(0) translateX(-60px) rotate(0deg); opacity: 0; -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%); mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(-8px 10px 12px rgba(0,0,0,0.25));">
             <div class="w-full h-full animate-mascot-breath">
                 <img src="/static/mascot.png" class="w-full h-full object-contain block">
             </div>
@@ -293,11 +293,13 @@
                     <div class="w-8 h-8 rounded-lg overflow-hidden border border-slate-200 shadow-sm shrink-0">
                         <img src="/static/logo.png" alt="Titan Logo" class="w-full h-full object-cover">
                     </div>
-                    <span class="font-black text-base text-slate-800 tracking-tight" style="font-family: 'Space Grotesk', sans-serif;">
+                    <span class="font-black text-base text-slate-800 tracking-tight"
+                        style="font-family: 'Space Grotesk', sans-serif;">
                         Titan <span class="text-[#0054cb]">LMS</span>
                     </span>
                 </a>
-                <a href="{{ url_for('public.home') }}" class="text-xs font-bold text-[#0054cb] hover:underline flex items-center gap-1">
+                <a href="{{ url_for('public.home') }}"
+                    class="text-xs font-bold text-[#0054cb] hover:underline flex items-center gap-1">
                     <span>Home</span>
                     <span class="material-symbols-outlined text-sm">arrow_forward</span>
                 </a>
@@ -310,7 +312,8 @@
                         style="font-family:'Montserrat',sans-serif;">
                         Welcome <span class="text-[#0054cb]">Back!</span>
                     </h1>
-                    <p class="text-xs sm:text-sm md:text-base text-gray-500 font-semibold mt-1 sm:mt-2">Glad to see you again. Continue
+                    <p class="text-xs sm:text-sm md:text-base text-gray-500 font-semibold mt-1 sm:mt-2">Glad to see you
+                        again. Continue
                         your learning journey.</p>
                 </div>
                 <div x-show="tab === 'signup'" class="pr-0">
@@ -318,7 +321,8 @@
                         style="font-family:'Impact', 'Arial Black', sans-serif;">
                         Join Titan <span class="text-[#0054cb]">Faculty</span>
                     </h1>
-                    <p class="text-xs sm:text-sm md:text-base text-gray-500 font-semibold mt-1 sm:mt-2">Empowering next-gen engineers &
+                    <p class="text-xs sm:text-sm md:text-base text-gray-500 font-semibold mt-1 sm:mt-2">Empowering
+                        next-gen engineers &
                         tech leaders.</p>
                 </div>
 
@@ -701,7 +705,7 @@
         if (emailInput && passwordInput && mascot) {
             emailInput.addEventListener('focus', () => {
                 mascot.style.opacity = '1';
-                mascot.style.transform = 'scale(1) translateX(10px) rotate(0deg) translateY(0)';
+                mascot.style.transform = 'scale(1) translateX(50px) rotate(-1deg) translateY(0)';
             });
             emailInput.addEventListener('blur', () => {
                 setTimeout(() => {
@@ -714,7 +718,7 @@
 
             passwordInput.addEventListener('focus', () => {
                 mascot.style.opacity = '1';
-                mascot.style.transform = 'scale(1) translateX(10px) rotate(0deg) translateY(45px)';
+                mascot.style.transform = 'scale(1) translateX(50px) rotate(0deg) translateY(45px)';
             });
             passwordInput.addEventListener('blur', () => {
                 setTimeout(() => {
