@@ -70,7 +70,7 @@ def home():
         campuses = []
     
     try:
-        return render_template('public/home.html', courses=courses, stats=stats, user_testimonials=user_testimonials, campuses=campuses, active_page='home')
+        return render_template('pages/home.html', courses=courses, stats=stats, user_testimonials=user_testimonials, campuses=campuses, active_page='home')
     except Exception as err:
         import traceback
         from flask import current_app
@@ -102,7 +102,7 @@ def about():
         team_members = TeamMember.query.order_by(TeamMember.order.asc(), TeamMember.id.asc()).all()
     except Exception:
         team_members = []
-    return render_template('public/about.html', stats=stats, team_members=team_members, active_page='about')
+    return render_template('pages/about.html', stats=stats, team_members=team_members, active_page='about')
 
 
 def _ensure_team_members_seeded():
@@ -189,7 +189,7 @@ def campuses():
     num_cities = len(city_counts)
     num_campuses = len(db_campuses)
     
-    return render_template('public/campuses.html', 
+    return render_template('pages/campuses.html', 
                            db_campuses=db_campuses, 
                            city_counts=city_counts, 
                            pins=active_pins,
@@ -203,7 +203,7 @@ def city_campuses(city_name):
     from ..models import Campus
     formatted_city = city_name.replace('-', ' ').title()
     campuses_in_city = Campus.query.filter(Campus.city.ilike(formatted_city)).order_by(Campus.id.desc()).all()
-    return render_template('public/city_campuses.html', city_name=formatted_city, campuses=campuses_in_city, active_page='campuses')
+    return render_template('pages/city_campuses.html', city_name=formatted_city, campuses=campuses_in_city, active_page='campuses')
 
 
 @public_bp.route('/enroll', methods=['GET', 'POST'])
@@ -358,7 +358,7 @@ def enroll():
         if key_record:
             preselected_course = key_record.course
             
-    return render_template('public/enroll.html', courses=courses, campuses=campuses, cities=cities, preselected_course=preselected_course, active_page='enroll')
+    return render_template('pages/enroll.html', courses=courses, campuses=campuses, cities=cities, preselected_course=preselected_course, active_page='enroll')
 
 
 @public_bp.route('/redeem-access-key', methods=['POST'])
@@ -414,7 +414,7 @@ def redeem_access_key():
 
 @public_bp.route('/enroll/success')
 def enroll_success():
-    return render_template('public/enroll_success.html')
+    return render_template('pages/enroll_success.html')
 
 
 
@@ -432,7 +432,7 @@ def course_detail(course_id):
         enrollment = Enrollment.query.filter_by(user_id=current_user.id, course_id=course.id).first()
         is_enrolled = enrollment is not None
         
-    return render_template('public/course_detail.html', course=course, is_enrolled=is_enrolled, enrollment=enrollment, active_page='courses')
+    return render_template('pages/course_detail.html', course=course, is_enrolled=is_enrolled, enrollment=enrollment, active_page='courses')
 
 @public_bp.route('/courses/<int:course_id>/lab')
 def course_lab(course_id):
@@ -443,7 +443,7 @@ def course_lab(course_id):
     if current_user.is_authenticated and current_user.role == 'student':
         is_enrolled = Enrollment.query.filter_by(user_id=current_user.id, course_id=course.id).first() is not None
         
-    return render_template('public/course_lab.html', course=course, is_enrolled=is_enrolled, active_page='courses')
+    return render_template('pages/course_lab.html', course=course, is_enrolled=is_enrolled, active_page='courses')
 
 @public_bp.route('/portfolio/<int:user_id>')
 def portfolio(user_id):
@@ -499,7 +499,7 @@ def portfolio(user_id):
         'communication': min(readiness_score - 16, 85)
     }
     
-    return render_template('public/portfolio.html', 
+    return render_template('pages/portfolio.html', 
                            profile_user=user, 
                            badges=badges, 
                            enrollments=enrollments, 
@@ -520,7 +520,7 @@ def print_portfolio(user_id):
     enrollments = Enrollment.query.filter_by(user_id=user.id).all()
     certificates = Certificate.query.filter_by(user_id=user.id).all()
     
-    return render_template('public/print_portfolio.html', profile_user=user, badges=badges, enrollments=enrollments, certificates=certificates, active_page='portfolio')
+    return render_template('pages/print_portfolio.html', profile_user=user, badges=badges, enrollments=enrollments, certificates=certificates, active_page='portfolio')
 
 @public_bp.route('/hall-of-fame')
 def hall_of_fame():
@@ -594,7 +594,7 @@ def hall_of_fame():
                 'time': 'Recently'
             })
     
-    return render_template('public/hall_of_fame.html', 
+    return render_template('pages/hall_of_fame.html', 
                            students=cleaned_students, 
                            podium=podium, 
                            stats=stats, 
@@ -615,7 +615,7 @@ def leaderboard():
     podium = students[:3]
     remaining = students[3:]
     
-    return render_template('public/leaderboard.html', podium=podium, remaining=remaining, active_page='leaderboard', tenant=tenant)
+    return render_template('pages/leaderboard.html', podium=podium, remaining=remaining, active_page='leaderboard', tenant=tenant)
 
 @public_bp.route('/courses')
 def courses():
@@ -624,7 +624,7 @@ def courses():
         courses = Course.query.filter_by(status='published', tenant_id=tenant.id).all()
     else:
         courses = Course.query.filter_by(status='published').all()
-    return render_template('public/courses.html', courses=courses, active_page='courses', tenant=tenant)
+    return render_template('pages/courses.html', courses=courses, active_page='courses', tenant=tenant)
 
 
 @public_bp.route('/courses/<int:course_id>/checkout')
@@ -746,5 +746,5 @@ def view_tenant_portal(subdomain):
         'hours_learned': total_enrollments * 15,
         'satisfaction_rate': "N/A" if num_courses == 0 else "5.0/5.0"
     }
-    return render_template('public/home.html', courses=courses, stats=stats, tenant=tenant, active_page='home')
+    return render_template('pages/home.html', courses=courses, stats=stats, tenant=tenant, active_page='home')
 
