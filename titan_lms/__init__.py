@@ -260,7 +260,12 @@ def create_app():
         try:
             from sqlalchemy import text
             db.session.execute(text("ALTER TABLE quiz_battle_submissions ADD COLUMN selected_option VARCHAR(10)"))
-            db.session.execute(text("ALTER TABLE quiz_battle_submissions ADD COLUMN is_correct BOOLEAN DEFAULT 0"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+        try:
+            from sqlalchemy import text
+            db.session.execute(text("ALTER TABLE quiz_battle_submissions ADD COLUMN is_correct BOOLEAN DEFAULT FALSE"))
             db.session.commit()
         except Exception:
             db.session.rollback()
