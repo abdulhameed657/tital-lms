@@ -59,7 +59,11 @@ def home():
         user_testimonials = []
         campuses = []
     
-    return render_template('public/home.html', courses=courses, stats=stats, user_testimonials=user_testimonials, campuses=campuses, active_page='home')
+    try:
+        return render_template('public/home.html', courses=courses, stats=stats, user_testimonials=user_testimonials, campuses=campuses, active_page='home')
+    except Exception as err:
+        import traceback
+        return f"<h1>Titan LMS - Home Template Render Error</h1><pre>{traceback.format_exc()}</pre>", 500
 
 @public_bp.route('/about-us')
 def about():

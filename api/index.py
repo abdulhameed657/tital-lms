@@ -8,5 +8,9 @@ from titan_lms import create_app
 
 app = create_app()
 
+@app.route('/api/health')
+def health_check():
+    return "OK - Titan LMS is Running on Vercel!", 200
+
 if __name__ == "__main__":
     app.run()
