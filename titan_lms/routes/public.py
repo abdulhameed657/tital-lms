@@ -53,7 +53,6 @@ def home():
     
     try:
         from ..models import Testimonial, Campus
-        _ensure_campuses_seeded()
         user_testimonials = Testimonial.query.filter_by(is_approved=True).order_by(Testimonial.created_at.desc()).all()
         campuses = Campus.query.order_by(Campus.city.asc()).all()
     except Exception:
@@ -65,10 +64,6 @@ def home():
 @public_bp.route('/about-us')
 def about():
     from ..models import TeamMember
-    try:
-        _ensure_team_members_seeded()
-    except Exception:
-        pass
     try:
         num_students = User.query.filter_by(role='student').count()
     except Exception:
