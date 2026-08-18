@@ -13,16 +13,24 @@ def create_app():
     # Configure App
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'titan-lms-super-secret-key-987654')
     
-    # DB Configuration: Default to local SQLite db, ready for PostgreSQL in production
-    db_url = os.environ.get('DATABASE_URL', 'sqlite:///titan_lms.db')
+    # DB Configuration: Default to local SQLite db, or /tmp/titan_lms.db on Vercel
+    is_vercel = os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV')
+    default_db = 'sqlite:////tmp/titan_lms.db' if is_vercel else 'sqlite:///titan_lms.db'
+    db_url = os.environ.get('DATABASE_URL', default_db)
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # File upload config
-    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    if is_vercel:
+        app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
+    else:
+        app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
+    try:
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    except Exception:
+        pass
     
     # Initialize Extensions
     db.init_app(app)
