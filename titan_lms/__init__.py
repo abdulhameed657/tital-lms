@@ -15,7 +15,7 @@ def create_app():
     
     # DB Configuration: Default to local SQLite db, or /tmp/titan_lms.db on Vercel
     is_vercel = os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV')
-    raw_db_url = os.environ.get('DATABASE_URL')
+    raw_db_url = os.environ.get('POSTGRES_URL') or os.environ.get('POSTGRES_URL_NON_POOLING') or os.environ.get('STORAGE_URL') or os.environ.get('DATABASE_URL')
     if not raw_db_url or not str(raw_db_url).strip():
         db_url = 'sqlite:////tmp/titan_lms.db' if is_vercel else 'sqlite:///titan_lms.db'
     else:
