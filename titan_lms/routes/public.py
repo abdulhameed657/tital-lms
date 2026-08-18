@@ -2,7 +2,9 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import current_user
 from ..models import db, User, Course, Lesson, Enrollment, Certificate, Badge, UserBadge, Tenant
 
-public_bp = Blueprint('public', __name__)
+import os
+template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
+public_bp = Blueprint('public', __name__, template_folder=template_dir)
 
 def get_tenant_from_request():
     subdomain = request.args.get('tenant')

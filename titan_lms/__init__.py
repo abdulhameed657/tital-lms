@@ -14,7 +14,7 @@ def create_app():
     static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     
-    app.jinja_loader = jinja2.FileSystemLoader([
+    app.jinja_env.loader = jinja2.FileSystemLoader([
         template_dir,
         os.path.join(os.path.dirname(__file__), 'templates'),
         os.path.join(os.getcwd(), 'titan_lms', 'templates'),
