@@ -506,27 +506,29 @@ def messages():
         content = request.form.get('content')
         if recipient_id and content:
             recipient = User.query.get(recipient_id)
-            if recipient and recipient.role == 'admin':
-                flash("Messaging Admins is disabled.", "error")
-                return redirect(url_for('student.messages'))
-            msg = Message(
-                sender_id=current_user.id,
-                recipient_id=int(recipient_id),
-                content=content
-            )
-            db.session.add(msg)
-            
-            # Send receiver a notification
-            notif = Notification(
-                user_id=int(recipient_id),
-                title="New Inbox Message",
-                content=f"You received a new message from {current_user.name}.",
-                type="info"
-            )
-            db.session.add(notif)
-            db.session.commit()
-            flash("Message sent successfully!", "success")
-            return redirect(url_for('student.messages', contact_id=recipient_id))
+            if recipient:
+                if current_user.role not in ['admin', 'superadmin'] and recipient.role in ['admin', 'superadmin']:
+                    flash("Messaging Admins and Superadmins is disabled. Admins can broadcast messages to you.", "error")
+                    return redirect(url_for('student.messages'))
+
+                msg = Message(
+                    sender_id=current_user.id,
+                    recipient_id=int(recipient_id),
+                    content=content
+                )
+                db.session.add(msg)
+                
+                # Send receiver a notification
+                notif = Notification(
+                    user_id=int(recipient_id),
+                    title="New Inbox Message",
+                    content=f"You received a new message from {current_user.name}.",
+                    type="info"
+                )
+                db.session.add(notif)
+                db.session.commit()
+                flash("Message sent successfully!", "success")
+                return redirect(url_for('student.messages', contact_id=recipient_id))
             
     # Get prospective recipients based on role (staff or student list)
     if current_user.role == 'instructor':
@@ -536,13 +538,17 @@ def messages():
         if course_ids:
             enrollments = Enrollment.query.filter(Enrollment.course_id.in_(course_ids)).all()
             student_ids = list(set([e.user_id for e in enrollments]))
-            staff = User.query.filter(User.id.in_(student_ids)).all() if student_ids else []
+            staff = User.query.filter(User.id.in_(student_ids), User.id != current_user.id, ~User.role.in_(['admin', 'superadmin'])).all() if student_ids else []
         else:
             staff = []
-    elif current_user.role == 'admin':
-        staff = User.query.filter(User.tenant_id == current_user.tenant_id).all()
+    elif current_user.role in ['admin', 'superadmin']:
+        staff = User.query.filter(User.id != current_user.id, (User.tenant_id == current_user.tenant_id) | (User.tenant_id.is_(None))).all()
     else:
-        staff = User.query.filter(User.role == 'instructor', User.tenant_id == current_user.tenant_id).all()
+        staff = User.query.filter(User.id != current_user.id, ~User.role.in_(['admin', 'superadmin'])).all()
+
+    # Fallback to non-admin / non-superadmin users if list is empty
+    if not staff and current_user.role not in ['admin', 'superadmin']:
+        staff = User.query.filter(User.id != current_user.id, ~User.role.in_(['admin', 'superadmin'])).order_by(User.name.asc()).limit(30).all()
 
     # Find unique contacts we have chatted with
     chat_partners_sent = db.session.query(Message.recipient_id).filter(Message.sender_id == current_user.id).distinct().all()

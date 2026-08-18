@@ -338,7 +338,9 @@
         </div>
     </main>
 
-    <!-- 5-Second Real-Time Backend Sync & Auto-Refresh -->
+    <!-- 5-Second Real-Time Notification & Live Toast System (No Page Reload) -->
+    <div id="live-toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full"></div>
+
     <script>
         (function() {
             let lastNotifs = null;
@@ -346,26 +348,61 @@
             let lastResCount = null;
             let lastDlCount = null;
 
+            function showToastNotification(title, message, icon = 'notifications') {
+                const container = document.getElementById('live-toast-container');
+                if (!container) return;
+
+                const toast = document.createElement('div');
+                toast.className = 'pointer-events-auto bg-slate-900/95 text-white border border-amber-400/40 p-4 rounded-2xl shadow-2xl backdrop-blur-xl flex items-start gap-3 transition-all duration-300 transform translate-x-full opacity-0';
+                toast.innerHTML = `
+                    <div class="w-8 h-8 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center shrink-0 text-amber-400">
+                        <span class="material-symbols-outlined text-lg">${icon}</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-xs text-white truncate">${title}</p>
+                        <p class="text-[11px] text-slate-300 line-clamp-2 mt-0.5">${message}</p>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white text-xs p-1">
+                        <span class="material-symbols-outlined text-sm">close</span>
+                    </button>
+                `;
+
+                container.appendChild(toast);
+                requestAnimationFrame(() => {
+                    toast.classList.remove('translate-x-full', 'opacity-0');
+                });
+
+                setTimeout(() => {
+                    toast.classList.add('translate-x-full', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
+            }
+
             function syncBackendHeartbeat() {
                 fetch('/api/heartbeat')
                     .then(res => res.json())
                     .then(data => {
                         if (!data.authenticated) return;
 
-                        if (lastNotifs !== null && lastMsgs !== null) {
-                            if (data.unread_notifications > lastNotifs || data.unread_messages > lastMsgs) {
-                                console.log('⚡ Real-time Admin Event Received: Auto-refreshing page...');
-                                if (window.location.pathname.includes('/admin/leaves') || window.location.pathname.includes('/admin/dashboard')) {
-                                    window.location.reload();
-                                }
-                            }
-                            if (lastResCount !== null && (data.total_resources !== lastResCount || data.total_downloads !== lastDlCount)) {
-                                if (window.location.pathname.includes('/resources')) {
-                                    console.log('⚡ Real-time Resource Update Received: Refreshing counts...');
-                                    window.location.reload();
-                                }
-                            }
+                        if (lastNotifs !== null && data.unread_notifications > lastNotifs) {
+                            fetch('/api/notifications/latest')
+                                .then(r => r.json())
+                                .then(nData => {
+                                    if (nData.notifications && nData.notifications.length > 0) {
+                                        const newest = nData.notifications[0];
+                                        showToastNotification(newest.title, newest.content, 'notifications_active');
+                                    } else {
+                                        showToastNotification('New Notification', 'You have a new unread notification.', 'notifications');
+                                    }
+                                }).catch(() => {
+                                    showToastNotification('New Notification', 'You have a new unread notification.', 'notifications');
+                                });
                         }
+
+                        if (lastMsgs !== null && data.unread_messages > lastMsgs) {
+                            showToastNotification('New Message Received', 'A new inbox message has arrived.', 'mail');
+                        }
+
                         lastNotifs = data.unread_notifications;
                         lastMsgs = data.unread_messages;
                         lastResCount = data.total_resources;
@@ -374,8 +411,8 @@
                     .catch(err => console.debug('Sync:', err));
             }
 
-            // Execute every 5 seconds (5000ms)
-            setInterval(syncBackendHeartbeat, 5000);
+            // Poll every 4 seconds without any page reload
+            setInterval(syncBackendHeartbeat, 4000);
             setTimeout(syncBackendHeartbeat, 1000);
         })();
     </script>

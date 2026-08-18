@@ -95,7 +95,7 @@
             </div>
 
             <!-- Messages Thread Area -->
-            <div class="flex-grow overflow-y-auto p-lg flex flex-col gap-md custom-scrollbar bg-surface-container-low/20">
+            <div id="chat-thread-container" class="flex-grow overflow-y-auto p-lg flex flex-col gap-md custom-scrollbar bg-surface-container-low/20">
                 {% for msg in thread_messages %}
                     {% if msg.sender_id == current_user.id %}
                     <!-- Outgoing message -->
@@ -134,9 +134,9 @@
 
             <!-- Quick Text Input Area -->
             <div class="p-lg bg-white border-t border-outline-variant/10">
-                <form action="{{ url_for('student.messages') }}" method="POST" class="flex gap-sm">
+                <form id="ajax-chat-form" action="{{ url_for('student.messages') }}" method="POST" class="flex gap-sm">
                     <input type="hidden" name="recipient_id" value="{{ active_contact.id if active_contact else '' }}">
-                    <input type="text" name="content" required placeholder="Type your response..." 
+                    <input type="text" id="chat-input-text" name="content" required placeholder="Type your response..." 
                            {% if not active_contact %}disabled{% endif %}
                            class="flex-1 rounded-lg border-outline-variant/20 bg-surface-container focus:ring-primary focus:border-primary text-body-sm p-3">
                     <button type="submit" {% if not active_contact %}disabled{% endif %} class="bg-primary text-white px-lg rounded-lg font-bold flex items-center justify-center shadow-md active:scale-95 transition-all disabled:opacity-50">
@@ -148,4 +148,102 @@
 
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const chatForm = document.getElementById('ajax-chat-form');
+    const chatInput = document.getElementById('chat-input-text');
+    const threadContainer = document.getElementById('chat-thread-container');
+    const activeContactId = "{{ active_contact.id if active_contact else '' }}";
+    let knownMsgCount = {{ thread_messages|length if thread_messages else 0 }};
+
+    if (threadContainer) {
+        threadContainer.scrollTop = threadContainer.scrollHeight;
+    }
+
+    if (chatForm && activeContactId) {
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            chatInput.value = '';
+            
+            fetch('/api/messages/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    recipient_id: parseInt(activeContactId),
+                    content: text
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetchThread();
+                } else {
+                    // Fallback to standard form submit
+                    chatForm.submit();
+                }
+            })
+            .catch(err => {
+                console.error('AJAX Send error, submitting form normally:', err);
+                chatForm.submit();
+            });
+        });
+
+        function fetchThread() {
+            if (!activeContactId) return;
+            fetch(`/api/messages/thread/${activeContactId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.messages && data.messages.length !== knownMsgCount) {
+                        knownMsgCount = data.messages.length;
+                        renderMessages(data.messages);
+                    }
+                })
+                .catch(err => console.debug('Thread poll error:', err));
+        }
+
+        function renderMessages(messages) {
+            if (!threadContainer) return;
+            let html = '';
+            messages.forEach(msg => {
+                if (msg.is_mine) {
+                    html += `
+                        <div class="flex gap-3 max-w-[80%] self-end flex-row-reverse">
+                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center font-bold text-white text-label-sm shrink-0">
+                                {{ current_user.name[:2].upper() }}
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <div class="bg-primary text-white p-3 shadow-md chat-bubble-out text-body-sm">
+                                    ${msg.content}
+                                </div>
+                                <span class="text-[9px] text-outline-variant mt-1 mr-1 block">${msg.created_at}</span>
+                            </div>
+                        </div>`;
+                } else {
+                    html += `
+                        <div class="flex gap-3 max-w-[80%]">
+                            <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center font-bold text-primary text-label-sm shrink-0 border border-outline-variant/10">
+                                {{ active_contact.name[:2].upper() if active_contact else 'U' }}
+                            </div>
+                            <div>
+                                <div class="bg-white p-3 shadow-sm border border-outline-variant/15 chat-bubble-in text-body-sm text-on-surface">
+                                    ${msg.content}
+                                </div>
+                                <span class="text-[9px] text-outline-variant mt-1 ml-1 block">${msg.created_at}</span>
+                            </div>
+                        </div>`;
+                }
+            });
+            threadContainer.innerHTML = html;
+            threadContainer.scrollTop = threadContainer.scrollHeight;
+        }
+
+        // Live Poll every 3 seconds for instant message delivery
+        setInterval(fetchThread, 3000);
+    }
+});
+</script>
 {% endblock %}
