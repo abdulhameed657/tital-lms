@@ -1,0 +1,527 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Titan LMS | Student Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#575d78",
+                    "on-tertiary-container": "#4e3d00",
+                    "on-primary-fixed": "#001847",
+                    "inverse-surface": "#31312b",
+                    "background": "#fcf9f1",
+                    "tertiary": "#735c00",
+                    "primary-container": "#2c6dec",
+                    "tertiary-fixed": "#ffe088",
+                    "primary-fixed-dim": "#b1c5ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1c1c17",
+                    "on-secondary-fixed": "#141a32",
+                    "surface-container-highest": "#e5e2da",
+                    "surface-bright": "#fcf9f1",
+                    "on-surface-variant": "#424654",
+                    "surface-tint": "#0056d0",
+                    "inverse-primary": "#b1c5ff",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#ebe8e0",
+                    "secondary-container": "#d8defe",
+                    "tertiary-container": "#cba72f",
+                    "surface-container-low": "#f6f3eb",
+                    "on-surface": "#1c1c17",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#dce1ff",
+                    "secondary-fixed-dim": "#bfc5e4",
+                    "on-tertiary-fixed": "#241a00",
+                    "on-primary-fixed-variant": "#0040a0",
+                    "on-primary-container": "#fefcff",
+                    "on-error-container": "#93000a",
+                    "outline": "#737786",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f3f1e9",
+                    "tertiary-fixed-dim": "#e9c349",
+                    "outline-variant": "#c2c6d7",
+                    "on-secondary-fixed-variant": "#3f465f",
+                    "on-secondary-container": "#5b617d",
+                    "error": "#ba1a1a",
+                    "surface-container": "#f1eee6",
+                    "surface-dim": "#dcdad2",
+                    "on-secondary": "#ffffff",
+                    "surface": "#fcf9f1",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#dae2ff",
+                    "on-tertiary-fixed-variant": "#574500",
+                    "primary": "#0054cb",
+                    "surface-variant": "#e5e2da"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "8px",
+                    "lg": "24px",
+                    "margin-desktop": "40px",
+                    "base": "4px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "margin-mobile": "16px",
+                    "xxl": "64px",
+                    "md": "16px",
+                    "container-max": "1280px",
+                    "xl": "32px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "display-lg": ["Montserrat"],
+                    "label-lg": ["Inter"],
+                    "display-lg-mobile": ["Montserrat"],
+                    "label-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-sm": ["Montserrat"],
+                    "headline-md": ["Montserrat"],
+                    "body-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Montserrat"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-lg": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "label-md": ["12px", {"lineHeight": "1", "fontWeight": "500"}],
+                    "label-sm": ["10px", {"lineHeight": "1", "fontWeight": "500"}],
+                    "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .glass-nav {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .card-shadow {
+            box-shadow: 0px 4px 20px rgba(10, 17, 40, 0.05);
+        }
+        .card-hover:hover {
+            box-shadow: 0px 8px 30px rgba(10, 17, 40, 0.1);
+            border: 1px solid rgba(0, 84, 203, 0.1);
+        }
+        .glow-gold {
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .heatmap-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .5; transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-container selection:text-white">
+<!-- Sidebar Navigation (Titan Shared Component) -->
+<aside class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-64 bg-surface-container/80 backdrop-blur-md shadow-xl border-r border-outline-variant/20 py-lg z-50">
+<div class="px-md mb-xl"><div class="flex items-center gap-sm mb-2"><div class="w-10 h-10"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBSFNBmrloTn0iC30-SEB0Im_iapu0p1eCWnrFwOjQ0zJILrggtMl14Ux7EbbSQNVTWt5qziyP8Wb33Iag97sTn8oMuRCuyUTfZDESTbsFvXP_Iug7NFN3jqEvWaFlF-0Y2758CqsVmDItUjXgbzuD0kQpSscBbG7k4dCV65Y8idT9F1MoLWkI8IusUo4DYIhBfY8cUg8SDluw7lf9cg3e83ztF5fymRPMxmngpD5bkdJj5nMcsWopOAc35lWenogz-A" alt="Titan Logo" class="w-full h-full object-contain"></div><h1 class="text-headline-sm font-headline-md text-on-surface tracking-tight">Titan LMS</h1></div><p class="text-label-sm text-secondary uppercase tracking-widest">Academic Excellence</p></div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-md bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-lg text-label-lg">Dashboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-label-lg text-label-lg">Courses</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="font-label-lg text-label-lg">Assignments</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-lg text-label-lg">Analytics</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-label-lg text-label-lg">Leaderboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-lg text-label-lg">Community</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-lg text-label-lg">Settings</span>
+</a>
+</nav>
+<div class="px-md mt-auto pt-lg space-y-2">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-white py-3 rounded-lg font-label-lg hover:bg-primary-container transition-all active:scale-95 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-[20px]" data-icon="bolt">bolt</span>
+                AI Assistant
+            </button>
+<div class="pt-md border-t border-outline-variant/20">
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-2 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-lg text-label-lg">Help</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="md:ml-64 min-h-screen pb-xxl">
+<!-- Top App Bar -->
+<header class="sticky top-0 w-full glass-nav bg-surface/70 z-40 shadow-sm">
+<div class="max-w-container-max mx-auto px-gutter py-md flex justify-between items-center">
+<div class="flex items-center gap-lg">
+<button class="md:hidden p-2 text-primary">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<div class="relative hidden sm:block">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-outline">
+<span class="material-symbols-outlined text-[20px]" data-icon="search">search</span>
+</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 w-64 focus:ring-2 focus:ring-primary text-body-sm transition-all" placeholder="Search courses, mentors..." type="text">
+</div><div class="hidden lg:flex items-center gap-lg ml-lg border-l border-outline-variant/30 pl-lg"><div class="flex flex-col w-32"><div class="flex justify-between text-[10px] font-bold uppercase text-secondary mb-1"><span class="">Daily Goal</span><span class="">80%</span></div><div class="h-1.5 bg-outline-variant/30 rounded-full overflow-hidden"><div class="h-full bg-primary w-[80%]"></div></div></div><div class="flex items-center gap-xs bg-tertiary/10 px-3 py-1 rounded-full"><span class="text-label-md font-bold text-tertiary">12 Day Streak</span><span class="">🔥</span></div><div class="flex flex-col text-right"><span class="text-label-sm text-secondary font-bold">Level 42</span><span class="text-[10px] text-primary font-bold">12,450 XP</span></div></div>
+</div>
+<div class="flex items-center gap-md">
+<button class="relative p-2 text-on-surface-variant hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="flex items-center gap-sm pl-md border-l border-outline-variant/30">
+<div class="text-right hidden sm:block">
+<p class="text-label-lg font-bold text-on-surface">Alex Rivera</p>
+<p class="text-label-sm text-secondary">Expert Tier • Level 42</p>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-primary/20 overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a young male student in his mid-20s, looking confident with a slight smile. He is in a modern, brightly lit home office with soft blue and gold ambient lighting in the background, creating a high-end corporate academic aesthetic. Sharp focus, cinematic lighting, 8k resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrrXPWoTBamDlDHgZP8ZvzeN8d0zR0Vdzx-IElvHljjzbRlgxWL7PxkVy8vFGaNMfZHFhlDc0AIsYL9pNqse1uYM8hyD9ndI7lX1OU3QiM2t5liwVoie6lNM70ZJeffZa93Rm3qTxEZWQlu8caa1EfpBJ_XMe722sUUL6yVVmY-D0YB1jQvAjcJnTka8pmWVpI9DVk09ZhiI5CbIcgRxwswNqIb9k_HtXxsmvDFb4TgxwS5QeNAZhR">
+</div>
+</div>
+</div>
+</div>
+</header>
+<div class="max-w-container-max mx-auto px-gutter mt-lg">
+<div class="grid grid-cols-12 gap-lg">
+<!-- Hero & Continue Learning (Left Column) -->
+<div class="col-span-12 lg:col-span-8 space-y-lg">
+<!-- Continue Learning Hero Card -->
+<section class="relative overflow-hidden rounded-xl bg-on-surface text-white p-lg card-shadow flex flex-col md:flex-row gap-lg group">
+
+<div class="relative z-10 flex-1">
+<span class="bg-primary/20 text-primary-fixed-dim px-3 py-1 rounded-full text-label-sm font-bold tracking-widest uppercase mb-md inline-block">Current Course</span>
+<h2 class="text-headline-lg font-headline-lg mb-sm">Advanced Neural Architectures</h2>
+<p class="text-body-md text-surface-variant/80 mb-xl max-w-lg">You're 72% through Module 4. Dive back into "Optimizing Hyperparameters for Large Language Models."</p>
+<div class="flex items-center gap-lg mb-lg">
+<div class="flex-1 max-w-xs">
+<div class="flex justify-between text-label-md mb-2">
+<span class="">Course Progress</span>
+<span class="text-primary-fixed-dim">72%</span>
+</div>
+<div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-[72%] shadow-[0_0_10px_rgba(44,109,236,0.6)]"></div>
+</div>
+</div>
+<button class="bg-primary text-white px-xl py-3 rounded-lg font-label-lg hover:bg-primary-container transition-all flex items-center gap-sm group-hover:scale-105">
+                                    Continue <span class="material-symbols-outlined" data-icon="play_arrow">play_arrow</span>
+</button>
+</div>
+</div>
+<div class="relative z-10 w-full md:w-48 h-48 rounded-lg overflow-hidden shrink-0 border border-white/10">
+<img class="w-full h-full object-cover" data-alt="A futuristic digital representation of a neural network with glowing nodes and golden data filaments. The background is a deep navy blue, with sparks of electric blue light tracing paths through the structure. High-tech, cinematic, modern corporate learning aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoSkDZ4GoWh6RbHmoLm4JL5s7nUozrdZn3NR71T84-1LCRFLRAsTjoN6P5PXO4f7AK87Ww5_wYDokhmywOnfmmy5NxB6EhgWFPwztR0HswpF3s9OmLs-o_nVWrvjmqS_4c_TJNXhd8dIJM3iEojR5T2aF38PWE5vWJAIOuNXZfjBAb4dBohWZvJXFdVEjZ9qtmADTnMPGqhhcpmWXr_CAeLj8sOUNE4GI8spnxBtrJCcW7fTL7CaJ9">
+</div>
+</section>
+<!-- Rapid Review Section -->
+<section>
+<div class="flex items-center justify-between mb-md">
+<h3 class="text-headline-sm font-headline-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="timer">timer</span>
+                                Rapid Review Rooms
+                            </h3>
+<span class="text-label-md text-secondary">Join live 5m sessions</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Room 1 -->
+<div class="bg-surface-container-low rounded-xl p-md card-shadow border border-outline-variant/10 card-hover transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-md">
+<div class="bg-tertiary-container/20 text-on-tertiary-container px-2 py-1 rounded text-label-sm font-bold">LIVE</div>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-400"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-500"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-primary text-[10px] flex items-center justify-center text-white">+12</div>
+</div>
+</div>
+<h4 class="font-bold text-body-md mb-xs">Python Data Structures</h4>
+<p class="text-label-md text-secondary mb-md">Host: Prof. Aris</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-xs text-primary font-bold text-label-md">
+<span class="material-symbols-outlined text-[16px]" data-icon="bolt">bolt</span>
+                                        2:45 Left
+                                    </div>
+<span class="text-primary font-bold text-label-md hover:underline">Join Now</span>
+</div>
+</div>
+<!-- Room 2 -->
+<div class="bg-surface-container-low rounded-xl p-md card-shadow border border-outline-variant/10 card-hover transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-md">
+<div class="bg-outline-variant/30 text-on-surface-variant px-2 py-1 rounded text-label-sm font-bold">STARTS IN 4M</div>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
+</div>
+</div>
+<h4 class="font-bold text-body-md mb-xs">Bio-Ethics Quiz prep</h4>
+<p class="text-label-md text-secondary mb-md">Host: AI Mentor</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-xs text-secondary font-bold text-label-md">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+                                        05:00
+                                    </div>
+<span class="text-primary font-bold text-label-md hover:underline">Remind</span>
+</div>
+</div>
+</div>
+</section>
+<!-- AI Learning Insights (Expanded) -->
+<section class="bg-white rounded-xl p-lg card-shadow border border-primary/5">
+<div class="flex items-center gap-md mb-xl">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[28px]" data-icon="insights">insights</span>
+</div>
+<div>
+<h3 class="text-headline-sm font-headline-md">AI Learning Insights</h3>
+<p class="text-body-sm text-secondary">Advanced performance projection for 2024 Semester 1</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg mb-xl">
+<div class="p-md bg-surface-container rounded-lg">
+<p class="text-label-sm text-secondary uppercase mb-xs">Retention Strength</p>
+<p class="text-headline-md font-bold text-primary">88.4%</p>
+<div class="mt-md h-1 bg-outline-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[88%]"></div>
+</div>
+</div>
+<div class="p-md bg-surface-container rounded-lg">
+<p class="text-label-sm text-secondary uppercase mb-xs">Weekly Velocity</p>
+<p class="text-headline-md font-bold text-tertiary">14.2 <span class="text-label-md font-normal">pts/hr</span></p>
+<div class="mt-md h-1 bg-outline-variant rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[65%]"></div>
+</div>
+</div>
+<div class="p-md bg-surface-container rounded-lg">
+<p class="text-label-sm text-secondary uppercase mb-xs">Peer Ranking</p>
+<p class="text-headline-md font-bold text-secondary">Top 5%</p>
+<div class="mt-md h-1 bg-outline-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[95%]"></div>
+</div>
+</div>
+</div>
+<div class="p-lg bg-primary/5 rounded-xl border-l-4 border-primary">
+<div class="flex items-start gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="lightbulb">lightbulb</span>
+<div>
+<h4 class="font-bold text-on-surface mb-xs">Learning Prediction</h4>
+<p class="text-body-sm text-on-surface-variant">Based on your recent quiz in <span class="font-bold text-primary">Discrete Mathematics</span>, you are struggling with 'Pigeonhole Principle'. We recommend the <span class="font-bold">3-minute focused micro-module</span> before your midterm.</p>
+<button class="mt-md text-primary font-bold text-label-md flex items-center gap-xs">
+                                        Start Review <span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Social & Progress (Right Column) -->
+<div class="col-span-12 lg:col-span-4 space-y-lg">
+<!-- Social Heatmap -->
+<section class="bg-white rounded-xl p-lg card-shadow border border-outline-variant/10 overflow-hidden">
+<div class="flex items-center justify-between mb-lg">
+<h3 class="text-headline-sm font-headline-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-tertiary" data-icon="map">map</span>
+                                Active Heatmap
+                            </h3>
+<span class="text-label-sm text-secondary">Live Now</span>
+</div>
+<div class="relative h-48 bg-surface-container rounded-lg overflow-hidden mb-lg">
+<div class="absolute inset-0 opacity-20">
+<div class="w-full h-full bg-cover" data-alt="A stylized minimalist map of a digital university campus, using clean white lines on a soft cream background. Points of interest are marked with glowing electric blue and gold icons. Modern corporate design style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAsdXOy4RABRBCx0O1X-TCbCgpnjxeIkWL5w7w2aiR7ncx8_RLP4Zrsph5Bg0AIG8j3ySvaXe6KmQU-tl60xHRaP0UB69cvREhyQ1jFtpdiJrLxjkPzzXWbOdLjn5SgLQr3DsS6MqtQs8enZz83U23BUsUW9FWqdO4jnUZaqNMsEKONmkX0KOs4ES2JmzAGYMNmfWhYv3lHEedhmDuHtNhjXWW3Ai94PrvAnsnl3KL9mp-AU0G_CX8z')"></div>
+</div>
+<!-- Pulse points -->
+<div class="absolute top-1/4 left-1/3 w-3 h-3 bg-primary rounded-full heatmap-pulse shadow-[0_0_10px_#0054cb]"></div>
+<div class="absolute top-2/3 right-1/4 w-3 h-3 bg-tertiary rounded-full heatmap-pulse shadow-[0_0_10px_#735c00]"></div>
+<div class="absolute bottom-1/4 left-1/2 w-3 h-3 bg-primary rounded-full heatmap-pulse shadow-[0_0_10px_#0054cb]"></div>
+</div>
+<ul class="space-y-sm">
+<li class="flex items-center justify-between text-body-sm">
+<span class="flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                                    Data Science Hall
+                                </span>
+<span class="font-bold">242 Stud.</span>
+</li>
+<li class="flex items-center justify-between text-body-sm">
+<span class="flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+                                    The AI Commons
+                                </span>
+<span class="font-bold">118 Stud.</span>
+</li>
+</ul>
+</section>
+<!-- Achievement Badges (Gold Theme) -->
+<section class="bg-white rounded-xl p-lg card-shadow border border-tertiary-fixed/30">
+<h3 class="text-headline-sm font-headline-md mb-lg">Milestone Badges</h3>
+<div class="flex flex-wrap gap-md">
+<div class="w-14 h-14 bg-tertiary-fixed rounded-full flex items-center justify-center text-on-tertiary-fixed glow-gold border border-tertiary shadow-lg group relative cursor-help">
+<span class="material-symbols-outlined text-[32px]" data-icon="military_tech" data-weight="fill" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-on-surface text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 text-center">
+                                    "Titan Scholar" - 30 Day Streak
+                                </div>
+</div>
+<div class="w-14 h-14 bg-tertiary-fixed/30 rounded-full flex items-center justify-center text-on-tertiary-fixed border border-tertiary/20 group relative cursor-help">
+<span class="material-symbols-outlined text-[32px]" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-on-surface text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 text-center">
+                                    "Peer Mentor" - 50 Answers Given
+                                </div>
+</div>
+<div class="w-14 h-14 bg-tertiary-fixed/30 rounded-full flex items-center justify-center text-on-tertiary-fixed border border-tertiary/20 group relative cursor-help">
+<span class="material-symbols-outlined text-[32px]" data-icon="emoji_events" data-weight="fill" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-2 bg-on-surface text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 text-center">
+                                    "Speed Learner" - Top 1% Velocity
+                                </div>
+</div>
+</div>
+</section>
+<!-- Study Squad Social Overlay -->
+<section class="bg-white rounded-xl p-lg card-shadow border border-outline-variant/10 mb-lg"><h3 class="text-headline-sm font-headline-md mb-lg flex items-center gap-sm"><span class="material-symbols-outlined text-primary">history</span>Recent Activity</h3><div class="space-y-md"><div class="flex gap-md border-l-2 border-primary/20 pl-md relative"><div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary border-4 border-white"></div><div><p class="text-label-md font-bold">Completed Quiz</p><p class="text-body-sm text-secondary">Neural Networks Deep Dive</p><p class="text-[10px] text-outline mt-1">2 hours ago</p></div></div><div class="flex gap-md border-l-2 border-primary/20 pl-md relative"><div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-tertiary border-4 border-white"></div><div><p class="text-label-md font-bold">Earned Badge</p><p class="text-body-sm text-secondary">Titan Scholar Milestone</p><p class="text-[10px] text-outline mt-1">5 hours ago</p></div></div></div></section><section class="bg-white rounded-xl p-lg card-shadow border border-outline-variant/10 mb-lg"><h3 class="text-headline-sm font-headline-md mb-lg flex items-center gap-sm"><span class="material-symbols-outlined text-primary">calendar_month</span>Upcoming Classes</h3><div class="space-y-sm"><div class="flex items-center justify-between p-sm bg-surface-container-low rounded-lg border border-outline-variant/10"><div class="flex flex-col"><span class="text-label-md font-bold">Quantum Computing</span><span class="text-[10px] text-secondary">Tomorrow, 10:00 AM</span></div><span class="material-symbols-outlined text-secondary">chevron_right</span></div><div class="flex items-center justify-between p-sm bg-surface-container-low rounded-lg border border-outline-variant/10"><div class="flex flex-col"><span class="text-label-md font-bold">Ethics in AI</span><span class="text-[10px] text-secondary">Wed, 2:00 PM</span></div><span class="material-symbols-outlined text-secondary">chevron_right</span></div></div></section><section class="bg-surface-container-high rounded-xl p-lg card-shadow">
+<div class="flex items-center justify-between mb-lg">
+<h3 class="text-headline-sm font-headline-md">Study Squad</h3>
+<span class="bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-bold">4 ONLINE</span>
+</div>
+<div class="space-y-md">
+<div class="flex items-center gap-md p-sm hover:bg-white/50 rounded-lg transition-all cursor-pointer group">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-slate-300 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A profile picture of a young woman with a friendly expression, wearing glasses and a collegiate sweatshirt. Background is a warm yellow tone, softly blurred. High resolution digital photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQqMvE0qNYbUMK7vbsJcIlpMx5k2wgY647nZak4T6udEGiqP3Qd0GuXLuIb63VTc27XM7lou-DggeorHBSxD5awvVhzTp_oV0iAzq_ZkvNKQGyep6xWGMsT8PdByBjIEcu-wS6CJQheC4KsX1g7hibXOiPH7qZbPMf5RqCED-L3pvf55HEVCZev_cBeR51lcnbOkh3PTaMocKpwKZZQmNY33A-K5XCffD51XJEObJNJWS8QatVjW1U">
+</div>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-surface-container-high rounded-full"></div>
+</div>
+<div class="flex-1">
+<p class="text-label-lg font-bold">Elena Vance</p>
+<p class="text-label-sm text-secondary">Studying Calculus III</p>
+</div>
+<span class="material-symbols-outlined text-primary opacity-0 group-hover:opacity-100 transition-opacity" data-icon="chat_bubble">chat_bubble</span>
+</div>
+<div class="flex items-center gap-md p-sm hover:bg-white/50 rounded-lg transition-all cursor-pointer group">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-slate-400 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait of a male student with sharp features and modern styling, looking focused. High-key studio lighting with a neutral gray background. Professional corporate portrait aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFZ-9c034SzeibxdDwI7viMBMrKt_s-akkT7R3neX18VXwpChdwO_-FkehaGzKB9zwAO1a3Gp8gOBAa2an6bTBO-cVHkRGjl7bEUO33q01aGZaAYXQIcJh1u4PbB2hjagWxaX7qaSN10d3Cjb7r4ifGbf0_07rjTiVAmVUywv51KjG1Qo33ntY0Q2YCgBq23aoiM8eLoUjfp_agHhPr2e7NtZC7df3SiHJfhBNomXMkOwT3ItPP4A-">
+</div>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-surface-container-high rounded-full"></div>
+</div>
+<div class="flex-1">
+<p class="text-label-lg font-bold">Marcus Cho</p>
+<p class="text-label-sm text-secondary">Active in 'AI Commons'</p>
+</div>
+<span class="material-symbols-outlined text-primary opacity-0 group-hover:opacity-100 transition-opacity" data-icon="chat_bubble">chat_bubble</span>
+</div>
+</div>
+<button class="w-full mt-lg text-center text-primary font-bold text-label-md py-2 border border-primary/20 rounded-lg hover:bg-primary/5 transition-all">
+                            View All Friends
+                        </button>
+</section>
+</div>
+</div>
+</div>
+<!-- Footer (Titan Shared Component) -->
+<footer class="w-full py-xxl bg-surface-container-highest mt-xxl">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop max-w-container-max mx-auto gap-lg">
+<div>
+<div class="flex items-center gap-sm mb-2"><div class="w-8 h-8"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6GZSCu73nx7958OH02X08_QfU1cJ6g8WDLw0aZA3OzVtEnAuuTV2FZw4VAr-1t0N0uFoqPg30Ry6dJSwyd1CcVlvwVZZVOaJhvzQPzJQNHDxJICXA_TN_wMrE85BE1xRt-GOLUoxtyoDY2zUrsik2W_NUCczJ2F-1TY46pwBnd1HZzDnSh-LDW7jRcADrmYWYQ5WBkyl1p-QgZho1f3uP1tW_zEtb1Oj1zMl0gtcNj15bZi92m10p--_oigxzMUNK8g" alt="Titan Logo" class="w-full h-full object-contain"></div><h2 class="font-headline-sm text-primary">Titan LMS</h2></div>
+<p class="text-body-sm text-on-surface-variant mt-sm">© 2024 Titan LMS. Engineering Academic Ambition.</p>
+</div>
+<div class="flex gap-lg">
+<a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all" href="#">Privacy Policy</a>
+<a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all" href="#">Terms of Service</a>
+<a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all" href="#">Contact Support</a>
+<a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all" href="#">Security</a>
+</div>
+</div>
+</footer>
+</main>
+<!-- Titan AI Mentor Floating Component -->
+<div class="fixed bottom-lg right-lg z-50 group" id="ai-mentor">
+<!-- Expanded Recommendation Card (Animated Entry) -->
+<div class="absolute bottom-full right-0 mb-md w-72 bg-white rounded-xl shadow-2xl p-lg border border-primary/10 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none" id="ai-recommendation">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary" data-icon="auto_awesome">auto_awesome</span>
+<span class="text-label-md font-bold text-on-surface">Titan AI Mentor</span>
+</div>
+<p class="text-body-sm text-on-surface-variant mb-md leading-relaxed">
+                "Based on your 65% score in today's <span class="font-bold">Neural Networks</span> quiz, I've prepared a custom deep-dive on <span class="text-primary font-bold">Backpropagation</span>. Ready to master it?"
+            </p>
+<button class="w-full bg-primary text-white py-2 rounded font-label-md hover:bg-primary-container transition-all active:scale-95">
+                Start Session
+            </button>
+</div>
+<!-- The Floating Trigger -->
+<button class="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,84,203,0.4)] hover:scale-110 active:scale-90 transition-all relative overflow-hidden" onclick="toggleAIMentor()">
+
+<span class="material-symbols-outlined text-[32px] relative z-10" data-icon="bolt">bolt</span>
+<!-- Notification Dot -->
+<span class="absolute top-4 right-4 w-3 h-3 bg-tertiary border-2 border-primary rounded-full animate-ping"></span>
+</button>
+</div>
+<script>
+        function toggleAIMentor() {
+            const card = document.getElementById('ai-recommendation');
+            const isVisible = !card.classList.contains('opacity-0');
+            
+            if (isVisible) {
+                card.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            } else {
+                card.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }
+        }
+
+        // Show the recommendation card after 2 seconds for visibility
+        setTimeout(() => {
+            const card = document.getElementById('ai-recommendation');
+            card.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            
+            // Auto hide after 10 seconds if not interacted with
+            setTimeout(() => {
+                card.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }, 10000);
+        }, 2000);
+
+        // Simple mobile menu toggle simulation
+        document.querySelector('button[class*="md:hidden"]').addEventListener('click', () => {
+            alert('Side menu would slide in here on a real app!');
+        });
+    </script>
+
+
+
+
+
+
+
+
+</body></html>

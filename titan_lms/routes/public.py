@@ -12,13 +12,11 @@ def get_tenant_from_request():
 
 @public_bp.route('/ai-robot-avatar')
 def ai_robot_avatar():
-    import os
-    from flask import current_app
-    image_path = os.path.join(current_app.root_path, 'static', 'robot.png')
+    image_path = r"c:\Users\Abdul Hameed\Desktop\stitch_titan_premium_lms_design\titan_lms\static\robot.png"
     try:
         return send_file(image_path, mimetype='image/png')
     except Exception:
-        return redirect(url_for('static', filename='robot.png'))
+        return url_for('static', filename='robot.png')
 
 @public_bp.route('/')
 def home():

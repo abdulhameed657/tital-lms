@@ -1,0 +1,511 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Alexander Vance | Titan LMS Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Montserrat:wght@100..900&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#575d78",
+                    "on-tertiary-container": "#4e3d00",
+                    "on-primary-fixed": "#001847",
+                    "inverse-surface": "#31312b",
+                    "background": "#fcf9f1",
+                    "tertiary": "#735c00",
+                    "primary-container": "#2c6dec",
+                    "tertiary-fixed": "#ffe088",
+                    "primary-fixed-dim": "#b1c5ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1c1c17",
+                    "on-secondary-fixed": "#141a32",
+                    "surface-container-highest": "#e5e2da",
+                    "surface-bright": "#fcf9f1",
+                    "on-surface-variant": "#424654",
+                    "surface-tint": "#0056d0",
+                    "inverse-primary": "#b1c5ff",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#ebe8e0",
+                    "secondary-container": "#d8defe",
+                    "tertiary-container": "#cba72f",
+                    "surface-container-low": "#f6f3eb",
+                    "on-surface": "#1c1c17",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#dce1ff",
+                    "secondary-fixed-dim": "#bfc5e4",
+                    "on-tertiary-fixed": "#241a00",
+                    "on-primary-fixed-variant": "#0040a0",
+                    "on-primary-container": "#fefcff",
+                    "on-error-container": "#93000a",
+                    "outline": "#737786",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f3f1e9",
+                    "tertiary-fixed-dim": "#e9c349",
+                    "outline-variant": "#c2c6d7",
+                    "on-secondary-fixed-variant": "#3f465f",
+                    "on-secondary-container": "#5b617d",
+                    "error": "#ba1a1a",
+                    "surface-container": "#f1eee6",
+                    "surface-dim": "#dcdad2",
+                    "on-secondary": "#ffffff",
+                    "surface": "#fcf9f1",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#dae2ff",
+                    "on-tertiary-fixed-variant": "#574500",
+                    "primary": "#0054cb",
+                    "surface-variant": "#e5e2da"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "8px",
+                    "lg": "24px",
+                    "margin-desktop": "40px",
+                    "base": "4px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "margin-mobile": "16px",
+                    "xxl": "64px",
+                    "md": "16px",
+                    "container-max": "1280px",
+                    "xl": "32px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "display-lg": ["Montserrat"],
+                    "label-lg": ["Inter"],
+                    "display-lg-mobile": ["Montserrat"],
+                    "label-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-sm": ["Montserrat"],
+                    "headline-md": ["Montserrat"],
+                    "body-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Montserrat"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-lg": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "label-md": ["12px", {"lineHeight": "1", "fontWeight": "500"}],
+                    "label-sm": ["10px", {"lineHeight": "1", "fontWeight": "500"}],
+                    "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        
+        .skill-node {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            perspective: 1000px;
+        }
+        
+        .skill-node:hover {
+            transform: translateY(-8px) scale(1.1);
+        }
+
+        .pulse-ring {
+            animation: pulse-ring 3s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.33); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+
+        .skill-print-bg {
+            background: radial-gradient(circle at 50% 50%, rgba(0, 84, 203, 0.05) 0%, rgba(252, 249, 241, 0) 70%);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(10, 17, 40, 0.05);
+        }
+
+        .floating-action {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="bg-surface/70 dark:bg-on-surface/80 backdrop-blur-xl docked full-width top-0 sticky z-50 shadow-sm">
+<div class="flex justify-between items-center w-full px-gutter py-md max-w-container-max mx-auto">
+<div class="flex items-center gap-xl">
+<div class="h-10 w-10 flex-shrink-0"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbrvohjpHRPbSi2AVMlAfNXmRzvimQilMp3QsHmtpzn_BN4SEGrwdD08hZ8vIphuUeK1maWrh8C8guZqz0C0HqYozBpJ1sQB-g_QzSLVw-ibDm3heCT-H0nxKssJ8p6TZ-DQHcuojJmZiddwrFik0aiVpSnkdnqyECZRFz_KdI-GalWVNg2mj5w6Xh0FIXMpbccr-K0yavUSbHD8NseOMyttMuBKa8DNHC9am1wFaG0wzYxyfl5HmuBCZuXtBlQ0Tfvg" alt="Titan Logo" class="h-full w-auto object-contain"></div>
+<div class="hidden md:flex items-center gap-lg">
+<a class="text-on-surface-variant dark:text-secondary-fixed-dim font-medium hover:text-primary dark:hover:text-primary-fixed-dim transition-all duration-300" href="#">Dashboard</a>
+<a class="text-on-surface-variant dark:text-secondary-fixed-dim font-medium hover:text-primary dark:hover:text-primary-fixed-dim transition-all duration-300" href="#">Courses</a>
+<a class="text-on-surface-variant dark:text-secondary-fixed-dim font-medium hover:text-primary dark:hover:text-primary-fixed-dim transition-all duration-300" href="#">Analytics</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden sm:flex bg-surface-container-low px-md py-xs rounded-full items-center gap-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-outline text-[20px]">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-label-md" placeholder="Search resources..." type="text">
+</div>
+<button class="material-symbols-outlined p-sm rounded-full hover:bg-surface-container transition-colors">notifications</button>
+<div class="w-10 h-10 rounded-full bg-cover bg-center border-2 border-primary" data-alt="A professional headshot of a young male professional named Alexander Vance, wearing a modern charcoal blazer over a crisp white shirt. He has a confident, friendly expression. The lighting is soft and cinematic, with a clean architectural background in a corporate modern setting. High-quality corporate photography style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBOBLEIEW8ib0IdSIwV6krdZwNSM2p09KZWztbTOB7D8kpVO5-dEcV2l7u2ZrD_0yZqP3TTvr2RJMsFtibKsQJeH9ECeMNs1swpNh0myaP3U4IC8AYT2wMGssAA22KIdF3_MDG34xuVpiWdgsT4oPriC2V9_mrnqDy1dSk5qtcLjnlgAOqN7YiioCHmaoSxakSFhMt6D0gi1Rw-q1K-B_tHtf5sknwCDNHR9JcLvD58ffwazDiPbX4i')"></div>
+</div>
+</div>
+</nav>
+<!-- SideNavBar (Desktop Only) -->
+<aside class="hidden xl:flex flex-col h-screen fixed left-0 top-0 w-64 bg-surface-container/80 dark:bg-inverse-surface/80 backdrop-blur-lg border-r border-outline-variant/20 py-lg z-40">
+<div class="px-lg mb-xxl mt-16">
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDypEj4dSePk1VXbYgnkNkqv-7kjrwHAOJsJ-6_aogtKD6vxFY3nVo7LhMPSOOPTE6n9SPxDagfZzjkcx4jVgno8pC_jA5_6YkmC1aD6Ik217RTitK3rjSbrwmX4UC3jM4nL5h8hVum6vbHg7koKT3FqN9Xt8eTbrSZ5FahN16d7ou2gt2vYJtdUhIJlSKCrSxhx_jKuDDfj-Kkd7ULelXtHQ_OvL7orxkDFgvfGH6ypJROS7aXMEJEKhvsFZgfmFwAGg" alt="Titan Logo" class="h-12 w-auto object-contain mb-sm">
+<p class="text-label-sm text-on-surface-variant opacity-70">Academic Excellence</p>
+</div>
+<div class="flex-grow space-y-1">
+<a class="flex items-center gap-md text-on-surface-variant dark:text-secondary-fixed-dim px-4 py-3 hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-label-lg font-label-lg">Dashboard</span>
+</a>
+<a class="flex items-center gap-md bg-primary/10 dark:bg-primary-container text-primary dark:text-on-primary-container border-l-4 border-primary rounded-r-lg px-4 py-3 translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-label-lg font-label-lg font-bold">Profile</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant dark:text-secondary-fixed-dim px-4 py-3 hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="text-label-lg font-label-lg">Courses</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant dark:text-secondary-fixed-dim px-4 py-3 hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-label-lg font-label-lg">Analytics</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant dark:text-secondary-fixed-dim px-4 py-3 hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="text-label-lg font-label-lg">Leaderboard</span>
+</a>
+</div>
+<div class="px-lg py-md">
+<button class="w-full bg-primary text-on-primary py-md rounded-lg flex items-center justify-center gap-sm font-bold shadow-lg hover:shadow-primary/20 transition-all scale-100 active:scale-95">
+<span class="material-symbols-outlined">psychology</span>
+                AI Assistant
+            </button>
+</div>
+</aside>
+<main class="xl:ml-64 min-h-screen">
+<!-- Hero Profile Header -->
+<section class="px-margin-desktop py-xl max-w-container-max mx-auto">
+<div class="flex flex-col md:flex-row items-center gap-xl mb-xxl">
+<div class="relative">
+<div class="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-white shadow-xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of Alexander Vance, a young professional with a determined look, set against a blurred high-tech library environment. The color palette is composed of cool blues and warm gold highlights. Professional academic portfolio photography with high depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAsTvPB1HU0BPlDAJRg_9E9zbeC-0-wPVFdJuSY9DaOWAHR0m2aoj6hQrj7W2FYIYtN48kvD8fANtQyx3NkAmh1ac7c1i6Ay6syeJSJEe7Ckc8-zmHuHBkLNGEX-8YXGt4tb7rUxaDEUaMXqIuaOUtxpWRzri0MrSFMYPwyDj1bvfXm0D0cVZva_kt-FUeiTtkSSA2M10XlKlQqD1TDyavQeLY9Mg5_wbYZnHePLJKTAPBAvkoU5eR">
+</div>
+<div class="absolute bottom-2 right-2 bg-tertiary text-on-tertiary px-md py-base rounded-full text-label-sm font-bold shadow-md">
+                        TOP 1% STUDENT
+                    </div>
+</div>
+<div class="text-center md:text-left flex-grow">
+<h1 class="text-display-lg font-display-lg text-primary mb-base">Alexander Vance</h1>
+<p class="text-headline-sm text-secondary font-medium mb-lg">Systems Engineering &amp; Digital Architecture Specialist</p>
+<div class="flex flex-wrap justify-center md:justify-start gap-md">
+<button class="bg-tertiary-container hover:bg-tertiary text-on-tertiary-container hover:text-white px-xl py-md rounded-lg font-bold flex items-center gap-sm transition-all shadow-md active:scale-95" onclick="toggleModal('hire-modal')">
+<span class="material-symbols-outlined">workspace_premium</span>
+                            Hire Alexander
+                        </button>
+<button class="bg-white border border-outline-variant text-primary px-xl py-md rounded-lg font-bold flex items-center gap-sm transition-all hover:bg-primary-container/10 active:scale-95">
+<span class="material-symbols-outlined">share</span>
+                            Share Skill-Print
+                        </button>
+</div>
+</div>
+</div>
+<!-- Dynamic Skill-Print Canvas -->
+<div class="relative glass-card rounded-xl p-lg mb-xxl overflow-hidden min-h-[600px] skill-print-bg">
+<div class="absolute inset-0 z-0">
+
+</div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-xl">
+<div>
+<h2 class="text-headline-md font-headline-md text-primary">Dynamic Skill-Print</h2>
+<p class="text-body-sm text-on-surface-variant">Real-time visualization of academic proficiency and project output</p>
+</div>
+<div class="flex items-center gap-sm text-label-sm font-bold text-tertiary bg-tertiary-fixed px-md py-base rounded-full">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+                            PULSING WITH RECENT ACTIVITY
+                        </div>
+</div>
+<!-- 3D Style Interactive Map Layout (Conceptual) -->
+<div class="relative w-full h-[450px] flex items-center justify-center" id="skill-canvas">
+<!-- Connecting Lines (Visual Decor) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none opacity-20" stroke="currentColor">
+<line class="text-primary" stroke-width="2" x1="50%" x2="20%" y1="50%" y2="20%"></line>
+<line class="text-primary" stroke-width="2" x1="50%" x2="80%" y1="50%" y2="30%"></line>
+<line class="text-primary" stroke-width="2" x1="50%" x2="70%" y1="50%" y2="80%"></line>
+<line class="text-primary" stroke-width="2" x1="50%" x2="30%" y1="50%" y2="75%"></line>
+</svg>
+<!-- Central Core -->
+<div class="absolute z-20 w-24 h-24 rounded-full bg-primary shadow-2xl shadow-primary/40 flex items-center justify-center text-on-primary floating-action">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">stars</span>
+<div class="absolute -inset-4 border border-primary/30 rounded-full animate-ping"></div>
+</div>
+<!-- Skill Nodes -->
+<!-- Systems Arch -->
+<button class="skill-node absolute top-[15%] left-[15%] z-30 group" onclick="showWorkSample('Systems Architecture', 'Advanced structural modeling for cloud-native enterprise systems.', '{{DATA:IMAGE:IMG_1}}')">
+<div class="relative flex flex-col items-center">
+<div class="w-16 h-16 rounded-xl bg-white shadow-lg flex items-center justify-center text-primary border border-primary/20 group-hover:bg-primary group-hover:text-white">
+<span class="material-symbols-outlined text-3xl">hub</span>
+</div>
+<div class="mt-sm text-label-md font-bold bg-white/80 backdrop-blur px-md py-base rounded-full shadow-sm">Systems Arch</div>
+<div class="absolute -inset-2 rounded-xl border-2 border-primary/20 pulse-ring"></div>
+</div>
+</button>
+<!-- Data Analytics -->
+<button class="skill-node absolute top-[25%] right-[15%] z-30 group" onclick="showWorkSample('Data Analytics', 'Big data visualization and predictive modeling for student retention.', '{{DATA:IMAGE:IMG_2}}')">
+<div class="relative flex flex-col items-center">
+<div class="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center text-primary border border-primary/20 group-hover:bg-primary group-hover:text-white">
+<span class="material-symbols-outlined text-3xl">analytics</span>
+</div>
+<div class="mt-sm text-label-md font-bold bg-white/80 backdrop-blur px-md py-base rounded-full shadow-sm">Data Science</div>
+</div>
+</button>
+<!-- Digital Strategy -->
+<button class="skill-node absolute bottom-[15%] right-[25%] z-30 group" onclick="showWorkSample('Digital Strategy', 'Global digital transformation roadmap for a hypothetical tech giant.', '{{DATA:IMAGE:IMG_3}}')">
+<div class="relative flex flex-col items-center">
+<div class="w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center text-primary border border-primary/20 group-hover:bg-primary group-hover:text-white">
+<span class="material-symbols-outlined text-2xl">insights</span>
+</div>
+<div class="mt-sm text-label-md font-bold bg-white/80 backdrop-blur px-md py-base rounded-full shadow-sm">Strategy</div>
+</div>
+</button>
+<!-- AI Implementation -->
+<button class="skill-node absolute bottom-[20%] left-[25%] z-30 group" onclick="showWorkSample('AI Implementation', 'Custom neural network for automated grading assistance.', '{{DATA:IMAGE:IMG_4}}')">
+<div class="relative flex flex-col items-center">
+<div class="w-18 h-18 rounded-full bg-white shadow-lg flex items-center justify-center text-primary border border-primary/20 group-hover:bg-primary group-hover:text-white">
+<span class="material-symbols-outlined text-3xl">bolt</span>
+</div>
+<div class="mt-sm text-label-md font-bold bg-white/80 backdrop-blur px-md py-base rounded-full shadow-sm">AI / ML</div>
+<div class="absolute -inset-2 rounded-full border-2 border-primary/20 pulse-ring" style="animation-delay: 1.5s"></div>
+</div>
+</button>
+</div>
+</div>
+</div>
+<!-- Stats & Recent Activity Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg mb-xxl">
+<div class="glass-card p-lg rounded-xl">
+<div class="flex items-center gap-md mb-md">
+<span class="material-symbols-outlined text-primary bg-primary/10 p-sm rounded-lg">history</span>
+<h3 class="text-headline-sm font-headline-md">Recent Activity</h3>
+</div>
+<ul class="space-y-md">
+<li class="flex gap-md">
+<div class="w-1 h-12 bg-primary/20 rounded-full flex-shrink-0">
+<div class="w-full h-2/3 bg-primary rounded-full"></div>
+</div>
+<div>
+<p class="text-label-md font-bold">Project Submission</p>
+<p class="text-body-sm text-on-surface-variant">Cloud Infrastructure Optimization</p>
+<p class="text-label-sm opacity-60">2 hours ago</p>
+</div>
+</li>
+<li class="flex gap-md">
+<div class="w-1 h-12 bg-primary/20 rounded-full flex-shrink-0">
+<div class="w-full h-1/2 bg-primary rounded-full"></div>
+</div>
+<div>
+<p class="text-label-md font-bold">Skill Mastery Level Up</p>
+<p class="text-body-sm text-on-surface-variant">Advanced Machine Learning</p>
+<p class="text-label-sm opacity-60">Yesterday</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="glass-card p-lg rounded-xl md:col-span-2">
+<div class="flex justify-between items-center mb-xl">
+<h3 class="text-headline-sm font-headline-md">Achievement Milestones</h3>
+<span class="text-primary font-bold text-label-md">View All</span>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-md">
+<div class="flex flex-col items-center p-md bg-tertiary-fixed/30 rounded-lg text-center">
+<span class="material-symbols-outlined text-tertiary text-4xl mb-sm" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+<span class="text-label-sm font-bold text-tertiary">Dean's List</span>
+<span class="text-[10px] opacity-60">Fall 2023</span>
+</div>
+<div class="flex flex-col items-center p-md bg-secondary-container/30 rounded-lg text-center">
+<span class="material-symbols-outlined text-secondary text-4xl mb-sm" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="text-label-sm font-bold text-secondary">Sec+ Certified</span>
+<span class="text-[10px] opacity-60">Oct 2023</span>
+</div>
+<div class="flex flex-col items-center p-md bg-primary-fixed/30 rounded-lg text-center">
+<span class="material-symbols-outlined text-primary text-4xl mb-sm" style="font-variation-settings: 'FILL' 1;">terminal</span>
+<span class="text-label-sm font-bold text-primary">Code Ninja</span>
+<span class="text-[10px] opacity-60">Level 8</span>
+</div>
+<div class="flex flex-col items-center p-md bg-surface-container rounded-lg text-center opacity-40 grayscale">
+<span class="material-symbols-outlined text-on-surface-variant text-4xl mb-sm">lock</span>
+<span class="text-label-sm font-bold">Innovator</span>
+<span class="text-[10px]">LOCKED</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Work Sample Popup Modal -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-lg hidden" id="work-modal">
+<div class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm" onclick="closeModal('work-modal')"></div>
+<div class="relative bg-white rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row transform transition-all">
+<div class="w-full md:w-1/2 h-64 md:h-auto overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A detailed 3D technical rendering showing complex architectural blueprints, data flow diagrams, and intricate code structures. The style is modern corporate tech with a refined color palette of deep blues, luminous gold highlights, and clean white backgrounds. Highly professional and sophisticated digital art." id="modal-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANhYl4TRTa35NOdEpQoT7uqQO9YrgmGMhuvtwaa6CoLc-Zgk2xwCIC7gyDULySNF-AF4ZfbqlxeH02zI7JXru2IaXp-HVHoX2i4g1ScAUVrQlUMy75rAPCIj-us7HU1SaMS3n-TbcZeU0gI0StuBrd9pxhhZnFLxy_BuWX8xZeEnI8ViVNzq3G6gSvkGdYecPB_WIwj5hQjD42H0cWeH72Vw7I0R6CTkPycJfewKjlYJA9hS800hH-">
+</div>
+<div class="w-full md:w-1/2 p-xl">
+<div class="flex justify-between items-start mb-md">
+<div>
+<span class="text-label-sm font-bold text-primary uppercase tracking-widest">Work Sample</span>
+<h4 class="text-headline-md font-headline-md" id="modal-title">Project Title</h4>
+</div>
+<button class="material-symbols-outlined hover:bg-surface-container rounded-full p-sm" onclick="closeModal('work-modal')">close</button>
+</div>
+<p class="text-body-md text-on-surface-variant mb-xl" id="modal-desc">Sample project description text goes here.</p>
+<div class="space-y-md">
+<div class="flex items-center gap-md text-label-md">
+<span class="material-symbols-outlined text-primary">calendar_today</span>
+<span class="">Completed: Q4 2023</span>
+</div>
+<div class="flex items-center gap-md text-label-md">
+<span class="material-symbols-outlined text-primary">grade</span>
+<span class="">Grade: A+ (98/100)</span>
+</div>
+</div>
+<button class="w-full mt-xl bg-primary text-on-primary py-md rounded-lg font-bold hover:shadow-lg transition-all">
+                    View Full Project
+                </button>
+</div>
+</div>
+</div>
+<!-- Hire Modal -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-lg hidden" id="hire-modal">
+<div class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm" onclick="closeModal('hire-modal')"></div>
+<div class="relative bg-white rounded-xl w-full max-w-md p-xl shadow-2xl transform transition-all">
+<div class="flex justify-between items-center mb-xl">
+<h3 class="text-headline-md font-headline-md text-primary">Contact Alexander</h3>
+<button class="material-symbols-outlined" onclick="closeModal('hire-modal')">close</button>
+</div>
+<form class="space-y-lg">
+<div>
+<label class="block text-label-md font-bold mb-xs">Your Organization</label>
+<input class="w-full rounded-lg border-outline-variant bg-surface-container-low focus:ring-primary focus:border-primary" placeholder="TechCorp Global" type="text">
+</div>
+<div>
+<label class="block text-label-md font-bold mb-xs">Proposed Role / Project</label>
+<select class="w-full rounded-lg border-outline-variant bg-surface-container-low">
+<option>Internship</option>
+<option>Full-time Hire</option>
+<option>Contract Project</option>
+</select>
+</div>
+<div>
+<label class="block text-label-md font-bold mb-xs">Message</label>
+<textarea class="w-full rounded-lg border-outline-variant bg-surface-container-low" placeholder="Briefly describe the opportunity..." rows="4"></textarea>
+</div>
+<button class="w-full bg-tertiary-container text-on-tertiary-container py-md rounded-lg font-bold shadow-lg hover:bg-tertiary hover:text-white transition-all" type="submit">
+                    Send Inquiry
+                </button>
+</form>
+</div>
+</div>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-on-surface w-full py-xxl mt-xxl">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop max-w-container-max mx-auto gap-lg">
+<div class="text-center md:text-left">
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBb07W9qZbAy20bnI6b-_sqklObViaD8r3AWXMhrRqiJt99EySeXJaFchtMK9jCF3E3ugEUU-3sRQU4eQQHOfbv3_5OUFk85-D11nFGieEvnqA2RvqLE__uneDjgqEMNL070V_DWz-iW8l6UoRihxikOvewf88-tOTLI-hWcAs5FTcbW6mRPvKsYqKJaOclIMFPbwyRdhbVxN3L2F0nr0HwJxOlkruI07l1NVGQ8lrIy-8QtS5_Bsl3t-TcQCHBIZhcPA" alt="Titan Logo" class="h-10 w-auto object-contain mb-sm mx-auto md:mx-0">
+<p class="text-body-sm text-on-surface-variant dark:text-secondary-fixed-dim mt-sm">© 2024 Titan LMS. Engineering Academic Ambition.</p>
+</div>
+<div class="flex gap-xl">
+<a class="text-label-md font-label-md text-on-surface-variant dark:text-secondary-fixed-dim hover:text-primary transition-all" href="#">Privacy Policy</a>
+<a class="text-label-md font-label-md text-on-surface-variant dark:text-secondary-fixed-dim hover:text-primary transition-all" href="#">Terms of Service</a>
+<a class="text-label-md font-label-md text-on-surface-variant dark:text-secondary-fixed-dim hover:text-primary transition-all" href="#">Security</a>
+</div>
+</div>
+</footer>
+<script>
+        function showWorkSample(title, desc, imgSrc) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            // In a real app, we would update the image src. 
+            // For this simulation, we leave the placeholder with its data-alt.
+            document.getElementById('work-modal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            } else {
+                modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        // Micro-interaction for skill canvas
+        const canvas = document.getElementById('skill-canvas');
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+            
+            const nodes = document.querySelectorAll('.skill-node');
+            nodes.forEach(node => {
+                const rectNode = node.getBoundingClientRect();
+                const nodeX = (rectNode.left + rectNode.width / 2 - rect.left) / rect.width;
+                const nodeY = (rectNode.top + rectNode.height / 2 - rect.top) / rect.height;
+                
+                const dist = Math.sqrt(Math.pow(x - nodeX, 2) + Math.pow(y - nodeY, 2));
+                const force = Math.max(0, 1 - dist * 3);
+                
+                node.style.transform = `translate(${(x - nodeX) * force * 20}px, ${(y - nodeY) * force * 20}px)`;
+            });
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            document.querySelectorAll('.skill-node').forEach(node => {
+                node.style.transform = 'translate(0, 0)';
+            });
+        });
+    </script>
+
+
+
+
+
+
+</body></html>

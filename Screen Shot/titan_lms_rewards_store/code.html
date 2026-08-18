@@ -1,0 +1,438 @@
+<!DOCTYPE html><html lang="en" class="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#424654",
+                        "secondary-fixed": "#dce1ff",
+                        "tertiary-container": "#cba72f",
+                        "surface-dim": "#dcdad2",
+                        "surface-container-high": "#ebe8e0",
+                        "on-tertiary-container": "#4e3d00",
+                        "surface-container-low": "#f6f3eb",
+                        "secondary-fixed-dim": "#bfc5e4",
+                        "on-tertiary-fixed": "#241a00",
+                        "tertiary-fixed": "#ffe088",
+                        "surface-container-highest": "#e5e2da",
+                        "inverse-primary": "#b1c5ff",
+                        "secondary": "#575d78",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#b1c5ff",
+                        "primary-fixed": "#dae2ff",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#fcf9f1",
+                        "secondary-container": "#d8defe",
+                        "background": "#fcf9f1",
+                        "surface-variant": "#e5e2da",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#f1eee6",
+                        "on-secondary-fixed-variant": "#3f465f",
+                        "tertiary": "#735c00",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#fefcff",
+                        "outline-variant": "#c2c6d7",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed": "#141a32",
+                        "on-secondary-container": "#5b617d",
+                        "on-background": "#1c1c17",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#f3f1e9",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#001847",
+                        "surface": "#fcf9f1",
+                        "outline": "#737786",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "on-primary-fixed-variant": "#0040a0",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "surface-tint": "#0056d0",
+                        "on-surface": "#1c1c17",
+                        "inverse-surface": "#31312b",
+                        "primary": "#0054cb",
+                        "primary-container": "#2c6dec"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "container-max": "1280px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "xxl": "64px",
+                        "sm": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Montserrat"],
+                        "body-sm": ["Inter"],
+                        "display-lg-mobile": ["Montserrat"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Montserrat"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Montserrat"],
+                        "label-lg": ["Inter"],
+                        "headline-sm": ["Montserrat"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-sm": ["10px", {"lineHeight": "1", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "label-lg": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "1", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    }catch(_e){}</script><meta charset="utf-8"></head><body class="bg-background text-on-background font-body-md min-h-screen selection:bg-primary-container selection:text-on-primary-container overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface/70 backdrop-blur-xl shadow-sm h-16 flex items-center">
+<nav class="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto">
+<div class="flex items-center gap-xl">
+<span class="text-headline-sm font-headline-lg text-primary tracking-tight">Titan LMS</span>
+<div class="hidden md:flex items-center gap-lg">
+<a href="#" class="text-on-surface-variant font-medium hover:text-primary transition-all duration-300">Dashboard</a>
+<a href="#" class="text-on-surface-variant font-medium hover:text-primary transition-all duration-300">Courses</a>
+<a href="#" class="text-on-surface-variant font-medium hover:text-primary transition-all duration-300">Analytics</a>
+<a href="#" class="text-primary border-b-2 border-primary font-bold pb-1">Rewards</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-xs bg-tertiary-container/10 px-3 py-1.5 rounded-full border border-tertiary-container/30">
+<span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<span class="text-label-lg font-bold text-tertiary">2,450 <span class="hidden sm:inline">TC</span></span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant p-2 hover:bg-surface-variant rounded-full transition-colors">notifications</button>
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a young computer science student with a focused and ambitious expression, set against a clean, corporate background with soft, high-key lighting to match the modern LMS aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnM2KXuSzHgh0MZMamW8i6i3_Y_R0xhavmynpDbhUTsbhQeVblN3byRmGQxx3f5EDxy48w07TcdT8iMpleMDNs_MDzjr6c-Vb_jzEI0F67QpgFHbzZIZpb82bI_UH_4GcvRvoMz_XPbqCfdbpeMHFuyIaRlv1RB__MQMYiRHmVX2jGztL36EaR3oR8qoWrSwj5q-dyqyqOyyThT2yrcWJiBLZh5g4j1R2ZyHPIEJg6eA2TxmHXTdXz">
+</div>
+</div>
+</nav>
+</header>
+<!-- Side Navigation (Desktop) -->
+<aside class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-64 bg-surface-container/80 backdrop-blur-md pt-20 pb-lg border-r border-outline-variant/20 z-40">
+<div class="flex flex-col gap-1 px-4">
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-label-lg font-label-lg">Dashboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="text-label-lg font-label-lg">Courses</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="text-label-lg font-label-lg">Assignments</span>
+</a>
+<a class="flex items-center gap-md bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 transition-transform duration-200 translate-x-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+<span class="text-label-lg font-label-lg">Rewards Store</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="text-label-lg font-label-lg">Leaderboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 hover:text-primary transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-lg font-label-lg">Settings</span>
+</a>
+</div>
+<div class="mt-auto px-4">
+<button class="w-full flex items-center justify-center gap-md bg-primary text-white py-3 rounded-lg shadow-lg hover:shadow-primary/20 transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm">smart_toy</span>
+<span class="text-label-lg">AI Assistant</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:pl-64 pt-20 pb-xxl px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto min-h-screen">
+<!-- Hero Header -->
+<div class="relative w-full rounded-xl overflow-hidden mb-xl py-xl px-lg md:px-xxl bg-inverse-surface text-white">
+
+<div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-xl">
+<div class="text-center md:text-left">
+<h1 class="font-headline-lg text-display-lg-mobile md:text-display-lg mb-2">Titan Store</h1>
+<p class="text-body-lg text-secondary-fixed-dim max-w-lg">Unlock elite rewards and prestigious recognition. Your academic excellence pays off with exclusive Titan perks.</p>
+</div>
+<div class="flex flex-col items-center gap-sm bg-white/10 backdrop-blur-md p-lg rounded-xl border border-white/20 min-w-[200px]">
+<span class="text-label-md font-medium text-secondary-fixed tracking-widest uppercase">Current Balance</span>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-tertiary-fixed text-4xl" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<span class="text-4xl font-bold font-display-lg">2,450</span>
+</div>
+<button class="mt-md text-label-lg text-primary-fixed-dim underline underline-offset-4 hover:text-white transition-colors">View Transaction History</button>
+</div>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md mb-xl">
+<div class="flex flex-wrap gap-sm">
+<button class="px-xl py-2.5 rounded-full bg-primary text-white text-label-lg font-bold shadow-md">All Rewards</button>
+<button class="px-xl py-2.5 rounded-full bg-surface-container text-on-surface-variant text-label-lg font-medium hover:bg-secondary-container transition-colors">Digital Goods</button>
+<button class="px-xl py-2.5 rounded-full bg-surface-container text-on-surface-variant text-label-lg font-medium hover:bg-secondary-container transition-colors">Physical Swag</button>
+<button class="px-xl py-2.5 rounded-full bg-surface-container text-on-surface-variant text-label-lg font-medium hover:bg-secondary-container transition-colors">Academic Perks</button>
+</div>
+<div class="relative w-full sm:w-auto">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-lg py-2.5 bg-surface-container border-none rounded-full text-body-md w-full sm:w-64 focus:ring-2 focus:ring-primary/20" placeholder="Search rewards..." type="text">
+</div>
+</div>
+<!-- Rewards Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-lg">
+<!-- Reward Card 1: Exclusive Badge -->
+<div class="group bg-white rounded-xl p-lg shadow-sm border border-outline-variant/10 card-hover flex flex-col">
+<div class="h-48 rounded-lg overflow-hidden mb-lg bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A high-quality 3D render of a golden 'Quantum Researcher' badge, floating in a dark blue ethereal space with glowing particles and light trails, matching the professional LMS reward theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAsIUyVGmHVoGQZfBsWeF-vmY7chWL2VarMt_cbxRub4G7kw2aRUeX5wDcMBfUh0ZUns1i3fFCVvD1QFDalYelMLkd5S7gBACIek_7Z_JItYicXnEOHAfl6OS0giaKA-p2dazrF8GKCoGlU7cObuRsGmtm-W81b3yd2Cm7sD9mu9y3vcBw70wIpHK-oYMythlvgeUMssBOZatY3ZJVDdd3XIwGKt-lrE-u8Ua6OqV_37vmyzqDqKYf">
+<span class="absolute top-2 right-2 bg-tertiary text-on-tertiary px-3 py-1 rounded-full text-label-sm font-bold shadow-lg">RARE</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-sm font-bold text-primary tracking-widest uppercase">DIGITAL BADGE</span>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary text-sm" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<span class="text-label-lg font-bold text-on-surface">450</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-on-surface mb-xs">Elite Researcher</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2">Premium profile badge that displays your academic commitment to peers and professors.</p>
+</div>
+<button class="mt-lg w-full py-3 bg-secondary-container/50 text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all active:scale-95">Claim Reward</button>
+</div>
+<!-- Reward Card 2: Physical Swag -->
+<div class="group bg-white rounded-xl p-lg shadow-sm border border-outline-variant/10 card-hover flex flex-col">
+<div class="h-48 rounded-lg overflow-hidden mb-lg bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A premium matte black titanium water bottle with a sleek gold Titan LMS crest laser-engraved on the front, sitting on a minimalist wooden desk with soft dramatic lighting and deep navy accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0E1AHnwmXnswA26epDHE1tDyTbgEaPskv17C75JQfYXjnznu0F8H8ceteyqsfz2cAGpl821nYFw18jTI4V-9aYnIDcom6k9ACviCOdbYzkkoYhcS9ZOtvMLRm10NuAmuoxt7qyNt17l2-IMfd-PmuCwhwjosy_o8OBwuSuV2odzhPSFQnbcQKKfJG1TSiplkH-led2mI9ztYmhY8Iu8HUM4IfTDB1f01tG1eskXeVihdF_YbIqP9Z">
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-sm font-bold text-primary tracking-widest uppercase">PHYSICAL SWAG</span>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary text-sm" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<span class="text-label-lg font-bold text-on-surface">1,200</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-on-surface mb-xs">Titan Steel Flask</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2">Insulated 750ml stainless steel flask with laser-engraved institutional branding.</p>
+</div>
+<button class="mt-lg w-full py-3 bg-secondary-container/50 text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all active:scale-95">Claim Reward</button>
+</div>
+<!-- Reward Card 3: Course Discount -->
+<div class="group bg-white rounded-xl p-lg shadow-sm border border-outline-variant/10 card-hover flex flex-col">
+<div class="h-48 rounded-lg overflow-hidden mb-lg bg-surface-container relative bg-gradient-to-br from-primary-container to-primary flex items-center justify-center">
+<div class="text-center text-white">
+<div class="text-display-lg font-bold">50%</div>
+<div class="text-label-lg uppercase tracking-widest">OFF COURSE</div>
+</div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-sm font-bold text-primary tracking-widest uppercase">ACADEMIC PERK</span>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary text-sm" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<span class="text-label-lg font-bold text-on-surface">800</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-on-surface mb-xs">Masterclass Voucher</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2">Get half off any advanced certification course in the Titan catalog.</p>
+</div>
+<button class="mt-lg w-full py-3 bg-secondary-container/50 text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all active:scale-95">Claim Reward</button>
+</div>
+<!-- Reward Card 4: Avatar -->
+<div class="group bg-white rounded-xl p-lg shadow-sm border border-outline-variant/10 card-hover flex flex-col">
+<div class="h-48 rounded-lg overflow-hidden mb-lg bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A collection of futuristic 3D avatar headshots with holographic interfaces and neon tech-wear, designed in a sleek high-end digital art style for a premium corporate learning platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDX-bu66HNIv0pVyz7e2S5pV2BB6TIAzkFrk5EX3Uy6mEX9gHtzdS5SZBvWeAmEIsvnDkMtv2yIqSFYR7wjliEFY7MX-MXdStgN7LQ7e9RB3w8TL4I0D6ZY7n4tjtu0o5CfTDF3_yIsT43UMclk26PnWxTJQhOyJV4tCW1UVlpdHzKFfnYKUrxTDjcYcwYxsKDGwdw7aHdYirJvwr7-0OABkE_RM4kic-xwt7xgEY0B1BUWI41KCpeL">
+<span class="absolute top-2 right-2 bg-error text-white px-3 py-1 rounded-full text-label-sm font-bold shadow-lg">LIMITED</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-sm font-bold text-primary tracking-widest uppercase">DIGITAL GOODS</span>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary text-sm" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<span class="text-label-lg font-bold text-on-surface text-error">3,500</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-on-surface mb-xs">Titan Founders Avatar</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2">The most prestigious avatar pack, signifying your status as an early academic pioneer.</p>
+</div>
+<button class="mt-lg w-full py-3 bg-surface-container text-outline font-bold rounded-lg cursor-not-allowed" disabled="">Insufficient Coins</button>
+</div>
+<!-- Reward Card 5: Priority Support -->
+<div class="group bg-white rounded-xl p-lg shadow-sm border border-outline-variant/10 card-hover flex flex-col">
+<div class="h-48 rounded-lg overflow-hidden mb-lg bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A minimalist abstract image representing rapid communication: sleek glass lines moving swiftly across a dark navy background with golden accents, conveying speed and priority for a professional support reward." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRb5JBDhpEOZ7pAt-pwjDlHXsQB3w4K_J7BSZz0e5_y-rqbYlDDERyzNH50BK9ogmOKIdRjWhGJfYAkuiKajrhOiE9N0U47_ADwijS90zW_1n9Fptsz7PCN3uzG0rZOqNZgwa1WJHiIFxctim-A097odAG2m0X4Ih2K09cheB8ZNt6laUnN5Bi_n8dxnTJYS_2R4xK3GEubhXVGoDuFAKfGMWnPUlyupYBbOQfsvPgMX1Zcb4A4B3G">
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-sm font-bold text-primary tracking-widest uppercase">SUPPORT</span>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary text-sm" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<span class="text-label-lg font-bold text-on-surface">300</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-on-surface mb-xs">Fast-Track Pass</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2">Move to the front of the queue for academic inquiries and support tickets for 30 days.</p>
+</div>
+<button class="mt-lg w-full py-3 bg-secondary-container/50 text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all active:scale-95">Claim Reward</button>
+</div>
+<!-- Reward Card 6: Hoodie -->
+<div class="group bg-white rounded-xl p-lg shadow-sm border border-outline-variant/10 card-hover flex flex-col">
+<div class="h-48 rounded-lg overflow-hidden mb-lg bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A premium heavyweight navy blue hoodie with a high-definition gold Titan LMS logo embroidered on the chest, presented in a high-fashion studio catalog style with clean lighting and sharp details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuABzK1qQZesDULqt-qj3l2d89ESm6IWO9Na9y414Li236KZtztvesTjw-oY91R9QFkD1WhXsa2M1QNoolBhz4L9AldecmqiXVcf_umNYWNcZWWP-7fX7K8y8TJMcpai9q-uW3SK7CEisUa_tDM1dovmqqbtJEIfAx3zSkW1brBZmyuvNU-xhJwN74IzaBU_YllLV00v1fJTwAnGK_drwL_L4DpaHzxY2iHCKQrokwbidYQ2stmI4rgf">
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-sm font-bold text-primary tracking-widest uppercase">PHYSICAL SWAG</span>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary text-sm" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<span class="text-label-lg font-bold text-on-surface">2,000</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-on-surface mb-xs">Executive Hoodie</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2">Ultra-premium comfort with institutional prestige. Delivered to your campus address.</p>
+</div>
+<button class="mt-lg w-full py-3 bg-secondary-container/50 text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all active:scale-95">Claim Reward</button>
+</div>
+<!-- Reward Card 7: Certificate Frame -->
+<div class="group bg-white rounded-xl p-lg shadow-sm border border-outline-variant/10 card-hover flex flex-col">
+<div class="h-48 rounded-lg overflow-hidden mb-lg bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A luxury mahogany wood diploma frame with a navy blue and gold velvet matting, containing a prestigious-looking academic certificate under museum-grade glass." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJRQZcHBOsARG6oChgBm9RTAxM0Gc8uKAF2JOwyCcNu3ryc7pFh-uAHwwI8Kaj_5qGZsWI33SwGMNWE5GDZEdhqBQRxIYqwuu9Xogk7IK8LYxKq_gYkmtSTDnyUw06Av627RBuLz-2vXhC06FM89DnfzCZ7WeMJcqmiUIgTdN46mMipnmB5MLyTKoZZO4t3VlhaEUuVG3sv8D-gMY3k-bfBqXzfY75IXaX8dS8opK4EW_MxwV4hf-D">
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-sm font-bold text-primary tracking-widest uppercase">PHYSICAL SWAG</span>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary text-sm" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<span class="text-label-lg font-bold text-on-surface">1,500</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-on-surface mb-xs">Elite Diploma Frame</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2">Showcase your achievements with this mahogany and gold-leaf embossed certificate frame.</p>
+</div>
+<button class="mt-lg w-full py-3 bg-secondary-container/50 text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all active:scale-95">Claim Reward</button>
+</div>
+<!-- Reward Card 8: AI Premium -->
+<div class="group bg-white rounded-xl p-lg shadow-sm border border-outline-variant/10 card-hover flex flex-col">
+<div class="h-48 rounded-lg overflow-hidden mb-lg bg-surface-container relative">
+
+<span class="absolute top-2 right-2 bg-primary text-white px-3 py-1 rounded-full text-label-sm font-bold shadow-lg">HOT</span>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-sm">
+<span class="text-label-sm font-bold text-primary tracking-widest uppercase">AI POWER-UP</span>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary text-sm" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<span class="text-label-lg font-bold text-on-surface">500</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-on-surface mb-xs">Neural Tutor Pro</h3>
+<p class="text-body-sm text-on-surface-variant line-clamp-2">Unlimited context window and priority processing for your AI learning assistant for one semester.</p>
+</div>
+<button class="mt-lg w-full py-3 bg-secondary-container/50 text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all active:scale-95">Claim Reward</button>
+</div>
+</div>
+<!-- Featured Section: Achievement Chips -->
+<section class="mt-xxl bg-surface-container-high rounded-2xl p-xl border border-outline-variant/20">
+<h2 class="font-headline-lg text-on-surface mb-lg">Unlock More Titan Coins</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="bg-white p-lg rounded-xl flex items-center gap-lg border border-outline-variant/30">
+<div class="w-16 h-16 rounded-full bg-tertiary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary text-3xl">military_tech</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Course Perfection</h4>
+<p class="text-body-sm text-on-surface-variant">Finish with 100% score</p>
+<div class="mt-2 text-primary font-bold">+500 TC</div>
+</div>
+</div>
+<div class="bg-white p-lg rounded-xl flex items-center gap-lg border border-outline-variant/30">
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-3xl">history_edu</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Daily Scholar</h4>
+<p class="text-body-sm text-on-surface-variant">7-day login streak</p>
+<div class="mt-2 text-primary font-bold">+50 TC</div>
+</div>
+</div>
+<div class="bg-white p-lg rounded-xl flex items-center gap-lg border border-outline-variant/30">
+<div class="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-3xl">forum</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Knowledge Guru</h4>
+<p class="text-body-sm text-on-surface-variant">10 accepted forum answers</p>
+<div class="mt-2 text-primary font-bold">+250 TC</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest w-full py-xxl md:pl-64">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop max-w-container-max mx-auto gap-lg">
+<div class="text-center md:text-left">
+<span class="font-headline-sm text-primary">Titan LMS</span>
+<p class="text-body-sm text-on-surface-variant mt-2">© 2024 Titan LMS. Engineering Academic Ambition.</p>
+</div>
+<div class="flex gap-xl">
+<a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all" href="#">Privacy Policy</a>
+<a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all" href="#">Terms of Service</a>
+<a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all" href="#">Contact Support</a>
+<a class="text-label-md text-on-surface-variant hover:text-primary underline transition-all" href="#">Security</a>
+</div>
+</div>
+</footer>
+<!-- Mobile Navigation Bar -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface/90 backdrop-blur-xl border-t border-outline-variant/10 flex items-center justify-around px-md z-50">
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">school</span>
+<span class="text-label-sm">Courses</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+<span class="text-label-sm">Store</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-label-sm">Progress</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-sm">Profile</span>
+</button>
+</div>
+<script>
+        // Simple interactive effect for coin balance
+        const balanceDisplay = document.querySelector('.text-4xl.font-bold');
+        if (balanceDisplay) {
+            balanceDisplay.addEventListener('mouseenter', () => {
+                balanceDisplay.classList.add('scale-110');
+                balanceDisplay.classList.add('text-tertiary');
+            });
+            balanceDisplay.addEventListener('mouseleave', () => {
+                balanceDisplay.classList.remove('scale-110');
+                balanceDisplay.classList.remove('text-tertiary');
+            });
+        }
+    </script>
+</body></html>

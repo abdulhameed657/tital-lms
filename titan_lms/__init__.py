@@ -8,50 +8,26 @@ login_manager.login_view = 'auth.login'
 login_manager.login_message_category = 'info'
 
 def create_app():
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    template_dir = os.path.join(base_dir, 'templates')
-    static_dir = os.path.join(base_dir, 'static')
-    
-    app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+    app = Flask(__name__)
     
     # Configure App
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'titan-lms-super-secret-key-987654')
     
-    # Detect Vercel serverless environment
-    is_vercel = os.environ.get('VERCEL') == '1' or 'AWS_LAMBDA_FUNCTION_NAME' in os.environ
-    
-    # DB Configuration: Default to local SQLite db, or /tmp/titan_lms.db on Vercel
-    if is_vercel:
-        default_db = 'sqlite:////tmp/titan_lms.db'
-    else:
-        default_db = 'sqlite:///titan_lms.db'
-
-    db_url = os.environ.get('DATABASE_URL', default_db)
+    # DB Configuration: Default to local SQLite db, ready for PostgreSQL in production
+    db_url = os.environ.get('DATABASE_URL', 'sqlite:///titan_lms.db')
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # File upload config
-    if is_vercel:
-        app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
-    else:
-        app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
-    
-    try:
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    except Exception:
-        pass
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
     # Initialize Extensions
     db.init_app(app)
     
     with app.app_context():
-        try:
-            db.create_all()
-        except Exception:
-            pass
-
         try:
             db.session.execute(db.text("ALTER TABLE users ADD COLUMN phone VARCHAR(50)"))
             db.session.commit()
@@ -244,24 +220,23 @@ def create_app():
             pass
             
         # Auto-create Super Admin if not exists
-        try:
-            superadmin = User.query.filter_by(email='superadmin@gmail.com').first()
-            if not superadmin:
-                superadmin = User(
-                    name='Super Admin',
-                    email='superadmin@gmail.com',
-                    role='superadmin',
-                    verified=True,
-                    bio='Platform Super Administrator'
-                )
-                superadmin.set_password('adminsuper123')
-                db.session.add(superadmin)
-                db.session.commit()
-            elif superadmin.role != 'superadmin':
-                superadmin.role = 'superadmin'
-                db.session.commit()
-        except Exception:
-            db.session.rollback()
+        superadmin = User.query.filter_by(email='superadmin@gmail.com').first()
+        if not superadmin:
+            superadmin = User(
+                name='Super Admin',
+                email='superadmin@gmail.com',
+                role='superadmin',
+                verified=True,
+                bio='Platform Super Administrator'
+            )
+            superadmin.set_password('adminsuper123')
+            db.session.add(superadmin)
+            db.session.commit()
+            print('✅ Super Admin created: superadmin@gmail.com / adminsuper123')
+        elif superadmin.role != 'superadmin':
+            superadmin.role = 'superadmin'
+            db.session.commit()
+            print('✅ Super Admin role updated to superadmin')
 
 
         try:

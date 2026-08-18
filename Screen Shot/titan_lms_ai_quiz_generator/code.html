@@ -1,0 +1,407 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Titan LMS - AI Quiz Generator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#241a00",
+                    "surface-dim": "#dcdad2",
+                    "surface": "#fcf9f1",
+                    "secondary": "#575d78",
+                    "error-container": "#ffdad6",
+                    "tertiary-container": "#cba72f",
+                    "outline": "#737786",
+                    "tertiary-fixed-dim": "#e9c349",
+                    "on-surface-variant": "#424654",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#3f465f",
+                    "tertiary": "#735c00",
+                    "surface-bright": "#fcf9f1",
+                    "primary-fixed-dim": "#b1c5ff",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#b1c5ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#ebe8e0",
+                    "on-primary-fixed-variant": "#0040a0",
+                    "on-secondary-fixed": "#141a32",
+                    "surface-container-highest": "#e5e2da",
+                    "tertiary-fixed": "#ffe088",
+                    "secondary-container": "#d8defe",
+                    "secondary-fixed-dim": "#bfc5e4",
+                    "background": "#fcf9f1",
+                    "on-primary-container": "#fefcff",
+                    "inverse-surface": "#31312b",
+                    "secondary-fixed": "#dce1ff",
+                    "primary-container": "#2c6dec",
+                    "primary": "#0054cb",
+                    "inverse-on-surface": "#f3f1e9",
+                    "outline-variant": "#c2c6d7",
+                    "on-tertiary-container": "#4e3d00",
+                    "surface-variant": "#e5e2da",
+                    "on-surface": "#1c1c17",
+                    "surface-container-low": "#f6f3eb",
+                    "on-secondary-container": "#5b617d",
+                    "on-tertiary-fixed-variant": "#574500",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#dae2ff",
+                    "on-background": "#1c1c17",
+                    "on-primary-fixed": "#001847",
+                    "surface-container": "#f1eee6",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "surface-tint": "#0056d0",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xxl": "64px",
+                    "lg": "24px",
+                    "xl": "32px",
+                    "margin-desktop": "40px",
+                    "gutter": "24px",
+                    "sm": "8px",
+                    "margin-mobile": "16px",
+                    "md": "16px",
+                    "base": "4px",
+                    "container-max": "1280px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Montserrat"],
+                    "headline-lg": ["Montserrat"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "display-lg": ["Montserrat"],
+                    "headline-sm": ["Montserrat"],
+                    "label-md": ["Inter"],
+                    "display-lg-mobile": ["Montserrat"],
+                    "body-md": ["Inter"],
+                    "label-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["10px", {"lineHeight": "1", "fontWeight": "500"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "1", "fontWeight": "500"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-lg": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(10, 17, 40, 0.05);
+        }
+        .ai-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(0, 84, 203, 0.1), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .custom-slider::-webkit-slider-runnable-track {
+            background: #d8defe;
+            height: 4px;
+            border-radius: 9999px;
+        }
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #0054cb;
+            margin-top: -7px;
+            box-shadow: 0 0 10px rgba(0, 84, 203, 0.3);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex">
+<!-- Sidebar Navigation -->
+<aside class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-64 bg-surface-container dark:bg-inverse-surface/90 backdrop-blur-lg border-r border-outline-variant/20 py-lg shadow-xl z-50">
+<div class="px-md mb-xl flex flex-col items-center">
+<img alt="Titan LMS Shield Logo" class="w-16 h-16 mb-sm object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLpcMbeRhkNb46WITOJwhSIUlmv__0EyE0_zRH6_V5w-We0bfKoBRMA6x0oz178bUYYjwXBEVgy72r8qFXHMzrcdo4tNdfTopDSwSXD-wMjiUyij9tQvq-E1oVOGqlnryAhUUaeIqIcv7jJJWdjhsyqc1UywFXSwdOygmp7mtf1TaKEB98EYngis3B3Uf63dExat4b8ocqWGQe-Wp18tOp_PJ1bZmkwbjA53mr1Tfig-p4G10XIeL8q3keZy7qSVlBEg">
+<h1 class="text-headline-sm font-headline-md text-on-surface tracking-tight">Titan LMS</h1>
+<p class="text-label-sm text-on-surface-variant/70 uppercase tracking-widest mt-1">Academic Excellence</p>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto px-sm">
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined text-primary">dashboard</span>
+<span class="text-label-lg font-label-lg">Dashboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="text-label-lg font-label-lg">Courses</span>
+</a>
+<a class="flex items-center gap-md bg-primary/10 text-primary border-l-4 border-primary rounded-r-lg px-4 py-3 translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">assignment</span>
+<span class="text-label-lg font-label-lg">Assignments</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-label-lg font-label-lg">Analytics</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="text-label-lg font-label-lg">Leaderboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-label-lg font-label-lg">Community</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:bg-secondary-container/50 transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-lg font-label-lg">Settings</span>
+</a>
+</nav>
+<div class="px-md mt-lg">
+<button class="w-full py-md bg-primary-container text-on-primary-container font-label-lg rounded-lg shadow-sm flex items-center justify-center gap-sm hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                AI Assistant
+            </button>
+</div>
+<div class="mt-xl border-t border-outline-variant/20 pt-md px-sm">
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-label-lg font-label-lg">Help</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-3 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-label-lg font-label-lg">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-margin-mobile md:p-margin-desktop bg-surface min-h-screen">
+<!-- Header -->
+<header class="flex justify-between items-center mb-xl">
+<div>
+<h2 class="text-headline-lg font-headline-lg text-primary">AI Quiz Generator</h2>
+<p class="text-body-md text-on-surface-variant">Intelligent assessment creation powered by Titan AI</p>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-sm text-on-surface-variant hover:bg-surface-container rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="flex items-center gap-sm p-1 pr-md bg-surface-container rounded-full border border-outline-variant/30">
+<div class="w-8 h-8 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a senior university professor in a modern academic office. The lighting is soft and natural from a large window. The aesthetic is clean, light-mode, and authoritative, featuring a background of bookshelves and sleek digital equipment. The color palette is composed of soft creams, deep blues, and warm wood tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBamynboJ37eNTqwCfPjmBYkkmH_uaZzEOMcef6YUI2ltdNnthhao8zwo_cPgnmuWcZNEgzpSqUPY3wgZMTd881SwN4defnnLZChD5X81EKloKW3twCRzrNeCduqaXLPsY6ZNHH7NYrB3P37bRSom-7NKKvmlvVho1Luw6gcdi5FgA_9ytCtXzgxPSAYBKxtOiWN84R_PG38ZBahptPkoyy0CwO7tb-aF5dVGypm7sjaUvNFId0KdAy">
+</div>
+<span class="text-label-lg font-label-lg text-on-surface">Dr. Sterling</span>
+</div>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg h-[calc(100vh-180px)]">
+<!-- Left Panel: Configuration -->
+<section class="lg:col-span-5 flex flex-col gap-lg overflow-y-auto pr-2">
+<div class="glass-card p-lg rounded-xl flex flex-col gap-md">
+<div class="flex items-center gap-sm mb-base">
+<span class="material-symbols-outlined text-primary">description</span>
+<h3 class="text-headline-sm font-headline-md">Source Material</h3>
+</div>
+<p class="text-body-sm text-on-surface-variant">Titan AI will extract key concepts and generate questions based on this content.</p>
+<div class="relative group">
+<textarea class="w-full p-md bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none text-body-md font-body-md resize-none" id="lessonInput" placeholder="Paste Lesson Content or URL here..." rows="10" spellcheck="false"></textarea>
+<div class="absolute bottom-4 right-4 flex gap-sm">
+<button class="px-sm py-xs bg-surface-variant text-on-surface-variant text-label-md rounded hover:bg-outline-variant transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">link</span> URL
+                            </button>
+<button class="px-sm py-xs bg-surface-variant text-on-surface-variant text-label-md rounded hover:bg-outline-variant transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">upload_file</span> File
+                            </button>
+</div>
+</div>
+</div>
+<div class="glass-card p-lg rounded-xl grid grid-cols-1 md:grid-cols-2 gap-xl">
+<div class="flex flex-col gap-sm">
+<label class="text-label-lg font-label-lg text-on-surface-variant">Difficulty Level</label>
+<div class="relative">
+<select class="w-full p-md bg-surface-container-low border border-outline-variant rounded-lg appearance-none cursor-pointer focus:ring-2 focus:ring-primary outline-none">
+<option>Beginner</option>
+<option selected="">Intermediate</option>
+<option>Advanced</option>
+<option>Expert</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-outline">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<div class="flex justify-between items-center">
+<label class="text-label-lg font-label-lg text-on-surface-variant">Number of Questions</label>
+<span class="text-primary font-bold" id="questionCount">10</span>
+</div>
+<input class="custom-slider w-full appearance-none bg-transparent" id="rangeInput" max="50" min="5" type="range" value="10">
+<div class="flex justify-between text-label-sm text-outline">
+<span>5</span>
+<span>50</span>
+</div>
+</div>
+</div>
+<button class="w-full py-xl bg-primary text-on-primary font-headline-md rounded-xl shadow-lg hover:shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-md group" id="generateBtn">
+<span class="material-symbols-outlined group-hover:rotate-12 transition-transform">auto_awesome</span>
+                    Generate with Titan AI
+                </button>
+</section>
+<!-- Right Panel: Preview -->
+<section class="lg:col-span-7 flex flex-col glass-card rounded-xl overflow-hidden">
+<div class="bg-primary/5 p-md border-b border-outline-variant/30 flex justify-between items-center">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">visibility</span>
+<h3 class="text-label-lg font-label-lg text-primary uppercase tracking-widest">Question Preview</h3>
+</div>
+<div class="flex gap-sm">
+<button class="p-xs text-on-surface-variant hover:bg-surface-container rounded transition-colors" title="Download PDF">
+<span class="material-symbols-outlined">download</span>
+</button>
+<button class="p-xs text-on-surface-variant hover:bg-surface-container rounded transition-colors" title="Export to Course">
+<span class="material-symbols-outlined">output</span>
+</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-lg space-y-lg relative" id="previewContainer">
+<!-- Empty State / Placeholder -->
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center p-xl" id="emptyState">
+<div class="w-24 h-24 bg-surface-container rounded-full flex items-center justify-center mb-md border-4 border-surface">
+<span class="material-symbols-outlined text-[48px] text-outline/30">psychology_alt</span>
+</div>
+<h4 class="text-headline-sm font-headline-md text-on-surface/50">Ready to Brainstorm</h4>
+<p class="text-body-md text-on-surface-variant max-w-xs mt-2">Enter your lesson content and click generate to see AI-crafted assessments here.</p>
+</div>
+<!-- Question Template (Hidden initially) -->
+<div class="hidden absolute inset-0 bg-surface/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-center" id="loadingOverlay">
+<div class="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-md"></div>
+<p class="text-headline-sm font-headline-md text-primary ai-shimmer">Titan AI is analyzing concepts...</p>
+</div>
+<div class="hidden space-y-lg" id="questionList">
+<!-- Sample Question 1 -->
+<div class="p-lg bg-white rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-md">
+<span class="px-md py-1 bg-secondary-container text-on-secondary-container text-label-sm rounded-full font-bold">MULTIPLE CHOICE</span>
+<div class="flex gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-outline hover:text-primary"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="text-outline hover:text-error"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</div>
+</div>
+<h5 class="text-body-lg font-semibold mb-lg">What is the primary function of the mitochondria in a eukaryotic cell?</h5>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+<div class="p-md border border-outline-variant rounded-lg hover:border-primary transition-colors cursor-pointer flex items-center gap-md">
+<span class="w-6 h-6 flex items-center justify-center rounded-full bg-surface-container text-label-md">A</span>
+<span class="text-body-md">Protein Synthesis</span>
+</div>
+<div class="p-md border border-primary bg-primary/5 rounded-lg flex items-center gap-md relative">
+<span class="w-6 h-6 flex items-center justify-center rounded-full bg-primary text-on-primary text-label-md">B</span>
+<span class="text-body-md font-medium">ATP Production</span>
+<span class="material-symbols-outlined absolute right-3 text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="p-md border border-outline-variant rounded-lg hover:border-primary transition-colors cursor-pointer flex items-center gap-md">
+<span class="w-6 h-6 flex items-center justify-center rounded-full bg-surface-container text-label-md">C</span>
+<span class="text-body-md">Waste Disposal</span>
+</div>
+<div class="p-md border border-outline-variant rounded-lg hover:border-primary transition-colors cursor-pointer flex items-center gap-md">
+<span class="w-6 h-6 flex items-center justify-center rounded-full bg-surface-container text-label-md">D</span>
+<span class="text-body-md">DNA Replication</span>
+</div>
+</div>
+</div>
+<!-- Sample Question 2 -->
+<div class="p-lg bg-white rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-md">
+<span class="px-md py-1 bg-tertiary-container text-on-tertiary-container text-label-sm rounded-full font-bold">TRUE / FALSE</span>
+<div class="flex gap-sm opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-outline hover:text-primary"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="text-outline hover:text-error"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</div>
+</div>
+<h5 class="text-body-lg font-semibold mb-lg">The cell membrane is selectively permeable, allowing only certain molecules to pass through.</h5>
+<div class="flex gap-md">
+<div class="flex-1 p-md border border-primary bg-primary/5 rounded-lg flex items-center justify-center gap-md">
+<span class="text-body-md font-bold text-primary">TRUE</span>
+</div>
+<div class="flex-1 p-md border border-outline-variant rounded-lg flex items-center justify-center gap-md">
+<span class="text-body-md">FALSE</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-high p-md flex justify-between items-center">
+<p class="text-label-md text-on-surface-variant italic">Titan AI uses GPT-4 Architecture for educational rigor.</p>
+<button class="px-lg py-md bg-inverse-surface text-inverse-on-surface text-label-lg font-bold rounded-lg hover:bg-on-surface transition-all flex items-center gap-sm">
+<span class="material-symbols-outlined">publish</span>
+                        Confirm &amp; Save Quiz
+                    </button>
+</div>
+</section>
+</div>
+</main>
+<script>
+        // Micro-interactions and UI Logic
+        const rangeInput = document.getElementById('rangeInput');
+        const questionCount = document.getElementById('questionCount');
+        const generateBtn = document.getElementById('generateBtn');
+        const emptyState = document.getElementById('emptyState');
+        const questionList = document.getElementById('questionList');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const lessonInput = document.getElementById('lessonInput');
+
+        rangeInput.addEventListener('input', (e) => {
+            questionCount.textContent = e.target.value;
+        });
+
+        generateBtn.addEventListener('click', () => {
+            if (!lessonInput.value.trim()) {
+                lessonInput.classList.add('border-error');
+                setTimeout(() => lessonInput.classList.remove('border-error'), 1000);
+                return;
+            }
+
+            // Simulate AI Generation Flow
+            emptyState.classList.add('hidden');
+            loadingOverlay.classList.remove('hidden');
+            questionList.classList.add('hidden');
+
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                questionList.classList.remove('hidden');
+            }, 2500);
+        });
+
+        // Simple typing interaction for empty state
+        lessonInput.addEventListener('input', () => {
+            if (lessonInput.value.length > 0) {
+                generateBtn.classList.remove('opacity-50');
+            }
+        });
+    </script>
+</body></html>

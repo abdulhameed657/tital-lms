@@ -490,10 +490,10 @@
     </div>
 
     <div class="relative z-10 max-w-container-max mx-auto px-gutter w-full space-y-xl pt-12">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-32 items-center">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
 
             <!-- Left Column: High-Impact Typography & Interactive Prompt -->
-            <div class="lg:col-span-5 space-y-lg text-left animate-home-left pr-0 lg:pr-4">
+            <div class="lg:col-span-6 xl:col-span-6 space-y-lg text-left animate-home-left pr-0">
                 <!-- Pill Announcement Badge -->
                 <div
                     class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 border border-amber-400/40 backdrop-blur-xl shadow-xl hover:border-amber-400 transition-all cursor-pointer">
@@ -510,7 +510,7 @@
                 </div>
 
                 <!-- 3-Line Animated Headline with Line-by-Line Fade Up & Yellow Gradient Shine -->
-                <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.15] tracking-tight font-space"
+                <h1 class="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-white leading-[1.15] tracking-tight font-space"
                     style="font-family: 'Space Grotesk', sans-serif;">
                     <span class="block anim-line-1">Master Tech</span>
                     <span class="block anim-line-2 text-slate-100">Leadership With</span>
@@ -612,23 +612,23 @@
 
             <!-- Right Column: Enlarged Transparent 3D AI Robot Teacher & Floating Tech Logos -->
             <div
-                class="lg:col-span-6 lg:col-start-7 relative mt-xl lg:mt-0 flex justify-center items-center pl-0 lg:pl-12 overflow-hidden">
+                class="lg:col-span-6 relative mt-xl lg:mt-0 flex justify-center items-center px-2 sm:px-4">
 
                 <!-- Interactive 3D Card Container with Mouse Tilt -->
-                <div class="relative w-full max-w-xl flex items-center justify-center transition-transform duration-200 ease-out"
+                <div class="relative w-full max-w-lg sm:max-w-xl flex items-center justify-center transition-transform duration-200 ease-out py-6"
                     :style="'transform: perspective(1000px) rotateY(' + tiltX + 'deg) rotateX(' + (-tiltY) + 'deg);'">
 
                     <!-- Clean Full-Body 3D Standing AI Robot with Laptop PNG (From titan_lms/static/robot.png) -->
                     <div
-                        class="relative z-10 w-full max-w-lg lg:max-w-xl h-auto flex items-center justify-center group">
+                        class="relative z-10 w-full max-w-sm sm:max-w-md lg:max-w-lg h-auto flex items-center justify-center group px-4">
                         <img src="/static/robot.png" alt="3D AI Robot Teacher"
-                            class="w-full h-auto object-contain max-h-[400px] sm:max-h-[640px] drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] group-hover:scale-105 transition-transform duration-700">
+                            class="w-full h-auto object-contain max-h-[340px] sm:max-h-[480px] lg:max-h-[520px] drop-shadow-[0_25px_50px_rgba(0,0,0,0.8)] group-hover:scale-105 transition-transform duration-700">
                     </div>
 
                     <!-- FLOATING TECH LOGO BADGES AROUND ROBOT WITH 3D DEPTH EFFECT -->
                     <!-- Badge 1: Python 3.12 (Top Left) -->
                     <div
-                        class="absolute -top-2 left-0 sm:-top-4 sm:left-4 z-20 animate-float-1 badge-3d-depth border border-blue-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        class="absolute top-2 left-2 sm:top-0 sm:left-6 z-20 animate-float-1 badge-3d-depth border border-blue-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
                         <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(59,130,246,0.6)]">🐍</span>
                         <div>
                             <p class="text-[10px] sm:text-xs font-bold font-space">Python 3.12</p>
@@ -638,7 +638,7 @@
 
                     <!-- Badge 2: AI & Deep Learning (Top Right) -->
                     <div
-                        class="absolute -top-3 right-0 sm:-top-6 sm:right-4 z-20 animate-float-2 badge-3d-depth border border-amber-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        class="absolute top-2 right-2 sm:top-0 sm:right-6 z-20 animate-float-2 badge-3d-depth border border-amber-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
                         <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(245,158,11,0.6)]">🧠</span>
                         <div>
                             <p class="text-[10px] sm:text-xs font-bold font-space">AI & ML</p>
@@ -648,7 +648,7 @@
 
                     <!-- Badge 3: TensorFlow / PyTorch (Mid Right) -->
                     <div
-                        class="absolute top-1/2 -right-1 sm:right-2 z-20 animate-float-3 badge-3d-depth border border-orange-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        class="absolute top-1/2 -translate-y-1/2 right-1 sm:right-4 z-20 animate-float-3 badge-3d-depth border border-orange-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
                         <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(249,115,22,0.6)]">⚡</span>
                         <div>
                             <p class="text-[10px] sm:text-xs font-bold font-space">TensorFlow</p>
@@ -658,7 +658,7 @@
 
                     <!-- Badge 4: Docker & K8s (Bottom Left) -->
                     <div
-                        class="absolute -bottom-3 left-0 sm:-bottom-6 sm:left-4 z-20 animate-float-2 badge-3d-depth border border-cyan-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        class="absolute bottom-2 left-2 sm:bottom-0 sm:left-6 z-20 animate-float-2 badge-3d-depth border border-cyan-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
                         <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(6,182,212,0.6)]">🐳</span>
                         <div>
                             <p class="text-[10px] sm:text-xs font-bold font-space">Docker & K8s</p>
@@ -668,7 +668,7 @@
 
                     <!-- Badge 5: AWS Cloud (Bottom Right) -->
                     <div
-                        class="absolute -bottom-2 right-0 sm:-bottom-4 sm:right-4 z-20 animate-float-1 badge-3d-depth border border-emerald-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        class="absolute bottom-2 right-2 sm:bottom-0 sm:right-6 z-20 animate-float-1 badge-3d-depth border border-emerald-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
                         <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(16,185,129,0.6)]">☁️</span>
                         <div>
                             <p class="text-[10px] sm:text-xs font-bold font-space">AWS Cloud</p>
@@ -678,7 +678,7 @@
 
                     <!-- Badge 6: Flutter (Mid Left) -->
                     <div
-                        class="absolute top-1/2 -left-1 sm:left-6 z-20 animate-float-3 badge-3d-depth border border-purple-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
+                        class="absolute top-1/2 -translate-y-1/2 left-1 sm:left-4 z-20 animate-float-3 badge-3d-depth border border-purple-400/60 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl flex items-center gap-1.5 sm:gap-2.5 text-white cursor-pointer backdrop-blur-md bg-slate-900/50 shadow-lg">
                         <span class="text-sm sm:text-xl drop-shadow-[0_4px_10px_rgba(168,85,247,0.6)]">📱</span>
                         <div>
                             <p class="text-[10px] sm:text-xs font-bold font-space">Flutter</p>

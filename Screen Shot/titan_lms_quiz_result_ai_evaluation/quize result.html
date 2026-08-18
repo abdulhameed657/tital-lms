@@ -1,0 +1,366 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Titan LMS - Quiz Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Montserrat:wght@100..900&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#241a00",
+                    "surface-dim": "#dcdad2",
+                    "surface": "#fcf9f1",
+                    "secondary": "#575d78",
+                    "error-container": "#ffdad6",
+                    "tertiary-container": "#cba72f",
+                    "outline": "#737786",
+                    "tertiary-fixed-dim": "#e9c349",
+                    "on-surface-variant": "#424654",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#3f465f",
+                    "tertiary": "#735c00",
+                    "surface-bright": "#fcf9f1",
+                    "primary-fixed-dim": "#b1c5ff",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#b1c5ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#ebe8e0",
+                    "on-primary-fixed-variant": "#0040a0",
+                    "on-secondary-fixed": "#141a32",
+                    "surface-container-highest": "#e5e2da",
+                    "tertiary-fixed": "#ffe088",
+                    "secondary-container": "#d8defe",
+                    "secondary-fixed-dim": "#bfc5e4",
+                    "background": "#fcf9f1",
+                    "on-primary-container": "#fefcff",
+                    "inverse-surface": "#31312b",
+                    "secondary-fixed": "#dce1ff",
+                    "primary-container": "#2c6dec",
+                    "primary": "#0054cb",
+                    "inverse-on-surface": "#f3f1e9",
+                    "outline-variant": "#c2c6d7",
+                    "on-tertiary-container": "#4e3d00",
+                    "surface-variant": "#e5e2da",
+                    "on-surface": "#1c1c17",
+                    "surface-container-low": "#f6f3eb",
+                    "on-secondary-container": "#5b617d",
+                    "on-tertiary-fixed-variant": "#574500",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#dae2ff",
+                    "on-background": "#1c1c17",
+                    "on-primary-fixed": "#001847",
+                    "surface-container": "#f1eee6",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "surface-tint": "#0056d0",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xxl": "64px",
+                    "lg": "24px",
+                    "xl": "32px",
+                    "margin-desktop": "40px",
+                    "gutter": "24px",
+                    "sm": "8px",
+                    "margin-mobile": "16px",
+                    "md": "16px",
+                    "base": "4px",
+                    "container-max": "1280px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Montserrat"],
+                    "headline-lg": ["Montserrat"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "display-lg": ["Montserrat"],
+                    "headline-sm": ["Montserrat"],
+                    "label-md": ["Inter"],
+                    "display-lg-mobile": ["Montserrat"],
+                    "body-md": ["Inter"],
+                    "label-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["10px", {"lineHeight": "1", "fontWeight": "500"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "1", "fontWeight": "500"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-lg": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-nav {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .card-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0px 12px 30px rgba(0, 84, 203, 0.12);
+        }
+        .progress-bar-glow {
+            box-shadow: 0 0 12px rgba(0, 84, 203, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="docked full-width top-0 sticky z-50 bg-surface/70 backdrop-blur-xl shadow-sm">
+<nav class="flex justify-between items-center w-full px-gutter py-md max-w-container-max mx-auto">
+<div class="flex items-center gap-md">
+<img alt="Titan LMS Shield Logo" class="h-10 w-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2TO4aRbJ9S0qSrmVJM52nCVh6kQaVD2hefYb205GMBxuNpldN96j602o5wU4-Cz0b0L9xTC3mTz-W4cHQNXXA0avxFl5FAJM__X6A9TwqgqamEcjlExcAh-wY7zIbtLJ_vHTi7lKuA5QNvaW-tKMdlyTGKU7_S_gRu2AoaoaFEq07YKLTgt6uIt8pvJJEjpOaPF1Ey7LXuFn7Js07ptMBvU4icpdh2YwXy_74Kt3C6se691BriX_SUM6YqXXcwkMHAA">
+<span class="text-headline-sm font-headline-lg text-primary tracking-tight">Titan LMS</span>
+</div>
+<div class="hidden md:flex items-center gap-xl">
+<a class="text-on-surface-variant font-medium hover:text-primary transition-all duration-300" href="#">Dashboard</a>
+<a class="text-primary border-b-2 border-primary font-bold pb-1 transition-all duration-300" href="#">Courses</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-all duration-300" href="#">Analytics</a>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary scale-95 active:scale-90 transition-all">search</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary scale-95 active:scale-90 transition-all relative">
+                    notifications
+                    <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-error ring-2 ring-surface"></span>
+</button>
+<div class="h-10 w-10 rounded-full bg-secondary-container flex items-center justify-center border-2 border-primary/20 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a corporate learner in business casual attire, smiling confidently against a soft-focus office background. The lighting is warm and natural, following a modern corporate aesthetic with high-quality digital photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLeKzjsCg1OeVqP5vhhMJe_VyK_rBKsNpaQovOVWkgCYRYZ4a8HaUwhJdL6ifhsjbnS_NuEJzFJgv0ye3YbjXwio4GiaMbSrDUcjTiVofDPAu9FvtQzMg1myW6TG8qetk-lkiLzMLzg43WkA83wqM4-nHH4X_DmKIo2nsaG-5gScalZlimsk-OE3wGdfaKzFqquPlvGp_xh3-cFqgweCWH_WZmb6IXXfgSZAoxICa_wPMqI04j5p77">
+</div>
+</div>
+</nav>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-xl lg:py-xxl">
+<!-- Hero: Quiz Result -->
+<section class="relative mb-xxl rounded-xl overflow-hidden bg-primary-container p-lg md:p-xxl text-on-primary-container flex flex-col md:flex-row items-center justify-between gap-xl">
+<!-- Decorative background element -->
+<div class="absolute top-0 right-0 w-1/3 h-full opacity-10 pointer-events-none">
+
+</div>
+<div class="relative z-10 text-center md:text-left">
+<div class="inline-flex items-center gap-sm bg-tertiary text-on-tertiary px-md py-xs rounded-full mb-md shadow-lg">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="font-label-lg text-label-lg uppercase tracking-widest">High Distinction</span>
+</div>
+<h1 class="font-headline-lg text-display-lg-mobile md:text-display-lg mb-sm">Advanced Algorithms IV</h1>
+<p class="text-body-lg opacity-90 max-w-lg">Congratulations! Your performance in this module exceeds enterprise-grade benchmarks. You've demonstrated a robust grasp of heuristic optimizations.</p>
+</div>
+<div class="relative z-10 flex flex-col items-center">
+<div class="relative flex items-center justify-center w-48 h-48 md:w-64 md:h-64">
+<svg class="w-full h-full transform -rotate-90">
+<circle cx="50%" cy="50%" fill="transparent" r="45%" stroke="rgba(255,255,255,0.2)" stroke-width="8"></circle>
+<circle class="drop-shadow-lg" cx="50%" cy="50%" fill="transparent" r="45%" stroke="white" stroke-dasharray="282.7" stroke-dashoffset="42.4" stroke-linecap="round" stroke-width="12"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="text-display-lg font-headline-lg leading-none">85%</span>
+<span class="text-label-lg font-label-lg opacity-80 uppercase tracking-tighter">Module Score</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid for Feedback & Review -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+<!-- Left Column: AI Feedback (Col 7) -->
+<div class="lg:col-span-7 flex flex-col gap-lg">
+<div class="bg-surface-container-low rounded-xl p-lg md:p-xl border border-outline-variant/30 shadow-sm">
+<div class="flex items-center gap-md mb-lg">
+<div class="bg-primary/10 p-sm rounded-lg">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">AI Performance Evaluation</h2>
+</div>
+<div class="space-y-md text-on-surface-variant">
+<p class="font-body-md leading-relaxed">
+                            Your analysis of <strong>Big O Complexity</strong> for multi-threaded processes was exceptionally precise, placing you in the top 5% of global learners this quarter. You successfully navigated the edge cases regarding resource deadlocks in Question 4.
+                        </p>
+<p class="font-body-md leading-relaxed border-l-4 border-tertiary-container pl-md bg-tertiary-container/5 py-sm rounded-r-lg">
+<strong class="text-tertiary">Strategic Insight:</strong> While your theory is flawless, you hesitated on the <em>Dynamic Programming</em> practical application. Your response time for Question 12 suggests a need for more "Live Code" drill exercises to build muscle memory in recursive memoization techniques.
+                        </p>
+<div class="grid grid-cols-2 gap-md pt-md">
+<div class="p-md bg-surface-container rounded-lg border border-outline-variant/20">
+<span class="text-label-sm font-label-sm uppercase text-secondary mb-base block">Primary Strength</span>
+<span class="text-headline-sm font-headline-sm text-primary">Algorithmic Logic</span>
+</div>
+<div class="p-md bg-surface-container rounded-lg border border-outline-variant/20">
+<span class="text-label-sm font-label-sm uppercase text-secondary mb-base block">Growth Opportunity</span>
+<span class="text-headline-sm font-headline-sm text-tertiary">Space Optimization</span>
+</div>
+</div>
+</div>
+<div class="mt-xl flex flex-wrap gap-md">
+<button class="bg-primary text-on-primary px-lg py-md rounded-lg font-label-lg flex items-center gap-sm hover:shadow-[0_0_15px_rgba(0,84,203,0.4)] transition-all active:scale-95">
+<span class="material-symbols-outlined text-[20px]">menu_book</span>
+                            Review Weak Topics
+                        </button>
+<button class="border border-primary text-primary px-lg py-md rounded-lg font-label-lg flex items-center gap-sm hover:bg-primary/5 transition-all active:scale-95">
+<span class="material-symbols-outlined text-[20px]">download</span>
+                            Download Detailed Report
+                        </button>
+</div>
+</div>
+<!-- Learning Path Recommendation -->
+<div class="bg-surface-container-highest rounded-xl p-lg flex items-center gap-lg">
+<div class="hidden md:block w-32 h-20 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A clean, minimalist digital graphic representing complex data structures and nodes connected by golden threads. The style is modern corporate with deep navy backgrounds and vibrant electric blue accents, matching a premium LMS dashboard aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCDrG107GqcoK-HLllyuRdFuGHtHNpPFyJJXtZYzTmvpYK-9xp8UekDuiwbPB5SFwVDz0idVuJfXclHUTbkCr2uK_JH0RdQgjPdkWIgthNuCF1OAMj32tUUCQwjjd3leDbU-8RTqzP_6phtRnWZD_pAcgvLn-s2WPi5ZZSI7_49C-gDOiz_bllgZsaLuBNMcyXpWlkzubZOwAZ979RaGkWp2zdNsStLnEIPgyW6mu2rBHTq-Sp0TuF">
+</div>
+<div class="flex-grow">
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-widest block mb-xs">Next Recommended Lesson</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Advanced Memory Management</h3>
+<div class="flex items-center gap-md mt-sm">
+<span class="text-body-sm text-on-surface-variant flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]">schedule</span> 45 mins</span>
+<span class="text-body-sm text-on-surface-variant flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]">bar_chart</span> Expert</span>
+</div>
+</div>
+<button class="material-symbols-outlined bg-white text-primary p-md rounded-full shadow-sm hover:shadow-md transition-all">arrow_forward</button>
+</div>
+</div>
+<!-- Right Column: Question Review (Col 5) -->
+<div class="lg:col-span-5 flex flex-col gap-lg h-full">
+<div class="bg-surface-container-low rounded-xl border border-outline-variant/30 flex flex-col h-[700px]">
+<div class="p-lg border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-high/30">
+<h2 class="font-headline-sm text-headline-sm">Question Review</h2>
+<span class="bg-primary/10 text-primary px-sm py-xs rounded font-label-md">17 / 20 Correct</span>
+</div>
+<!-- Scrollable List -->
+<div class="flex-grow overflow-y-auto p-lg space-y-lg custom-scrollbar">
+<!-- Question Item: Correct -->
+<div class="group">
+<div class="flex items-start gap-md mb-sm">
+<div class="bg-green-100 text-green-700 p-base rounded flex items-center justify-center mt-1">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-body-md text-on-surface mb-xs">01. Time Complexity Analysis</h4>
+<p class="text-body-sm text-on-surface-variant">What is the average time complexity of a Quicksort algorithm?</p>
+</div>
+</div>
+<div class="ml-10 p-md bg-green-50/50 rounded-lg border border-green-100">
+<p class="text-label-lg font-label-lg text-green-800 mb-base">Your Answer: O(n log n)</p>
+<p class="text-body-sm text-on-surface-variant">Correct. In the average case, Quicksort partitions the array into two nearly equal halves, leading to a logarithmic depth of recursion.</p>
+</div>
+</div>
+<!-- Question Item: Incorrect -->
+<div class="group">
+<div class="flex items-start gap-md mb-sm">
+<div class="bg-error-container text-on-error-container p-base rounded flex items-center justify-center mt-1">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">cancel</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-body-md text-on-surface mb-xs">02. Space Optimization</h4>
+<p class="text-body-sm text-on-surface-variant">Which data structure offers O(1) space complexity for tracking frequency?</p>
+</div>
+</div>
+<div class="ml-10 p-md bg-error-container/20 rounded-lg border border-error-container/50">
+<div class="flex flex-col gap-base mb-sm">
+<p class="text-label-lg font-label-lg text-error line-through">Your Answer: Dynamic Array</p>
+<p class="text-label-lg font-label-lg text-green-700">Correct Answer: Fixed Hash Map (or Array-based Buffer)</p>
+</div>
+<p class="text-body-sm text-on-surface-variant">Incorrect. A dynamic array grows with input size, yielding O(n) space. Frequency tracking with a limited range should utilize a fixed-size buffer.</p>
+</div>
+</div>
+<!-- Question Item: Correct -->
+<div class="group">
+<div class="flex items-start gap-md mb-sm">
+<div class="bg-green-100 text-green-700 p-base rounded flex items-center justify-center mt-1">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-body-md text-on-surface mb-xs">03. Heuristic Design</h4>
+<p class="text-body-sm text-on-surface-variant">Identify the 'admissible' heuristic for A* Search.</p>
+</div>
+</div>
+<div class="ml-10 p-md bg-green-50/50 rounded-lg border border-green-100">
+<p class="text-label-lg font-label-lg text-green-800 mb-base">Your Answer: Manhattan Distance</p>
+<p class="text-body-sm text-on-surface-variant">Correct. Manhattan distance never overestimates the actual cost to reach the goal in a grid-based movement system.</p>
+</div>
+</div>
+<!-- Question Item: Correct -->
+<div class="group">
+<div class="flex items-start gap-md mb-sm">
+<div class="bg-green-100 text-green-700 p-base rounded flex items-center justify-center mt-1">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-body-md text-on-surface mb-xs">04. Concurrency Safety</h4>
+<p class="text-body-sm text-on-surface-variant">Which mechanism prevents race conditions in shared memory?</p>
+</div>
+</div>
+<div class="ml-10 p-md bg-green-50/50 rounded-lg border border-green-100">
+<p class="text-label-lg font-label-lg text-green-800 mb-base">Your Answer: Mutex (Mutual Exclusion)</p>
+<p class="text-body-sm text-on-surface-variant">Correct. A mutex ensures only one thread can access the critical section at a time, preventing data corruption.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xxl bg-surface-container-highest mt-xxl border-t border-outline-variant/10">
+<div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop max-w-container-max mx-auto gap-lg">
+<div class="flex flex-col items-center md:items-start gap-sm">
+<div class="flex items-center gap-sm">
+<img alt="Titan Logo Small" class="h-8 w-8 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-EUlY-5Qnusr_don_TTK0BXzPLts7drtiYBlRf5c95ep4KVGecvqQK3B-Vp_YPfj6_0OEIUpt7mrrhxuCUVlN7garbCYoJJ1CGaVUoYLBt142SO09EMsfFsMYKG1DlW3LOdqq16Uv1WjECMcSNnnPnrjPGAv0Bjb-2UuuKHvomF3U6qdbMSK-R6nvgBVmRtLJhaJlzvrvETBPWArKNZP88LnoPDcs8wC-XnLzvdRPI_A9T6xyBS8GoS7N7d8lYgV5IA">
+<span class="font-headline-sm text-primary">Titan LMS</span>
+</div>
+<p class="text-body-sm text-on-surface-variant">© 2024 Titan LMS. Engineering Academic Ambition.</p>
+</div>
+<div class="flex gap-xl">
+<a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Privacy Policy</a>
+<a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Terms of Service</a>
+<a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Contact Support</a>
+<a class="text-label-md font-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Security</a>
+</div>
+</div>
+</footer>
+<!-- Micro-interaction Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Simple animation for the progress ring on load
+            const circle = document.querySelector('circle[stroke-dasharray]');
+            if (circle) {
+                circle.style.transition = 'stroke-dashoffset 1.5s ease-out';
+                setTimeout(() => {
+                    // 85% score = dashoffset 42.4 (calc: 282.7 * (1 - 0.85))
+                    circle.style.strokeDashoffset = '42.4';
+                }, 200);
+            }
+
+            // Hover effects for the review items
+            const reviewItems = document.querySelectorAll('.group');
+            reviewItems.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    item.style.transform = 'translateX(4px)';
+                    item.style.transition = 'transform 0.2s ease';
+                });
+                item.addEventListener('mouseleave', () => {
+                    item.style.transform = 'translateX(0px)';
+                });
+            });
+        });
+    </script>
+</body></html>
