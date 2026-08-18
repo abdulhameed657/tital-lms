@@ -126,183 +126,186 @@ def create_app():
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(api_bp, url_prefix='/api')
     
-    with app.app_context():
-        db.create_all()
-        
-        # Auto-migration helper for SQLite schema updates
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE coupons ADD COLUMN status VARCHAR(30) DEFAULT 'approved'"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE users ADD COLUMN referral_code VARCHAR(20)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE users ADD COLUMN assignment_points INTEGER DEFAULT 0"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE users ADD COLUMN quiz_points INTEGER DEFAULT 0"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE quiz_battle_sessions ADD COLUMN timer_seconds INTEGER DEFAULT 15"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE quiz_battle_sessions ADD COLUMN question_start_time TIMESTAMP"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+    try:
+        with app.app_context():
+            db.create_all()
             
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE lessons ADD COLUMN due_date TIMESTAMP"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+            # Auto-migration helper for SQLite/Postgres schema updates
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE coupons ADD COLUMN status VARCHAR(30) DEFAULT 'approved'"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE users ADD COLUMN referral_code VARCHAR(20)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE users ADD COLUMN assignment_points INTEGER DEFAULT 0"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE users ADD COLUMN quiz_points INTEGER DEFAULT 0"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE quiz_battle_sessions ADD COLUMN timer_seconds INTEGER DEFAULT 15"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
 
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE courses ADD COLUMN access_code VARCHAR(50)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE quiz_battle_sessions ADD COLUMN question_start_time TIMESTAMP"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE lessons ADD COLUMN due_date TIMESTAMP"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
 
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE courses ADD COLUMN student_limit INTEGER DEFAULT 100"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE courses ADD COLUMN access_code VARCHAR(50)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
 
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE enrollments ADD COLUMN phone_number VARCHAR(30)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE courses ADD COLUMN student_limit INTEGER DEFAULT 100"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
 
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE enrollments ADD COLUMN campus VARCHAR(100)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE enrollments ADD COLUMN phone_number VARCHAR(30)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
 
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE enrollments ADD COLUMN access_key_used VARCHAR(100)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE enrollments ADD COLUMN campus VARCHAR(100)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
 
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE student_registrations ADD COLUMN access_code_used VARCHAR(100)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE enrollments ADD COLUMN access_key_used VARCHAR(100)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
 
-        # Tenant schema updates
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE users ADD COLUMN tenant_id INTEGER REFERENCES tenants(id)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE courses ADD COLUMN tenant_id INTEGER REFERENCES tenants(id)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE webinars ADD COLUMN tenant_id INTEGER REFERENCES tenants(id)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-            
-        try:
-            from sqlalchemy import text
-            for table in ['badges', 'reward_items', 'forum_threads', 'moderation_items', 'quiz_battle_sessions', 'attendance_sessions', 'course_schedules', 'events']:
-                try:
-                    db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN tenant_id INTEGER REFERENCES tenants(id)"))
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE student_registrations ADD COLUMN access_code_used VARCHAR(100)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+
+            # Tenant schema updates
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE users ADD COLUMN tenant_id INTEGER REFERENCES tenants(id)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE courses ADD COLUMN tenant_id INTEGER REFERENCES tenants(id)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE webinars ADD COLUMN tenant_id INTEGER REFERENCES tenants(id)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                
+            try:
+                from sqlalchemy import text
+                for table in ['badges', 'reward_items', 'forum_threads', 'moderation_items', 'quiz_battle_sessions', 'attendance_sessions', 'course_schedules', 'events']:
+                    try:
+                        db.session.execute(text(f"ALTER TABLE {table} ADD COLUMN tenant_id INTEGER REFERENCES tenants(id)"))
+                        db.session.commit()
+                    except Exception:
+                        db.session.rollback()
+            except Exception:
+                pass
+                
+            # Auto-create Super Admin if not exists
+            try:
+                superadmin = User.query.filter_by(email='superadmin@gmail.com').first()
+                if not superadmin:
+                    superadmin = User(
+                        name='Super Admin',
+                        email='superadmin@gmail.com',
+                        role='superadmin',
+                        verified=True,
+                        bio='Platform Super Administrator'
+                    )
+                    superadmin.set_password('adminsuper123')
+                    db.session.add(superadmin)
                     db.session.commit()
-                except Exception:
-                    db.session.rollback()
-        except Exception:
-            pass
-            
-        # Auto-create Super Admin if not exists
-        superadmin = User.query.filter_by(email='superadmin@gmail.com').first()
-        if not superadmin:
-            superadmin = User(
-                name='Super Admin',
-                email='superadmin@gmail.com',
-                role='superadmin',
-                verified=True,
-                bio='Platform Super Administrator'
-            )
-            superadmin.set_password('adminsuper123')
-            db.session.add(superadmin)
-            db.session.commit()
-            print('✅ Super Admin created: superadmin@gmail.com / adminsuper123')
-        elif superadmin.role != 'superadmin':
-            superadmin.role = 'superadmin'
-            db.session.commit()
-            print('✅ Super Admin role updated to superadmin')
+                elif superadmin.role != 'superadmin':
+                    superadmin.role = 'superadmin'
+                    db.session.commit()
+            except Exception:
+                db.session.rollback()
 
-
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE quiz_battle_submissions ADD COLUMN selected_option VARCHAR(10)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE quiz_battle_submissions ADD COLUMN is_correct BOOLEAN DEFAULT FALSE"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE webinars ADD COLUMN status VARCHAR(20) DEFAULT 'scheduled'"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE enrollments ADD COLUMN payment_status VARCHAR(20) DEFAULT 'PAID'"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE users ADD COLUMN roll_number VARCHAR(30)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
-        try:
-            from sqlalchemy import text
-            db.session.execute(text("ALTER TABLE enrollments ADD COLUMN roll_number VARCHAR(30)"))
-            db.session.commit()
-        except Exception:
-            db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE quiz_battle_submissions ADD COLUMN selected_option VARCHAR(10)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE quiz_battle_submissions ADD COLUMN is_correct BOOLEAN DEFAULT FALSE"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE webinars ADD COLUMN status VARCHAR(20) DEFAULT 'scheduled'"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE enrollments ADD COLUMN payment_status VARCHAR(20) DEFAULT 'PAID'"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE users ADD COLUMN roll_number VARCHAR(30)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE enrollments ADD COLUMN roll_number VARCHAR(30)"))
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+    except Exception as err:
+        print(f"Database init warning: {err}")
         
     return app
