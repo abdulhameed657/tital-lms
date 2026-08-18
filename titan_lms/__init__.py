@@ -64,26 +64,32 @@ def create_app():
     
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))
+        try:
+            return User.query.get(int(user_id))
+        except Exception:
+            return None
     
     # Global context processor for notification, message badges, and multi-tenancy tenant context
     @app.before_request
     def detect_tenant():
         from flask import g, request
         from .models import Tenant
-        host = request.host.split(':')[0].lower()
-        subdomain = None
-        if '.' in host and not host.endswith('.localhost') and not host.startswith('127.'):
-            parts = host.split('.')
-            if len(parts) > 2:
-                subdomain = parts[0]
-        
-        if not subdomain:
-            subdomain = request.args.get('tenant')
+        try:
+            host = request.host.split(':')[0].lower()
+            subdomain = None
+            if '.' in host and not host.endswith('.localhost') and not host.startswith('127.'):
+                parts = host.split('.')
+                if len(parts) > 2:
+                    subdomain = parts[0]
             
-        if subdomain:
-            g.tenant = Tenant.query.filter_by(subdomain=subdomain.lower().strip()).first()
-        else:
+            if not subdomain:
+                subdomain = request.args.get('tenant')
+                
+            if subdomain:
+                g.tenant = Tenant.query.filter_by(subdomain=subdomain.lower().strip()).first()
+            else:
+                g.tenant = None
+        except Exception:
             g.tenant = None
 
     @app.url_defaults
@@ -98,18 +104,21 @@ def create_app():
         from flask_login import current_user
         from flask import g
         from .models import Message, Notification
-        tenant = getattr(g, 'tenant', None)
-        if current_user.is_authenticated:
-            unread_messages = Message.query.filter_by(recipient_id=current_user.id, is_read=False).count()
-            notifications_q = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).limit(10).all()
-            unread_notifications = sum(1 for n in notifications_q if not n.is_read)
-            return dict(
-                unread_messages=unread_messages,
-                unread_notifications=unread_notifications,
-                unread_notifications_list=notifications_q,
-                current_tenant=tenant
-            )
-        return dict(unread_messages=0, unread_notifications=0, unread_notifications_list=[], current_tenant=tenant)
+        try:
+            tenant = getattr(g, 'tenant', None)
+            if current_user and current_user.is_authenticated:
+                unread_messages = Message.query.filter_by(recipient_id=current_user.id, is_read=False).count()
+                notifications_q = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).limit(10).all()
+                unread_notifications = sum(1 for n in notifications_q if not n.is_read)
+                return dict(
+                    unread_messages=unread_messages,
+                    unread_notifications=unread_notifications,
+                    unread_notifications_list=notifications_q,
+                    current_tenant=tenant
+                )
+            return dict(unread_messages=0, unread_notifications=0, unread_notifications_list=[], current_tenant=tenant)
+        except Exception:
+            return dict(unread_messages=0, unread_notifications=0, unread_notifications_list=[], current_tenant=None)
     
     # Register Blueprints
     from .routes.auth import auth_bp
