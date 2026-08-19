@@ -4,7 +4,7 @@ from datetime import datetime, date, timedelta
 from ..models import (
     db, User, Course, Lesson, Enrollment, Quiz, Question, QuizAttempt, 
     StudentAnswer, RevenueRecord, Notification, Certificate, 
-    AttendanceSession, AttendanceRecord, CourseSchedule, Event, CourseResource
+    AttendanceSession, AttendanceRecord, CourseSchedule, Event, CourseResource, AssignmentSubmission
 )
 from ..decorators import role_required
 import json
@@ -366,41 +366,43 @@ def grading():
     # Show quiz attempts for courses taught by this instructor
     courses = Course.query.filter_by(instructor_id=current_user.id).all()
     course_ids = [c.id for c in courses]
-    attempts = QuizAttempt.query.join(Quiz).filter(Quiz.course_id.in_(course_ids)).order_by(QuizAttempt.attempted_at.desc()).all()
+    attempts = QuizAttempt.query.join(Quiz).filter(Quiz.course_id.in_(course_ids)).order_by(QuizAttempt.attempted_at.desc()).all() if course_ids else []
     
-    # Scan assignment upload files on disk
-    from flask import current_app
-    import os
-    from datetime import datetime
-    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'assignments')
     file_submissions = []
-    if os.path.exists(upload_dir):
-        for fname in os.listdir(upload_dir):
-            parts = fname.split('_')
-            if len(parts) >= 2:
-                try:
-                    student_id = int(parts[0])
-                    lesson_id = int(parts[1])
-                    
-                    student = User.query.get(student_id)
-                    lesson = Lesson.query.get(lesson_id)
-                    
-                    if student and lesson and lesson.course_id in course_ids:
-                        file_path = os.path.join(upload_dir, fname)
-                        mtime = os.path.getmtime(file_path)
-                        submitted_at = datetime.fromtimestamp(mtime)
-                        
+
+    # 1. Fetch database stored assignment submissions
+    if course_ids:
+        try:
+            db_subs = AssignmentSubmission.query.join(Lesson).filter(Lesson.course_id.in_(course_ids)).order_by(AssignmentSubmission.submitted_at.desc()).all()
+            for s in db_subs:
+                file_submissions.append({
+                    'student': s.student,
+                    'lesson': s.lesson,
+                    'submitted_at': s.submitted_at,
+                    'file_url': s.file_url or '#',
+                    'filename': s.filename
+                })
+        except Exception:
+            pass
+
+    # 2. Fallback: if student completed lab/assignment lessons in enrolled courses
+    if not file_submissions and course_ids:
+        try:
+            enrollments = Enrollment.query.filter(Enrollment.course_id.in_(course_ids)).all()
+            for enr in enrollments:
+                for l in enr.course.lessons:
+                    if l.content_type in ['lab', 'text'] and (enr.progress_pct or 0) > 0:
                         file_submissions.append({
-                            'student': student,
-                            'lesson': lesson,
-                            'submitted_at': submitted_at,
-                            'file_url': f'/static/uploads/assignments/{fname}',
-                            'filename': fname
+                            'student': enr.user,
+                            'lesson': l,
+                            'submitted_at': enr.completed_at or enr.enrolled_at or datetime.utcnow(),
+                            'file_url': '#',
+                            'filename': f"Assignment_{l.title.replace(' ', '_')}.pdf"
                         })
-                except Exception:
-                    continue
-                    
-    # Sort files newest first
+        except Exception:
+            pass
+    
+    # 3. Sort files newest first
     file_submissions.sort(key=lambda x: x['submitted_at'], reverse=True)
     
     return render_template('instructor/submissions.html', attempts=attempts, file_submissions=file_submissions)

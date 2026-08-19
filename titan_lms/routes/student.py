@@ -4,7 +4,7 @@ from ..models import (
     db, User, Course, Lesson, Enrollment, Quiz, Question, QuizAttempt, 
     StudentAnswer, Certificate, ForumThread, ForumPost, Message, 
     Notification, RewardItem, Redemption, Badge, UserBadge, Coupon, 
-    RevenueRecord, AttendanceSession, AttendanceRecord, CourseSchedule, Event, LeaveApplication, CourseResource
+    RevenueRecord, AttendanceSession, AttendanceRecord, CourseSchedule, Event, LeaveApplication, CourseResource, AssignmentSubmission
 )
 from ..decorators import role_required
 from ..ai import evaluate_answer, get_tutor_response, get_innovation_idea, generate_ai_study_plan
@@ -806,20 +806,47 @@ def upload_assignment(lesson_id):
             flash(f'File type "{ext}" is not allowed. Upload PDF, DOC, ZIP, image, or code files.', 'error')
             return redirect(url_for('student.my_assignments'))
 
-        # ── Save file safely for Vercel Serverless & Local ──────────
+        # ── Save file safely for Vercel Serverless & Local & Database ──────────
         safe_name = f"{current_user.id}_{lesson_id}_{uuid.uuid4().hex[:8]}{ext}"
+        data_url = None
         try:
-            is_serverless = os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME')
-            if is_serverless or not os.access(os.getcwd(), os.W_OK):
-                try:
-                    with open(os.path.join('/tmp', safe_name), 'wb') as f:
-                        f.write(file.read())
-                except Exception:
-                    pass
+            file_bytes = file.read()
+            import base64
+            mime_map = {
+                '.pdf': 'application/pdf',
+                '.doc': 'application/msword',
+                '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                '.zip': 'application/zip',
+                '.py': 'text/plain',
+                '.txt': 'text/plain',
+                '.png': 'image/png',
+                '.jpg': 'image/jpeg',
+                '.jpeg': 'image/jpeg'
+            }
+            mime = mime_map.get(ext, 'application/octet-stream')
+            b64_data = base64.b64encode(file_bytes).decode('utf-8')
+            data_url = f"data:{mime};base64,{b64_data}"
+        except Exception:
+            pass
+
+        # Persist assignment record to database
+        try:
+            sub = AssignmentSubmission.query.filter_by(user_id=current_user.id, lesson_id=lesson.id).first()
+            if not sub:
+                sub = AssignmentSubmission(
+                    user_id=current_user.id,
+                    lesson_id=lesson.id,
+                    course_id=lesson.course_id,
+                    filename=file.filename or safe_name,
+                    file_url=data_url or f"/static/uploads/assignments/{safe_name}",
+                    submitted_at=datetime.utcnow()
+                )
+                db.session.add(sub)
             else:
-                upload_dir = os.path.join(os.getcwd(), 'titan_lms', 'static', 'uploads', 'assignments')
-                os.makedirs(upload_dir, exist_ok=True)
-                file.save(os.path.join(upload_dir, safe_name))
+                sub.filename = file.filename or safe_name
+                sub.file_url = data_url or sub.file_url
+                sub.submitted_at = datetime.utcnow()
+            db.session.commit()
         except Exception:
             pass
 

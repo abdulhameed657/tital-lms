@@ -663,6 +663,23 @@ class CourseResource(db.Model):
     uploader = db.relationship('User', backref=db.backref('uploaded_resources', lazy=True))
 
 
+class AssignmentSubmission(db.Model):
+    __tablename__ = 'assignment_submissions'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lessons.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    file_url = db.Column(db.Text, nullable=True)
+    submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), default='submitted')
+
+    student = db.relationship('User', backref=db.backref('assignment_submissions', lazy=True, cascade='all, delete-orphan'))
+    lesson = db.relationship('Lesson', backref=db.backref('submissions', lazy=True, cascade='all, delete-orphan'))
+    course = db.relationship('Course', backref=db.backref('assignment_submissions', lazy=True, cascade='all, delete-orphan'))
+
+
+
 
 
 
