@@ -1598,6 +1598,13 @@ def edit_team_member(member_id):
 
         member.initials = ''.join([w[0].upper() for w in member.name.split()[:2]]) if member.name else 'TM'
 
+        try:
+            from sqlalchemy import text
+            db.session.execute(text("ALTER TABLE team_members ALTER COLUMN image_url TYPE TEXT;"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
         image_b64 = request.form.get('image_b64', '').strip()
         if image_b64 and image_b64.startswith('data:'):
             member.image_url = image_b64

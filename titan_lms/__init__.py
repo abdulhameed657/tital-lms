@@ -200,12 +200,9 @@ def create_app():
             for stmt in all_migration_stmts:
                 try:
                     db.session.execute(text(stmt))
+                    db.session.commit()
                 except Exception:
-                    pass
-            try:
-                db.session.commit()
-            except Exception:
-                db.session.rollback()
+                    db.session.rollback()
                 
             # Ensure Super Admin exists
             try:
