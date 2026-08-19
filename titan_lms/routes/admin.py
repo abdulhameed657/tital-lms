@@ -1348,6 +1348,16 @@ def events():
                 flash(f"✏️ Event '{ev.title}' updated successfully!", "success")
             return redirect(url_for('admin.events'))
 
+        elif action == 'delete_event':
+            event_id = request.form.get('event_id')
+            ev = Event.query.get(event_id)
+            if ev:
+                title = ev.title
+                db.session.delete(ev)
+                db.session.commit()
+                flash(f"🗑️ Event '{title}' deleted successfully.", "info")
+            return redirect(url_for('admin.events'))
+
     if target_tenant_id:
         all_events = Event.query.join(User, Event.created_by_id == User.id).filter(User.tenant_id == target_tenant_id).order_by(Event.event_date.asc()).all()
     else:
