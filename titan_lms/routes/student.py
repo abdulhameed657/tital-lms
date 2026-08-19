@@ -809,17 +809,19 @@ def upload_assignment(lesson_id):
         # ── Save file safely for Vercel Serverless & Local ──────────
         safe_name = f"{current_user.id}_{lesson_id}_{uuid.uuid4().hex[:8]}{ext}"
         try:
-            if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME') or not os.access(os.getcwd(), os.W_OK):
-                file.save(os.path.join('/tmp', safe_name))
+            is_serverless = os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME')
+            if is_serverless or not os.access(os.getcwd(), os.W_OK):
+                try:
+                    with open(os.path.join('/tmp', safe_name), 'wb') as f:
+                        f.write(file.read())
+                except Exception:
+                    pass
             else:
                 upload_dir = os.path.join(os.getcwd(), 'titan_lms', 'static', 'uploads', 'assignments')
                 os.makedirs(upload_dir, exist_ok=True)
                 file.save(os.path.join(upload_dir, safe_name))
         except Exception:
-            try:
-                file.save(os.path.join('/tmp', safe_name))
-            except Exception:
-                pass
+            pass
 
         # ── Auto-advance course progress (same logic as course_player) ──
         enrollment = Enrollment.query.filter_by(
