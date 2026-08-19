@@ -1451,47 +1451,70 @@ def attendance():
             return redirect(url_for('instructor.attendance'))
 
         elif action == 'mark_student_attendance':
-            course_id = request.form.get('course_id')
-            roll_number = request.form.get('roll_number', '').strip()
-            rec_status = request.form.get('status', 'present')
+            try:
+                course_id = request.form.get('course_id')
+                if course_id:
+                    try:
+                        course_id = int(course_id)
+                    except (ValueError, TypeError):
+                        course_id = None
+                roll_number = request.form.get('roll_number', '').strip()
+                rec_status = request.form.get('status', 'present')
 
-            enr = Enrollment.query.filter((Enrollment.roll_number == roll_number) | (Enrollment.id == roll_number)).first()
-            student = enr.user if enr else User.query.filter((User.roll_number == roll_number) | (User.id == roll_number)).first()
+                # Safe student and enrollment lookup without integer type error
+                enr = Enrollment.query.filter(Enrollment.roll_number == roll_number).first()
+                if not enr and roll_number.isdigit():
+                    enr = Enrollment.query.filter(Enrollment.id == int(roll_number)).first()
 
-            if not student:
-                flash(f"⚠️ Student with Roll No '{roll_number}' not found!", "error")
-                return redirect(url_for('instructor.attendance'))
+                if enr:
+                    student = enr.user
+                    if not course_id:
+                        course_id = enr.course_id
+                else:
+                    student = User.query.filter(User.roll_number == roll_number).first()
+                    if not student and roll_number.isdigit():
+                        student = User.query.filter(User.id == int(roll_number)).first()
+                    if not student:
+                        student = User.query.filter(User.email.ilike(f"%{roll_number}%")).first()
 
-            target_date = datetime.utcnow().date()
-            sess = AttendanceSession.query.filter_by(course_id=course_id, session_date=target_date).first()
-            if not sess:
-                sess = AttendanceSession(
-                    course_id=course_id,
-                    instructor_id=current_user.id,
-                    title=f"Class Attendance - {target_date}",
-                    session_date=target_date,
-                    pin_code="INST-MANUAL",
-                    status='open'
-                )
-                db.session.add(sess)
+                if not student:
+                    flash(f"⚠️ Student with Roll No '{roll_number}' not found!", "error")
+                    return redirect(url_for('instructor.attendance', course_id=course_id))
+
+                target_date = datetime.utcnow().date()
+                sess = AttendanceSession.query.filter_by(course_id=course_id, session_date=target_date).first() if course_id else None
+                if not sess:
+                    target_course_id = course_id or (student.enrollments[0].course_id if student.enrollments else (my_course_ids[0] if my_course_ids else 1))
+                    sess = AttendanceSession(
+                        course_id=target_course_id,
+                        instructor_id=current_user.id,
+                        title=f"Class Attendance - {target_date.strftime('%b %d, %Y')}",
+                        session_date=target_date,
+                        pin_code="INST-MANUAL",
+                        status='open'
+                    )
+                    db.session.add(sess)
+                    db.session.commit()
+
+                rec = AttendanceRecord.query.filter_by(session_id=sess.id, user_id=student.id).first()
+                if not rec:
+                    rec = AttendanceRecord(
+                        session_id=sess.id,
+                        user_id=student.id,
+                        status=rec_status,
+                        method='instructor_override',
+                        marked_at=datetime.utcnow()
+                    )
+                    db.session.add(rec)
+                else:
+                    rec.status = rec_status
+                    rec.method = 'instructor_override'
+
                 db.session.commit()
-
-            rec = AttendanceRecord.query.filter_by(session_id=sess.id, user_id=student.id).first()
-            if not rec:
-                rec = AttendanceRecord(
-                    session_id=sess.id,
-                    user_id=student.id,
-                    status=rec_status,
-                    method='instructor_override',
-                    marked_at=datetime.utcnow()
-                )
-                db.session.add(rec)
-            else:
-                rec.status = rec_status
-                rec.method = 'instructor_override'
-
-            db.session.commit()
-            flash(f"✅ Marked {rec_status.upper()} for student {student.name}!", "success")
+                flash(f"✅ Attendance updated to '{rec_status.upper()}' for student {student.name} ({student.get_roll_number()})!", "success")
+            except Exception as e:
+                db.session.rollback()
+                flash(f"⚠️ Error updating attendance: {str(e)}", "error")
             return redirect(url_for('instructor.attendance', course_id=course_id))
 
     # Calculate Student Rosters & Telemetry per course

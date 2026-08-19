@@ -778,56 +778,76 @@ def my_assignments():
 @role_required('student')
 def upload_assignment(lesson_id):
     """Handle assignment file submission and auto-advance course progress."""
-    lesson = Lesson.query.get_or_404(lesson_id)
-    from datetime import datetime
-    if lesson.due_date and datetime.utcnow() > lesson.due_date:
-        flash("Submission deadline has passed. You can no longer upload files.", "error")
-        return redirect(url_for('student.my_assignments'))
-    file = request.files.get('assignment_file')
-    if not file or file.filename == '':
-        flash('No file selected. Please choose a file to upload.', 'error')
-        return redirect(url_for('student.my_assignments'))
-
-    from werkzeug.utils import secure_filename
-    import uuid
-    ext = os.path.splitext(file.filename)[1].lower()
-    allowed = {'.pdf', '.doc', '.docx', '.zip', '.py', '.txt', '.png', '.jpg', '.jpeg'}
-    if ext not in allowed:
-        flash(f'File type "{ext}" is not allowed. Upload PDF, DOC, ZIP, image, or code files.', 'error')
-        return redirect(url_for('student.my_assignments'))
-
-    # ── Save file ──────────────────────────────────────────────
-    safe_name = f"{current_user.id}_{lesson_id}_{uuid.uuid4().hex[:8]}{ext}"
     try:
-        upload_dir = os.path.join(os.getcwd(), 'titan_lms', 'static', 'uploads', 'assignments')
-        os.makedirs(upload_dir, exist_ok=True)
-        file.save(os.path.join(upload_dir, safe_name))
-    except Exception:
+        lesson = Lesson.query.get_or_404(lesson_id)
+        if lesson.due_date:
+            try:
+                now = datetime.utcnow()
+                due = lesson.due_date
+                if isinstance(due, str):
+                    due = datetime.fromisoformat(due)
+                elif hasattr(due, 'date') and not isinstance(due, datetime):
+                    now = now.date()
+                if now > due:
+                    flash("Submission deadline has passed. You can no longer upload files.", "error")
+                    return redirect(url_for('student.my_assignments'))
+            except Exception:
+                pass
+
+        file = request.files.get('assignment_file')
+        if not file or file.filename == '':
+            flash('No file selected. Please choose a file to upload.', 'error')
+            return redirect(url_for('student.my_assignments'))
+
+        import uuid
+        ext = os.path.splitext(file.filename)[1].lower()
+        allowed = {'.pdf', '.doc', '.docx', '.zip', '.py', '.txt', '.png', '.jpg', '.jpeg'}
+        if ext not in allowed:
+            flash(f'File type "{ext}" is not allowed. Upload PDF, DOC, ZIP, image, or code files.', 'error')
+            return redirect(url_for('student.my_assignments'))
+
+        # ── Save file ──────────────────────────────────────────────
+        safe_name = f"{current_user.id}_{lesson_id}_{uuid.uuid4().hex[:8]}{ext}"
         try:
-            tmp_dir = os.path.join('/tmp', 'assignments')
-            os.makedirs(tmp_dir, exist_ok=True)
-            file.save(os.path.join(tmp_dir, safe_name))
+            upload_dir = os.path.join(os.getcwd(), 'titan_lms', 'static', 'uploads', 'assignments')
+            os.makedirs(upload_dir, exist_ok=True)
+            file.save(os.path.join(upload_dir, safe_name))
         except Exception:
-            pass
+            try:
+                tmp_dir = os.path.join('/tmp', 'assignments')
+                os.makedirs(tmp_dir, exist_ok=True)
+                file.save(os.path.join(tmp_dir, safe_name))
+            except Exception:
+                pass
 
-    # ── Auto-advance course progress (same logic as course_player) ──
-    enrollment = Enrollment.query.filter_by(
-        user_id=current_user.id,
-        course_id=lesson.course_id
-    ).first()
+        # ── Auto-advance course progress (same logic as course_player) ──
+        enrollment = Enrollment.query.filter_by(
+            user_id=current_user.id,
+            course_id=lesson.course_id
+        ).first()
 
-    if enrollment:
+        if not enrollment:
+            enrollment = Enrollment(
+                user_id=current_user.id,
+                course_id=lesson.course_id,
+                progress_pct=10,
+                enrolled_at=datetime.utcnow()
+            )
+            db.session.add(enrollment)
+            db.session.commit()
+
         course = lesson.course
-        lessons = course.lessons  # ordered list
+        lessons = course.lessons if course else []
         completed_idx = 0
-        for idx, l in enumerate(lessons):
-            if l.id == lesson.id:
-                completed_idx = idx + 1   # 1-based = "up to and including this lesson"
-                break
+        if lessons:
+            for idx, l in enumerate(lessons):
+                if l.id == lesson.id:
+                    completed_idx = idx + 1
+                    break
 
-        new_progress = int((completed_idx / len(lessons)) * 100) if lessons else 0
+        new_progress = int((completed_idx / len(lessons)) * 100) if lessons else 100
 
-        if new_progress > enrollment.progress_pct:
+        if new_progress > (enrollment.progress_pct or 0):
             enrollment.progress_pct = new_progress
 
             # ── Course fully completed ──────────────────────────────
@@ -835,30 +855,35 @@ def upload_assignment(lesson_id):
                 enrollment.completed_at = datetime.utcnow()
 
                 # Auto-issue certificate
-                existing_cert = Certificate.query.filter_by(
-                    user_id=current_user.id, course_id=course.id
-                ).first()
-                if not existing_cert:
-                    cert = Certificate(user_id=current_user.id, course_id=course.id)
-                    db.session.add(cert)
+                if course:
+                    existing_cert = Certificate.query.filter_by(
+                        user_id=current_user.id, course_id=course.id
+                    ).first()
+                    if not existing_cert:
+                        cert = Certificate(user_id=current_user.id, course_id=course.id)
+                        db.session.add(cert)
 
                 # Award +200 XP completion points
                 current_user.points = (current_user.points or 0) + 200
                 current_user.assignment_points = (current_user.assignment_points or 0) + 200
 
                 # Notify learner
-                notif = Notification(
-                    user_id=current_user.id,
-                    title="Course Completed! 🎉",
-                    content=(
-                        f"Congratulations! You completed {course.title} by submitting "
-                        f"your final assignment. Your certificate is ready for download. (+200 XP)"
-                    ),
-                    type="achievement"
-                )
-                db.session.add(notif)
+                try:
+                    notif = Notification(
+                        user_id=current_user.id,
+                        title="Course Completed! 🎉",
+                        content=(
+                            f"Congratulations! You completed {course.title if course else 'your course'} by submitting "
+                            f"your final assignment. Your certificate is ready for download. (+200 XP)"
+                        ),
+                        type="achievement"
+                    )
+                    db.session.add(notif)
+                except Exception:
+                    pass
+
                 flash(
-                    f'🎉 Course complete! You finished "{course.title}" and earned a '
+                    f'🎉 Course complete! You finished "{course.title if course else ""}" and earned a '
                     f'certificate + 200 XP!',
                     'success'
                 )
@@ -866,19 +891,21 @@ def upload_assignment(lesson_id):
                 # Partial progress — award XP for submission
                 current_user.points = (current_user.points or 0) + 50
                 current_user.assignment_points = (current_user.assignment_points or 0) + 50
-                notif = Notification(
-                    user_id=current_user.id,
-                    title="Assignment Submitted",
-                    content=(
-                        f'Your assignment "{lesson.title}" was submitted. '
-                        f'Course progress advanced to {new_progress}%. +50 XP earned!'
-                    ),
-                    type="info"
-                )
-                db.session.add(notif)
+                try:
+                    notif = Notification(
+                        user_id=current_user.id,
+                        title="Assignment Submitted",
+                        content=(
+                            f'Your assignment "{lesson.title}" was submitted. '
+                            f'Course progress advanced to {new_progress}%. +50 XP earned!'
+                        ),
+                        type="info"
+                    )
+                    db.session.add(notif)
+                except Exception:
+                    pass
                 flash(
-                    f'✅ Assignment "{lesson.title}" submitted! Progress: {new_progress}% '
-                    f'(+50 XP)',
+                    f'✅ Assignment "{lesson.title}" submitted! Progress: {new_progress}% (+50 XP)',
                     'success'
                 )
         else:
@@ -892,6 +919,9 @@ def upload_assignment(lesson_id):
             )
 
         db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        flash(f"⚠️ Error submitting assignment: {str(e)}", "error")
 
     return redirect(url_for('student.my_assignments'))
 
@@ -1459,6 +1489,7 @@ def attendance():
             method='pin_verify' if pin_entered else 'self_checkin'
         )
         db.session.add(record)
+        current_user.points = (current_user.points or 0) + 15
         db.session.commit()
 
         flash("🎉 Attendance Marked Successfully! You earned +15 XP!", "success")
