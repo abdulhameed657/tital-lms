@@ -274,7 +274,108 @@
     </div>
 </div>
 
+<!-- Create Schedule Modal -->
+<div id="createScheduleModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center hidden p-md" style="overflow-y:auto;">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-xl shadow-2xl space-y-md my-8 animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-600">add_circle</span> Create New Course Schedule
+            </h3>
+            <button onclick="document.getElementById('createScheduleModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('admin.schedules') }}" class="space-y-md">
+            <input type="hidden" name="action" value="create_schedule">
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Target Course *</label>
+                <select name="course_id" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary font-bold">
+                    <option value="" disabled selected>Select a Course...</option>
+                    {% for c in courses %}
+                    <option value="{{ c.id }}">{{ c.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Schedule Title / Batch Name *</label>
+                <input type="text" name="title" required placeholder="e.g. Batch 2026 - Morning Routine" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Days of Week *</label>
+                <input type="text" name="days_of_week" required placeholder="e.g. Monday, Wednesday, Friday" value="Monday, Wednesday, Friday" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+            </div>
+            <div class="grid grid-cols-2 gap-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Start Time *</label>
+                    <input type="text" name="start_time" required placeholder="e.g. 10:00 AM" value="10:00 AM" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">End Time *</label>
+                    <input type="text" name="end_time" required placeholder="e.g. 12:00 PM" value="12:00 PM" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Start Date *</label>
+                    <input type="date" name="start_date" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">End Date *</label>
+                    <input type="date" name="end_date" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Room / Venue / Link</label>
+                <input type="text" name="room_or_link" placeholder="e.g. Lab 01 / Main Campus Hall / Zoom" value="Main Campus Lab 1" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+            </div>
+            <div class="flex items-center gap-md pt-sm border-t border-outline-variant">
+                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-md flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-sm">add</span> Publish Schedule
+                </button>
+                <button type="button" onclick="document.getElementById('createScheduleModal').classList.add('hidden')" class="px-xl py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-sm transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Reject Schedule Modal -->
+<div id="rejectScheduleModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center hidden p-md">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-md w-full p-xl shadow-2xl space-y-md animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <h3 class="text-title-md font-bold text-red-600 flex items-center gap-2">
+                <span class="material-symbols-outlined">cancel</span> Reject Schedule Proposal
+            </h3>
+            <button onclick="document.getElementById('rejectScheduleModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('admin.schedules') }}" class="space-y-md">
+            <input type="hidden" name="action" value="reject_schedule">
+            <input type="hidden" name="schedule_id" id="reject_schedule_id">
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Reason for Rejection (Optional)</label>
+                <textarea name="rejection_reason" rows="3" placeholder="Please mention what changes the instructor needs to make..." class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary"></textarea>
+            </div>
+            <div class="flex items-center gap-md pt-sm border-t border-outline-variant">
+                <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors shadow-md">
+                    Confirm Rejection
+                </button>
+                <button type="button" onclick="document.getElementById('rejectScheduleModal').classList.add('hidden')" class="px-lg py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl text-sm">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+function openRejectModal(id) {
+    document.getElementById('reject_schedule_id').value = id;
+    document.getElementById('rejectScheduleModal').classList.remove('hidden');
+}
+
 function openAdminScheduleModal(title, course, inst, days, time, duration, venue, completed, total, status) {
     document.getElementById('as_title').innerText = title;
     document.getElementById('as_course').innerText = course;

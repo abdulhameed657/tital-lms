@@ -259,6 +259,79 @@
     </div>
 </div>
 
+<!-- Create Event Modal -->
+<div id="createEventModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center hidden p-md" style="overflow-y:auto;">
+    <div class="bg-surface border border-outline-variant rounded-2xl max-w-lg w-full p-xl shadow-2xl space-y-md my-8 animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-outline-variant pb-sm">
+            <h3 class="text-title-lg font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-600">add_circle</span> Create Campus Event
+            </h3>
+            <button onclick="document.getElementById('createEventModal').classList.add('hidden')" class="text-on-surface-variant hover:text-on-surface">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('admin.events') }}" class="space-y-md">
+            <input type="hidden" name="action" value="create_event">
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Event Title *</label>
+                <input type="text" name="title" required placeholder="e.g. AI & Robotics National Workshop 2026" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+            </div>
+            <div class="grid grid-cols-2 gap-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Event Type *</label>
+                    <select name="event_type" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                        <option value="workshop">Workshop</option>
+                        <option value="seminar">Seminar</option>
+                        <option value="exam">Exam</option>
+                        <option value="holiday">Holiday</option>
+                        <option value="guest_lecture">Guest Lecture</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Course Scope</label>
+                    <select name="course_id" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                        <option value="all">All Campus Students</option>
+                        {% for c in courses %}
+                        <option value="{{ c.id }}">{{ c.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-md">
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Date *</label>
+                    <input type="date" name="event_date" required class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">Start Time *</label>
+                    <input type="text" name="start_time" placeholder="02:00 PM" value="02:00 PM" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-label-md font-bold text-on-surface mb-1">End Time *</label>
+                    <input type="text" name="end_time" placeholder="04:00 PM" value="04:00 PM" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+                </div>
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Location / Venue / Link</label>
+                <input type="text" name="location_or_link" placeholder="e.g. Main Auditorium, Karachi / Zoom link" value="Campus Main Hall" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-label-md font-bold text-on-surface mb-1">Description</label>
+                <textarea name="description" rows="3" placeholder="Brief event overview, guest speakers, prerequisites..." class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl p-md text-body-sm focus:outline-none focus:border-primary"></textarea>
+            </div>
+            <div class="flex items-center gap-md pt-sm border-t border-outline-variant">
+                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-md flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-sm">add</span> Publish Event
+                </button>
+                <button type="button" onclick="document.getElementById('createEventModal').classList.add('hidden')" class="px-xl py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-sm transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function openAdminEventModal(title, type, date, time, loc, desc, status) {
     document.getElementById('ae_title').innerText = title;
