@@ -997,63 +997,85 @@ def attendance():
             return redirect(url_for('admin.attendance'))
 
         elif action == 'admin_mark_attendance':
-            # Admin manual override for missed days / roll numbers
-            course_id = request.form.get('course_id')
-            roll_number = request.form.get('roll_number', '').strip()
-            date_str = request.form.get('session_date', '').strip()
-            rec_status = request.form.get('status', 'present')
+            try:
+                # Admin manual override for missed days / roll numbers
+                course_id = request.form.get('course_id')
+                if course_id:
+                    try:
+                        course_id = int(course_id)
+                    except (ValueError, TypeError):
+                        course_id = None
+                roll_number = request.form.get('roll_number', '').strip()
+                date_str = request.form.get('session_date', '').strip()
+                rec_status = request.form.get('status', 'present')
 
-            # Search enrollment by course-specific roll_number
-            enr = Enrollment.query.filter((Enrollment.roll_number == roll_number) | (Enrollment.id == roll_number)).first()
-            if enr:
-                student = enr.user
-                if not course_id:
-                    course_id = enr.course_id
-            else:
-                student = User.query.filter((User.roll_number == roll_number) | (User.id == roll_number)).first()
+                # Search enrollment by course-specific roll_number safely
+                enr = Enrollment.query.filter(Enrollment.roll_number == roll_number).first()
+                if not enr and roll_number.isdigit():
+                    enr = Enrollment.query.filter(Enrollment.id == int(roll_number)).first()
 
-            if not student:
-                flash(f"⚠️ Student with Roll No / ID '{roll_number}' not found!", "error")
-                return redirect(url_for('admin.attendance'))
+                if enr:
+                    student = enr.user
+                    if not course_id:
+                        course_id = enr.course_id
+                else:
+                    student = User.query.filter(User.roll_number == roll_number).first()
+                    if not student and roll_number.isdigit():
+                        student = User.query.filter(User.id == int(roll_number)).first()
+                    if not student:
+                        student = User.query.filter(User.email.ilike(f"%{roll_number}%")).first()
 
-            target_date = datetime.utcnow().date()
-            if date_str:
-                try:
-                    target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-                except Exception:
-                    pass
+                if not student:
+                    flash(f"⚠️ Student with Roll No / ID '{roll_number}' not found!", "error")
+                    return redirect(url_for('admin.attendance'))
 
-            # Find existing session for course & date, or create dynamic session
-            sess = AttendanceSession.query.filter_by(course_id=course_id, session_date=target_date).first()
-            if not sess:
-                course = Course.query.get(course_id)
-                inst_id = course.instructor_id if course else current_user.id
-                sess = AttendanceSession(
-                    course_id=course_id,
-                    instructor_id=inst_id,
-                    title=f"Class Attendance ({target_date.strftime('%b %d, %Y')})",
-                    session_date=target_date,
-                    status='closed'
-                )
-                db.session.add(sess)
+                target_date = datetime.utcnow().date()
+                if date_str:
+                    try:
+                        target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                    except Exception:
+                        pass
+
+                # If course_id is missing, fallback to student's enrolled course or first course
+                if not course_id and student.enrollments:
+                    course_id = student.enrollments[0].course_id
+
+                # Find existing session for course & date, or create dynamic session
+                sess = AttendanceSession.query.filter_by(course_id=course_id, session_date=target_date).first() if course_id else None
+                if not sess:
+                    course = Course.query.get(course_id) if course_id else Course.query.first()
+                    target_course_id = course.id if course else 1
+                    inst_id = course.instructor_id if (course and course.instructor_id) else current_user.id
+                    sess = AttendanceSession(
+                        course_id=target_course_id,
+                        instructor_id=inst_id,
+                        title=f"Class Attendance ({target_date.strftime('%b %d, %Y')})",
+                        session_date=target_date,
+                        pin_code="OVERRIDE",
+                        status='closed'
+                    )
+                    db.session.add(sess)
+                    db.session.commit()
+
+                # Record or update attendance
+                record = AttendanceRecord.query.filter_by(session_id=sess.id, user_id=student.id).first()
+                if not record:
+                    record = AttendanceRecord(
+                        session_id=sess.id,
+                        user_id=student.id,
+                        status=rec_status,
+                        method='admin_override'
+                    )
+                    db.session.add(record)
+                else:
+                    record.status = rec_status
+                    record.method = 'admin_override'
+
                 db.session.commit()
-
-            # Record or update attendance
-            record = AttendanceRecord.query.filter_by(session_id=sess.id, user_id=student.id).first()
-            if not record:
-                record = AttendanceRecord(
-                    session_id=sess.id,
-                    user_id=student.id,
-                    status=rec_status,
-                    method='admin_override'
-                )
-                db.session.add(record)
-            else:
-                record.status = rec_status
-                record.method = 'admin_override'
-
-            db.session.commit()
-            flash(f"✅ Admin marked Attendance for Roll No '{student.get_roll_number()}' ({student.name}) as '{rec_status.upper()}' for date {target_date}!", "success")
+                flash(f"✅ Admin marked Attendance for Roll No '{student.get_roll_number()}' ({student.name}) as '{rec_status.upper()}' for date {target_date}!", "success")
+            except Exception as e:
+                db.session.rollback()
+                flash(f"⚠️ Error marking attendance: {str(e)}", "error")
             return redirect(url_for('admin.attendance'))
 
         elif action == 'edit_attendance_record':
@@ -1108,11 +1130,13 @@ def attendance():
         all_students = [s for s in all_students if search_q.lower() in (s.name.lower() + " " + s.email.lower() + " " + s.get_roll_number().lower())]
 
     recent_records = records_query.limit(50).all()
+    open_sessions = [s for s in sessions if s.status == 'open']
     
     return render_template(
         'admin/attendance.html',
         all_courses=all_courses,
         sessions=sessions,
+        open_sessions=open_sessions,
         students=all_students,
         recent_records=recent_records,
         enrollments=enrollments,
@@ -1408,13 +1432,18 @@ def api_scan_attendance():
         return jsonify({'success': False, 'message': 'Roll Number required!'}), 400
 
     student = None
-    enr = Enrollment.query.filter((Enrollment.roll_number == roll_number) | (Enrollment.id == roll_number)).first()
+    enr = Enrollment.query.filter(Enrollment.roll_number == roll_number).first()
+    if not enr and roll_number.isdigit():
+        enr = Enrollment.query.filter(Enrollment.id == int(roll_number)).first()
+
     if enr:
         student = enr.user
         if not course_id:
             course_id = enr.course_id
     else:
-        student = User.query.filter((User.roll_number == roll_number) | (str(User.id) == roll_number)).first()
+        student = User.query.filter(User.roll_number == roll_number).first()
+        if not student and roll_number.isdigit():
+            student = User.query.filter(User.id == int(roll_number)).first()
         if not student:
             student = User.query.filter_by(email=f"student_{roll_number}@titan.edu").first()
 
