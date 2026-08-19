@@ -1482,13 +1482,40 @@ def api_scan_attendance():
     })
 
 
+def _save_or_base64_upload(file_obj, subfolder='team', is_video=False):
+    if not file_obj or not file_obj.filename:
+        return None
+    import base64
+    from werkzeug.utils import secure_filename
+    from flask import current_app
+    
+    # 1. Attempt to save locally to static/uploads if the filesystem is writable (e.g. local dev)
+    try:
+        prefix = 'tour' if is_video else subfolder
+        fname = secure_filename(f"{prefix}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{file_obj.filename}")
+        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', subfolder)
+        os.makedirs(upload_folder, exist_ok=True)
+        save_path = os.path.join(upload_folder, fname)
+        file_obj.save(save_path)
+        return f"/static/uploads/{subfolder}/{fname}"
+    except Exception:
+        # 2. Fallback for serverless environments (Vercel) where the local filesystem is read-only
+        try:
+            file_obj.seek(0)
+            file_bytes = file_obj.read()
+            if file_bytes:
+                mime = file_obj.mimetype or ('video/mp4' if is_video else 'image/jpeg')
+                encoded = base64.b64encode(file_bytes).decode('utf-8')
+                return f"data:{mime};base64,{encoded}"
+        except Exception:
+            pass
+    return None
+
+
 @admin_bp.route('/team', methods=['GET', 'POST'])
 @login_required
 @role_required(['admin', 'superadmin'])
 def team():
-    from werkzeug.utils import secure_filename
-    from flask import current_app
-
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
         designation = request.form.get('designation', '').strip()
@@ -1498,11 +1525,7 @@ def team():
         image_url = None
         file = request.files.get('image')
         if file and file.filename:
-            filename = secure_filename(f"team_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{file.filename}")
-            upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'team')
-            os.makedirs(upload_folder, exist_ok=True)
-            file.save(os.path.join(upload_folder, filename))
-            image_url = f"/static/uploads/team/{filename}"
+            image_url = _save_or_base64_upload(file, 'team')
 
         initials = ''.join([w[0].upper() for w in name.split()[:2]]) if name else 'TM'
 
@@ -1529,9 +1552,6 @@ def team():
 @login_required
 @role_required(['admin', 'superadmin'])
 def edit_team_member(member_id):
-    from werkzeug.utils import secure_filename
-    from flask import current_app
-
     member = TeamMember.query.get_or_404(member_id)
     member.name = request.form.get('name', member.name).strip()
     member.designation = request.form.get('designation', member.designation).strip()
@@ -1541,11 +1561,9 @@ def edit_team_member(member_id):
 
     file = request.files.get('image')
     if file and file.filename:
-        filename = secure_filename(f"team_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{file.filename}")
-        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'team')
-        os.makedirs(upload_folder, exist_ok=True)
-        file.save(os.path.join(upload_folder, filename))
-        member.image_url = f"/static/uploads/team/{filename}"
+        new_img = _save_or_base64_upload(file, 'team')
+        if new_img:
+            member.image_url = new_img
 
     db.session.commit()
     flash(f"✏️ Team member '{member.name}' updated successfully!", "success")
@@ -1568,9 +1586,6 @@ def delete_team_member(member_id):
 @login_required
 @role_required(['admin', 'superadmin'])
 def admin_campuses():
-    from werkzeug.utils import secure_filename
-    from flask import current_app
-
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
         city = request.form.get('city', '').strip()
@@ -1584,20 +1599,12 @@ def admin_campuses():
         image_url = None
         img_file = request.files.get('image')
         if img_file and img_file.filename:
-            filename = secure_filename(f"campus_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{img_file.filename}")
-            upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'campuses')
-            os.makedirs(upload_folder, exist_ok=True)
-            img_file.save(os.path.join(upload_folder, filename))
-            image_url = f"/static/uploads/campuses/{filename}"
+            image_url = _save_or_base64_upload(img_file, 'campuses')
 
         video_url = None
         vid_file = request.files.get('video')
         if vid_file and vid_file.filename:
-            vname = secure_filename(f"tour_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{vid_file.filename}")
-            upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'campuses')
-            os.makedirs(upload_folder, exist_ok=True)
-            vid_file.save(os.path.join(upload_folder, vname))
-            video_url = f"/static/uploads/campuses/{vname}"
+            video_url = _save_or_base64_upload(vid_file, 'campuses', is_video=True)
         else:
             video_url = request.form.get('video_link', '').strip() or None
 
@@ -1626,9 +1633,6 @@ def admin_campuses():
 @login_required
 @role_required(['admin', 'superadmin'])
 def edit_campus(campus_id):
-    from werkzeug.utils import secure_filename
-    from flask import current_app
-
     campus = Campus.query.get_or_404(campus_id)
     campus.title = request.form.get('title', campus.title).strip()
     campus.city = request.form.get('city', campus.city).strip()
@@ -1641,19 +1645,15 @@ def edit_campus(campus_id):
 
     img_file = request.files.get('image')
     if img_file and img_file.filename:
-        filename = secure_filename(f"campus_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{img_file.filename}")
-        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'campuses')
-        os.makedirs(upload_folder, exist_ok=True)
-        img_file.save(os.path.join(upload_folder, filename))
-        campus.image_url = f"/static/uploads/campuses/{filename}"
+        new_img = _save_or_base64_upload(img_file, 'campuses')
+        if new_img:
+            campus.image_url = new_img
 
     vid_file = request.files.get('video')
     if vid_file and vid_file.filename:
-        vname = secure_filename(f"tour_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{vid_file.filename}")
-        upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'campuses')
-        os.makedirs(upload_folder, exist_ok=True)
-        vid_file.save(os.path.join(upload_folder, vname))
-        campus.video_url = f"/static/uploads/campuses/{vname}"
+        new_vid = _save_or_base64_upload(vid_file, 'campuses', is_video=True)
+        if new_vid:
+            campus.video_url = new_vid
     elif request.form.get('video_link'):
         campus.video_url = request.form.get('video_link').strip()
 

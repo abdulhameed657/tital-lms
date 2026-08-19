@@ -64,7 +64,7 @@ class Course(db.Model):
     instructor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    thumbnail = db.Column(db.String(500), nullable=True)
+    thumbnail = db.Column(db.Text, nullable=True)
     price = db.Column(db.Float, default=0.0)
     category = db.Column(db.String(100), nullable=True)
     level = db.Column(db.String(50), nullable=True)  # 'Beginner', 'Intermediate', 'Advanced'
@@ -526,7 +526,7 @@ class Event(db.Model):
     end_time = db.Column(db.String(50), nullable=False, default='04:00 PM')
     location_or_link = db.Column(db.String(300), nullable=True)
     description = db.Column(db.Text, nullable=True)
-    image_url = db.Column(db.String(500), nullable=True)
+    image_url = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(30), default='published')  # 'pending_approval', 'published', 'rejected'
     rejection_reason = db.Column(db.Text, nullable=True)
 class TeamMember(db.Model):
@@ -535,7 +535,7 @@ class TeamMember(db.Model):
     name = db.Column(db.String(150), nullable=False)
     designation = db.Column(db.String(150), nullable=False)
     bio = db.Column(db.Text, nullable=True)
-    image_url = db.Column(db.String(500), nullable=True)
+    image_url = db.Column(db.Text, nullable=True)
     initials = db.Column(db.String(10), nullable=True)
     order = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -552,8 +552,8 @@ class Campus(db.Model):
     email = db.Column(db.String(120), nullable=True)
     description = db.Column(db.Text, nullable=True)
     active_students = db.Column(db.Integer, default=500)
-    image_url = db.Column(db.String(500), nullable=True)
-    video_url = db.Column(db.String(500), nullable=True)
+    image_url = db.Column(db.Text, nullable=True)
+    video_url = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
