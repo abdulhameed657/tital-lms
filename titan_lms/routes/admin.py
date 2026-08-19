@@ -1529,9 +1529,6 @@ def _save_or_base64_upload(file_obj, subfolder='team', is_video=False):
 @login_required
 @role_required(['admin', 'superadmin'])
 def team():
-    from .public import _ensure_team_members_seeded
-    _ensure_team_members_seeded()
-
     if request.method == 'POST':
         try:
             name = request.form.get('name', '').strip()
@@ -1578,9 +1575,6 @@ def team():
 @login_required
 @role_required(['admin', 'superadmin'])
 def edit_team_member(member_id):
-    from .public import _ensure_team_members_seeded
-    _ensure_team_members_seeded()
-
     try:
         member = TeamMember.query.get(member_id)
         if not member:
@@ -1645,9 +1639,6 @@ def delete_team_member(member_id):
 @login_required
 @role_required(['admin', 'superadmin'])
 def admin_campuses():
-    from .public import _ensure_campuses_seeded
-    _ensure_campuses_seeded()
-
     if request.method == 'POST':
         try:
             title = request.form.get('title', '').strip()

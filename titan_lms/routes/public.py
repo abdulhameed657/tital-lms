@@ -107,7 +107,8 @@ def about():
 
 def _ensure_team_members_seeded():
     from ..models import db, TeamMember
-    if TeamMember.query.count() < 5:
+    # Only seed on a completely fresh, empty database
+    if TeamMember.query.count() == 0:
         seed_data = [
             {'name': 'Abdulhameed', 'designation': 'AI INSTRUCTOR', 'image_url': '/static/uploads/avatars/avatar_20260804122355_0.png', 'initials': 'AH', 'order': 1},
             {'name': 'Shahnawaz Qureshi', 'designation': 'PYTHON ENGINEER', 'image_url': '', 'initials': 'SQ', 'order': 2},
@@ -118,24 +119,18 @@ def _ensure_team_members_seeded():
             {'name': 'Ammar Mughal', 'designation': 'LEAD DATA SCIENTIST', 'image_url': '/static/4.jpg', 'initials': 'AM', 'order': 7}
         ]
         try:
-            existing = {m.name for m in TeamMember.query.all()}
             for item in seed_data:
-                if item['name'] not in existing:
-                    db.session.add(TeamMember(**item))
+                db.session.add(TeamMember(**item))
             db.session.commit()
         except Exception:
             db.session.rollback()
 
 
 def _ensure_campuses_seeded():
-    from ..models import Campus
-    clifton_count = Campus.query.filter(Campus.title.like("%Clifton%")).count()
-    if Campus.query.count() == 0 or clifton_count > 1 or Campus.query.count() > 8:
+    from ..models import Campus, db
+    # Only seed on a completely fresh, empty database
+    if Campus.query.count() == 0:
         try:
-            # Delete existing duplicates/excessive rows
-            Campus.query.delete()
-            db.session.commit()
-            
             demo_campuses = [
                 Campus(title="Titan Main Clifton Campus (HQ)", city="Karachi", region="TITAN HQ NODE", address="Block 5, Main Clifton Road, near Teen Talwar, Karachi", phone="+92 21 3587 0099", email="clifton.karachi@titanlms.com", description="Central Titan headquarters featuring AI Robotics research labs, 24 smart digital classrooms, fiber optic network, and student innovation hub.", active_students=3200, image_url="https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=600", video_url="https://assets.mixkit.co/videos/preview/mixkit-modern-office-space-with-employees-42861-large.mp4"),
                 Campus(title="Titan Tech Campus Gulshan", city="Karachi", region="East Node", address="University Road, Block 13-A, Gulshan-e-Iqbal, Karachi", phone="+92 21 3498 1122", email="gulshan.karachi@titanlms.com", description="Dedicated software engineering and cloud computing lab facility with 500+ workstations.", active_students=2800, image_url="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600", video_url="https://assets.mixkit.co/videos/preview/mixkit-modern-office-space-with-employees-42861-large.mp4"),
