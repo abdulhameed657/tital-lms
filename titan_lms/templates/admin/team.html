@@ -73,6 +73,7 @@
         </div>
 
         <form action="{{ url_for('admin.team') }}" method="POST" enctype="multipart/form-data" class="space-y-md">
+            <input type="hidden" id="add_image_b64" name="image_b64" value="">
             <div>
                 <label class="text-label-md font-bold block mb-xs">Full Name *</label>
                 <input type="text" name="name" required placeholder="e.g. Dr. Sarah Ahmed" class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
@@ -85,7 +86,10 @@
 
             <div>
                 <label class="text-label-md font-bold block mb-xs">Portrait Photo</label>
-                <input type="file" name="image" accept="image/*" class="w-full bg-surface border border-outline-variant rounded-lg p-sm text-body-sm text-on-surface-variant">
+                <div class="flex items-center gap-md">
+                    <img id="add_preview" src="" alt="Preview" class="w-14 h-14 rounded-xl object-cover border border-outline-variant/30 hidden">
+                    <input type="file" name="image" accept="image/*" onchange="handleImageFile(this, 'add_image_b64', 'add_preview')" class="w-full bg-surface border border-outline-variant rounded-lg p-sm text-body-sm text-on-surface-variant">
+                </div>
                 <p class="text-body-sm text-on-surface-variant mt-xs">Square/portrait orientation recommended.</p>
             </div>
 
@@ -118,6 +122,7 @@
         </div>
 
         <form id="editMemberForm" method="POST" enctype="multipart/form-data" class="space-y-md">
+            <input type="hidden" id="edit_image_b64" name="image_b64" value="">
             <div>
                 <label class="text-label-md font-bold block mb-xs">Full Name *</label>
                 <input type="text" id="edit_name" name="name" required class="w-full bg-surface border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary">
@@ -130,7 +135,10 @@
 
             <div>
                 <label class="text-label-md font-bold block mb-xs">Replace Portrait Photo (Optional)</label>
-                <input type="file" name="image" accept="image/*" class="w-full bg-surface border border-outline-variant rounded-lg p-sm text-body-sm text-on-surface-variant">
+                <div class="flex items-center gap-md">
+                    <img id="edit_preview" src="" alt="Preview" class="w-14 h-14 rounded-xl object-cover border border-outline-variant/30 hidden">
+                    <input type="file" name="image" accept="image/*" onchange="handleImageFile(this, 'edit_image_b64', 'edit_preview')" class="w-full bg-surface border border-outline-variant rounded-lg p-sm text-body-sm text-on-surface-variant">
+                </div>
             </div>
 
             <div>
@@ -152,12 +160,54 @@
 </div>
 
 <script>
+function handleImageFile(input, hiddenInputId, previewImgId) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // Compress with Canvas to max 600px width/height and 0.85 quality
+            const canvas = document.createElement('canvas');
+            let w = img.width;
+            let h = img.height;
+            const maxDim = 600;
+            if (w > maxDim || h > maxDim) {
+                if (w > h) {
+                    h = Math.round((h * maxDim) / w);
+                    w = maxDim;
+                } else {
+                    w = Math.round((w * maxDim) / h);
+                    h = maxDim;
+                }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const compressedB64 = canvas.toDataURL('image/jpeg', 0.85);
+            document.getElementById(hiddenInputId).value = compressedB64;
+            
+            const previewEl = document.getElementById(previewImgId);
+            if (previewEl) {
+                previewEl.src = compressedB64;
+                previewEl.classList.remove('hidden');
+            }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
 function editMember(id, name, designation, bio, order) {
     document.getElementById('editMemberForm').action = "/admin/team/" + id + "/edit";
     document.getElementById('edit_name').value = name;
     document.getElementById('edit_designation').value = designation;
     document.getElementById('edit_bio').value = bio;
     document.getElementById('edit_order').value = order;
+    document.getElementById('edit_image_b64').value = "";
+    const previewEl = document.getElementById('edit_preview');
+    if (previewEl) previewEl.classList.add('hidden');
     document.getElementById('editMemberModal').classList.remove('hidden');
 }
 </script>

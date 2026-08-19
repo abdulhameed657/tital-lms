@@ -1483,13 +1483,27 @@ def api_scan_attendance():
 
 
 def _save_or_base64_upload(file_obj, subfolder='team', is_video=False):
-    if not file_obj or not file_obj.filename:
+    if not file_obj or not getattr(file_obj, 'filename', None):
         return None
     import base64
     from werkzeug.utils import secure_filename
     from flask import current_app
     
-    # 1. Attempt to save locally to static/uploads if the filesystem is writable (e.g. local dev)
+    is_vercel = bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
+
+    # If running on Vercel or serverless, read directly into Base64 (avoiding read-only filesystem completely)
+    if is_vercel:
+        try:
+            file_obj.seek(0)
+            file_bytes = file_obj.read()
+            if file_bytes:
+                mime = getattr(file_obj, 'mimetype', None) or ('video/mp4' if is_video else 'image/jpeg')
+                encoded = base64.b64encode(file_bytes).decode('utf-8')
+                return f"data:{mime};base64,{encoded}"
+        except Exception:
+            return None
+
+    # Local development: Attempt saving to static/uploads
     try:
         prefix = 'tour' if is_video else subfolder
         fname = secure_filename(f"{prefix}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{file_obj.filename}")
@@ -1499,12 +1513,11 @@ def _save_or_base64_upload(file_obj, subfolder='team', is_video=False):
         file_obj.save(save_path)
         return f"/static/uploads/{subfolder}/{fname}"
     except Exception:
-        # 2. Fallback for serverless environments (Vercel) where the local filesystem is read-only
         try:
             file_obj.seek(0)
             file_bytes = file_obj.read()
             if file_bytes:
-                mime = file_obj.mimetype or ('video/mp4' if is_video else 'image/jpeg')
+                mime = getattr(file_obj, 'mimetype', None) or ('video/mp4' if is_video else 'image/jpeg')
                 encoded = base64.b64encode(file_bytes).decode('utf-8')
                 return f"data:{mime};base64,{encoded}"
         except Exception:
@@ -1516,34 +1529,47 @@ def _save_or_base64_upload(file_obj, subfolder='team', is_video=False):
 @login_required
 @role_required(['admin', 'superadmin'])
 def team():
-    if request.method == 'POST':
-        name = request.form.get('name', '').strip()
-        designation = request.form.get('designation', '').strip()
-        bio = request.form.get('bio', '').strip()
-        order = int(request.form.get('order', 0))
-
-        image_url = None
-        file = request.files.get('image')
-        if file and file.filename:
-            image_url = _save_or_base64_upload(file, 'team')
-
-        initials = ''.join([w[0].upper() for w in name.split()[:2]]) if name else 'TM'
-
-        member = TeamMember(
-            name=name,
-            designation=designation,
-            bio=bio,
-            image_url=image_url,
-            initials=initials,
-            order=order
-        )
-        db.session.add(member)
-        db.session.commit()
-        flash(f"👤 Team member '{name}' added successfully!", "success")
-        return redirect(url_for('admin.team'))
-
     from .public import _ensure_team_members_seeded
     _ensure_team_members_seeded()
+
+    if request.method == 'POST':
+        try:
+            name = request.form.get('name', '').strip()
+            designation = request.form.get('designation', '').strip()
+            bio = request.form.get('bio', '').strip()
+            
+            try:
+                order = int(request.form.get('order', 1))
+            except (ValueError, TypeError):
+                order = 1
+
+            image_url = None
+            image_b64 = request.form.get('image_b64', '').strip()
+            if image_b64 and image_b64.startswith('data:'):
+                image_url = image_b64
+            else:
+                file = request.files.get('image')
+                if file and file.filename:
+                    image_url = _save_or_base64_upload(file, 'team')
+
+            initials = ''.join([w[0].upper() for w in name.split()[:2]]) if name else 'TM'
+
+            member = TeamMember(
+                name=name,
+                designation=designation,
+                bio=bio,
+                image_url=image_url,
+                initials=initials,
+                order=order
+            )
+            db.session.add(member)
+            db.session.commit()
+            flash(f"👤 Team member '{name}' added successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"⚠️ Error saving team member: {str(e)}", "error")
+        return redirect(url_for('admin.team'))
+
     members = TeamMember.query.order_by(TeamMember.order.asc(), TeamMember.id.asc()).all()
     return render_template('admin/team.html', members=members, active_page='team')
 
@@ -1552,21 +1578,42 @@ def team():
 @login_required
 @role_required(['admin', 'superadmin'])
 def edit_team_member(member_id):
-    member = TeamMember.query.get_or_404(member_id)
-    member.name = request.form.get('name', member.name).strip()
-    member.designation = request.form.get('designation', member.designation).strip()
-    member.bio = request.form.get('bio', member.bio).strip()
-    member.order = int(request.form.get('order', member.order))
-    member.initials = ''.join([w[0].upper() for w in member.name.split()[:2]]) if member.name else 'TM'
+    from .public import _ensure_team_members_seeded
+    _ensure_team_members_seeded()
 
-    file = request.files.get('image')
-    if file and file.filename:
-        new_img = _save_or_base64_upload(file, 'team')
-        if new_img:
-            member.image_url = new_img
+    try:
+        member = TeamMember.query.get(member_id)
+        if not member:
+            flash("⚠️ Team member not found.", "error")
+            return redirect(url_for('admin.team'))
 
-    db.session.commit()
-    flash(f"✏️ Team member '{member.name}' updated successfully!", "success")
+        member.name = request.form.get('name', member.name).strip()
+        member.designation = request.form.get('designation', member.designation).strip()
+        member.bio = request.form.get('bio', member.bio or '').strip()
+        
+        try:
+            member.order = int(request.form.get('order', member.order or 1))
+        except (ValueError, TypeError):
+            pass
+
+        member.initials = ''.join([w[0].upper() for w in member.name.split()[:2]]) if member.name else 'TM'
+
+        image_b64 = request.form.get('image_b64', '').strip()
+        if image_b64 and image_b64.startswith('data:'):
+            member.image_url = image_b64
+        else:
+            file = request.files.get('image')
+            if file and file.filename:
+                new_img = _save_or_base64_upload(file, 'team')
+                if new_img:
+                    member.image_url = new_img
+
+        db.session.commit()
+        flash(f"✏️ Team member '{member.name}' updated successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"⚠️ Error updating team member: {str(e)}", "error")
+
     return redirect(url_for('admin.team'))
 
 
@@ -1574,11 +1621,16 @@ def edit_team_member(member_id):
 @login_required
 @role_required(['admin', 'superadmin'])
 def delete_team_member(member_id):
-    member = TeamMember.query.get_or_404(member_id)
-    name = member.name
-    db.session.delete(member)
-    db.session.commit()
-    flash(f"🗑️ Team member '{name}' removed successfully.", "info")
+    try:
+        member = TeamMember.query.get(member_id)
+        if member:
+            name = member.name
+            db.session.delete(member)
+            db.session.commit()
+            flash(f"🗑️ Team member '{name}' removed successfully.", "info")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"⚠️ Error removing team member: {str(e)}", "error")
     return redirect(url_for('admin.team'))
 
 
@@ -1586,43 +1638,57 @@ def delete_team_member(member_id):
 @login_required
 @role_required(['admin', 'superadmin'])
 def admin_campuses():
+    from .public import _ensure_campuses_seeded
+    _ensure_campuses_seeded()
+
     if request.method == 'POST':
-        title = request.form.get('title', '').strip()
-        city = request.form.get('city', '').strip()
-        region = request.form.get('region', 'Main Hub').strip()
-        address = request.form.get('address', '').strip()
-        phone = request.form.get('phone', '').strip()
-        email = request.form.get('email', '').strip()
-        description = request.form.get('description', '').strip()
-        active_students = int(request.form.get('active_students', 500))
+        try:
+            title = request.form.get('title', '').strip()
+            city = request.form.get('city', '').strip()
+            region = request.form.get('region', 'Main Hub').strip()
+            address = request.form.get('address', '').strip()
+            phone = request.form.get('phone', '').strip()
+            email = request.form.get('email', '').strip()
+            description = request.form.get('description', '').strip()
+            try:
+                active_students = int(request.form.get('active_students', 500))
+            except (ValueError, TypeError):
+                active_students = 500
 
-        image_url = None
-        img_file = request.files.get('image')
-        if img_file and img_file.filename:
-            image_url = _save_or_base64_upload(img_file, 'campuses')
+            image_url = None
+            image_b64 = request.form.get('image_b64', '').strip()
+            if image_b64 and image_b64.startswith('data:'):
+                image_url = image_b64
+            else:
+                img_file = request.files.get('image')
+                if img_file and img_file.filename:
+                    image_url = _save_or_base64_upload(img_file, 'campuses')
 
-        video_url = None
-        vid_file = request.files.get('video')
-        if vid_file and vid_file.filename:
-            video_url = _save_or_base64_upload(vid_file, 'campuses', is_video=True)
-        else:
-            video_url = request.form.get('video_link', '').strip() or None
+            video_url = None
+            vid_file = request.files.get('video')
+            if vid_file and vid_file.filename:
+                video_url = _save_or_base64_upload(vid_file, 'campuses', is_video=True)
+            else:
+                video_url = request.form.get('video_link', '').strip() or None
 
-        campus = Campus(
-            title=title,
-            city=city,
-            region=region,
-            address=address,
-            phone=phone,
-            email=email,
-            description=description,
-            active_students=active_students,
-            image_url=image_url,
-            video_url=video_url
-        )
-        db.session.add(campus)
-        db.session.commit()
-        flash(f"🏛️ Campus '{title}' in {city} created successfully!", "success")
+            campus = Campus(
+                title=title,
+                city=city,
+                region=region,
+                address=address,
+                phone=phone,
+                email=email,
+                description=description,
+                active_students=active_students,
+                image_url=image_url,
+                video_url=video_url
+            )
+            db.session.add(campus)
+            db.session.commit()
+            flash(f"🏛️ Campus '{title}' in {city} created successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"⚠️ Error creating campus: {str(e)}", "error")
         return redirect(url_for('admin.admin_campuses'))
 
     campuses_list = Campus.query.order_by(Campus.city.asc(), Campus.id.desc()).all()
@@ -1633,32 +1699,48 @@ def admin_campuses():
 @login_required
 @role_required(['admin', 'superadmin'])
 def edit_campus(campus_id):
-    campus = Campus.query.get_or_404(campus_id)
-    campus.title = request.form.get('title', campus.title).strip()
-    campus.city = request.form.get('city', campus.city).strip()
-    campus.region = request.form.get('region', campus.region).strip()
-    campus.address = request.form.get('address', campus.address).strip()
-    campus.phone = request.form.get('phone', campus.phone).strip()
-    campus.email = request.form.get('email', campus.email).strip()
-    campus.description = request.form.get('description', campus.description).strip()
-    campus.active_students = int(request.form.get('active_students', campus.active_students))
+    try:
+        campus = Campus.query.get(campus_id)
+        if not campus:
+            flash("⚠️ Campus not found.", "error")
+            return redirect(url_for('admin.admin_campuses'))
 
-    img_file = request.files.get('image')
-    if img_file and img_file.filename:
-        new_img = _save_or_base64_upload(img_file, 'campuses')
-        if new_img:
-            campus.image_url = new_img
+        campus.title = request.form.get('title', campus.title).strip()
+        campus.city = request.form.get('city', campus.city).strip()
+        campus.region = request.form.get('region', campus.region).strip()
+        campus.address = request.form.get('address', campus.address).strip()
+        campus.phone = request.form.get('phone', campus.phone).strip()
+        campus.email = request.form.get('email', campus.email).strip()
+        campus.description = request.form.get('description', campus.description).strip()
+        try:
+            campus.active_students = int(request.form.get('active_students', campus.active_students or 500))
+        except (ValueError, TypeError):
+            pass
 
-    vid_file = request.files.get('video')
-    if vid_file and vid_file.filename:
-        new_vid = _save_or_base64_upload(vid_file, 'campuses', is_video=True)
-        if new_vid:
-            campus.video_url = new_vid
-    elif request.form.get('video_link'):
-        campus.video_url = request.form.get('video_link').strip()
+        image_b64 = request.form.get('image_b64', '').strip()
+        if image_b64 and image_b64.startswith('data:'):
+            campus.image_url = image_b64
+        else:
+            img_file = request.files.get('image')
+            if img_file and img_file.filename:
+                new_img = _save_or_base64_upload(img_file, 'campuses')
+                if new_img:
+                    campus.image_url = new_img
 
-    db.session.commit()
-    flash(f"✏️ Campus '{campus.title}' updated successfully!", "success")
+        vid_file = request.files.get('video')
+        if vid_file and vid_file.filename:
+            new_vid = _save_or_base64_upload(vid_file, 'campuses', is_video=True)
+            if new_vid:
+                campus.video_url = new_vid
+        elif request.form.get('video_link'):
+            campus.video_url = request.form.get('video_link').strip()
+
+        db.session.commit()
+        flash(f"✏️ Campus '{campus.title}' updated successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"⚠️ Error updating campus: {str(e)}", "error")
+
     return redirect(url_for('admin.admin_campuses'))
 
 
@@ -1666,11 +1748,16 @@ def edit_campus(campus_id):
 @login_required
 @role_required(['admin', 'superadmin'])
 def delete_campus(campus_id):
-    campus = Campus.query.get_or_404(campus_id)
-    title = campus.title
-    db.session.delete(campus)
-    db.session.commit()
-    flash(f"🗑️ Campus '{title}' deleted successfully!", "success")
+    try:
+        campus = Campus.query.get(campus_id)
+        if campus:
+            title = campus.title
+            db.session.delete(campus)
+            db.session.commit()
+            flash(f"🗑️ Campus '{title}' removed successfully.", "info")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"⚠️ Error deleting campus: {str(e)}", "error")
     return redirect(url_for('admin.admin_campuses'))
 
 
