@@ -806,17 +806,18 @@ def upload_assignment(lesson_id):
             flash(f'File type "{ext}" is not allowed. Upload PDF, DOC, ZIP, image, or code files.', 'error')
             return redirect(url_for('student.my_assignments'))
 
-        # ── Save file ──────────────────────────────────────────────
+        # ── Save file safely for Vercel Serverless & Local ──────────
         safe_name = f"{current_user.id}_{lesson_id}_{uuid.uuid4().hex[:8]}{ext}"
         try:
-            upload_dir = os.path.join(os.getcwd(), 'titan_lms', 'static', 'uploads', 'assignments')
-            os.makedirs(upload_dir, exist_ok=True)
-            file.save(os.path.join(upload_dir, safe_name))
+            if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME') or not os.access(os.getcwd(), os.W_OK):
+                file.save(os.path.join('/tmp', safe_name))
+            else:
+                upload_dir = os.path.join(os.getcwd(), 'titan_lms', 'static', 'uploads', 'assignments')
+                os.makedirs(upload_dir, exist_ok=True)
+                file.save(os.path.join(upload_dir, safe_name))
         except Exception:
             try:
-                tmp_dir = os.path.join('/tmp', 'assignments')
-                os.makedirs(tmp_dir, exist_ok=True)
-                file.save(os.path.join(tmp_dir, safe_name))
+                file.save(os.path.join('/tmp', safe_name))
             except Exception:
                 pass
 
