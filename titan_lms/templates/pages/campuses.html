@@ -228,11 +228,7 @@
       </div>
 
       <!-- Virtual Tour Container (Shown when Tour button clicked) -->
-      <div id="virtualTourVideoBox" class="hidden rounded-2xl overflow-hidden border border-slate-200 bg-black aspect-video relative shadow-inner">
-        <video id="virtualTourPlayer" class="w-full h-full object-cover" controls autoplay loop muted>
-          <source src="https://assets.mixkit.co/videos/preview/mixkit-modern-office-space-with-employees-42861-large.mp4" type="video/mp4">
-          Your browser does not support HTML5 video.
-        </video>
+      <div id="virtualTourVideoBox" class="hidden rounded-2xl overflow-hidden border border-slate-200 bg-black aspect-video relative shadow-inner flex items-center justify-center">
       </div>
 
       <!-- Action CTA Button -->
@@ -246,6 +242,45 @@
 </div>
 
 <script>
+  let currentTourVideoUrl = "https://assets.mixkit.co/videos/preview/mixkit-modern-office-space-with-employees-42861-large.mp4";
+
+  function renderSmartVideo(containerEl, rawUrl) {
+    if (!rawUrl) return;
+    const url = rawUrl.trim();
+    
+    // 1. YouTube Player
+    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
+    if (ytMatch) {
+      const videoId = ytMatch[1];
+      containerEl.innerHTML = `<iframe class="w-full h-full border-0" src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      return;
+    }
+    
+    // 2. Facebook Video Embed
+    if (url.includes('facebook.com') || url.includes('fb.watch')) {
+      const encodedUrl = encodeURIComponent(url);
+      containerEl.innerHTML = `<iframe class="w-full h-full border-0" src="https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&autoplay=true&t=0" style="border:none;overflow:hidden;width:100%;height:100%;" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>`;
+      return;
+    }
+    
+    // 3. Vimeo Player
+    const vimeoMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)/i);
+    if (vimeoMatch) {
+      const vimeoId = vimeoMatch[1];
+      containerEl.innerHTML = `<iframe class="w-full h-full border-0" src="https://player.vimeo.com/video/${vimeoId}?autoplay=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+      return;
+    }
+    
+    // 4. Direct MP4 / WebM / Video file
+    containerEl.innerHTML = `
+      <video class="w-full h-full object-cover" controls autoplay loop playsinline>
+        <source src="${url}" type="video/mp4">
+        <source src="${url}" type="video/webm">
+        Your browser does not support HTML5 video.
+      </video>
+    `;
+  }
+
   function openCampusModal(name, count, region, students, img) {
     document.getElementById('modalCityName').innerText = name;
     document.getElementById('modalRegion').innerText = region || "TITAN CAMPUS NODE";
@@ -255,9 +290,9 @@
     document.getElementById('modalImg').src = img || "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600";
 
     // Reset video box
-    document.getElementById('virtualTourVideoBox').classList.add('hidden');
-    const player = document.getElementById('virtualTourPlayer');
-    if (player) player.pause();
+    const videoBox = document.getElementById('virtualTourVideoBox');
+    videoBox.classList.add('hidden');
+    videoBox.innerHTML = "";
     document.getElementById('tourCtaBtn').style.display = "flex";
 
     // Show modal
@@ -269,17 +304,14 @@
 
   function closeCampusModal() {
     document.getElementById('campusDetailModal').classList.add('hidden');
-    const player = document.getElementById('virtualTourPlayer');
-    if (player) player.pause();
+    const videoBox = document.getElementById('virtualTourVideoBox');
+    videoBox.innerHTML = "";
   }
 
   function playVirtualTour() {
     const videoBox = document.getElementById('virtualTourVideoBox');
+    renderSmartVideo(videoBox, currentTourVideoUrl);
     videoBox.classList.remove('hidden');
-    const player = document.getElementById('virtualTourPlayer');
-    if (player) {
-      player.play();
-    }
     document.getElementById('tourCtaBtn').style.display = "none";
   }
 

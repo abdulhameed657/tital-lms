@@ -198,10 +198,7 @@
       </div>
 
       <!-- Virtual Tour Video Box -->
-      <div id="modalVideoBox" class="hidden rounded-2xl overflow-hidden border border-slate-200 bg-black aspect-video relative shadow-inner">
-        <video id="modalVideoPlayer" class="w-full h-full object-cover" controls autoplay loop muted>
-          <source id="videoSource" src="" type="video/mp4">
-        </video>
+      <div id="modalVideoBox" class="hidden rounded-2xl overflow-hidden border border-slate-200 bg-black aspect-video relative shadow-inner flex items-center justify-center">
       </div>
 
       <button id="modalPlayBtn" onclick="startModalVideo()" class="w-full py-3.5 bg-[#0054cb] hover:bg-[#0040a0] text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
@@ -215,6 +212,43 @@
 <script>
   let currentVideoUrl = "";
 
+  function renderSmartVideo(containerEl, rawUrl) {
+    if (!rawUrl) return;
+    const url = rawUrl.trim();
+    
+    // 1. YouTube Player
+    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
+    if (ytMatch) {
+      const videoId = ytMatch[1];
+      containerEl.innerHTML = `<iframe class="w-full h-full border-0" src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      return;
+    }
+    
+    // 2. Facebook Video Embed
+    if (url.includes('facebook.com') || url.includes('fb.watch')) {
+      const encodedUrl = encodeURIComponent(url);
+      containerEl.innerHTML = `<iframe class="w-full h-full border-0" src="https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&autoplay=true&t=0" style="border:none;overflow:hidden;width:100%;height:100%;" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>`;
+      return;
+    }
+    
+    // 3. Vimeo Player
+    const vimeoMatch = url.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)/i);
+    if (vimeoMatch) {
+      const vimeoId = vimeoMatch[1];
+      containerEl.innerHTML = `<iframe class="w-full h-full border-0" src="https://player.vimeo.com/video/${vimeoId}?autoplay=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+      return;
+    }
+    
+    // 4. Direct MP4 / WebM / Video file
+    containerEl.innerHTML = `
+      <video class="w-full h-full object-cover" controls autoplay loop playsinline>
+        <source src="${url}" type="video/mp4">
+        <source src="${url}" type="video/webm">
+        Your browser does not support HTML5 video.
+      </video>
+    `;
+  }
+
   function openModalDetails(title, city, region, address, phone, email, description, students, img, video) {
     document.getElementById('viewTitle').innerText = title;
     document.getElementById('viewRegion').innerText = region || "TITAN CAMPUS NODE";
@@ -224,33 +258,29 @@
     document.getElementById('viewDescription').innerText = description || "Modern educational facilities equipped with AI labs and smart classrooms.";
     document.getElementById('viewImg').src = img || "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?w=600";
 
-    currentVideoUrl = video || "https://assets.mixkit.co/videos/preview/mixkit-modern-office-space-with-employees-42861-large.mp4";
+    currentVideoUrl = video ? video.trim() : "https://assets.mixkit.co/videos/preview/mixkit-modern-office-space-with-employees-42861-large.mp4";
 
     // Reset video state
-    document.getElementById('modalVideoBox').classList.add('hidden');
-    document.getElementById('modalPlayBtn').style.display = "flex";
-    const player = document.getElementById('modalVideoPlayer');
-    if (player) player.pause();
+    const videoBox = document.getElementById('modalVideoBox');
+    videoBox.classList.add('hidden');
+    videoBox.innerHTML = "";
+    
+    const playBtn = document.getElementById('modalPlayBtn');
+    playBtn.style.display = "flex";
 
     document.getElementById('cityCampusModal').classList.remove('hidden');
   }
 
   function closeCityModal() {
     document.getElementById('cityCampusModal').classList.add('hidden');
-    const player = document.getElementById('modalVideoPlayer');
-    if (player) player.pause();
+    const videoBox = document.getElementById('modalVideoBox');
+    videoBox.innerHTML = "";
   }
 
   function startModalVideo() {
     const videoBox = document.getElementById('modalVideoBox');
-    const player = document.getElementById('modalVideoPlayer');
-    const source = document.getElementById('videoSource');
-
-    source.src = currentVideoUrl;
-    player.load();
+    renderSmartVideo(videoBox, currentVideoUrl);
     videoBox.classList.remove('hidden');
-    player.play();
-
     document.getElementById('modalPlayBtn').style.display = "none";
   }
 </script>
