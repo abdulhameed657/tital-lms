@@ -442,18 +442,20 @@ def submit_quiz(quiz_id, attempt_id):
     attempt.score = score_pct
     attempt.passed = (score_pct >= 70.0)
     
+    # Calculate earned XP points (15 XP per correct answer + 50 bonus XP if passed)
+    earned_xp = (correct_count * 15) + (50 if attempt.passed else 10)
+    current_user.points = (current_user.points or 0) + earned_xp
+    current_user.quiz_points = (current_user.quiz_points or 0) + earned_xp
+
     # Compile cumulative AI evaluation summaries
     if attempt.passed:
-        attempt.ai_feedback = f"Congratulations! You scored {score_pct:.1f}% and passed this evaluation. The system has verified your skills."
-        # Add points
-        current_user.points += 50
-        current_user.quiz_points = (current_user.quiz_points or 0) + 50
+        attempt.ai_feedback = f"Congratulations! You scored {score_pct:.1f}% and passed this evaluation. (+{earned_xp} XP earned)"
     else:
-        attempt.ai_feedback = f"You scored {score_pct:.1f}%. A score of 70.0% is required to pass. Please review the detailed AI comments below and attempt again."
+        attempt.ai_feedback = f"You scored {score_pct:.1f}%. A score of 70.0% is required to pass. (+{earned_xp} XP participation earned). Review the comments below and try again."
         
     db.session.commit()
     
-    return render_template('student/quiz_result.html', quiz=quiz, attempt=attempt)
+    return render_template('student/quiz_result.html', quiz=quiz, attempt=attempt, earned_xp=earned_xp)
 
 @student_bp.route('/forum', methods=['GET', 'POST'])
 @login_required
@@ -840,13 +842,17 @@ def upload_assignment(lesson_id):
                     cert = Certificate(user_id=current_user.id, course_id=course.id)
                     db.session.add(cert)
 
+                # Award +200 XP completion points
+                current_user.points = (current_user.points or 0) + 200
+                current_user.assignment_points = (current_user.assignment_points or 0) + 200
+
                 # Notify learner
                 notif = Notification(
                     user_id=current_user.id,
                     title="Course Completed! 🎉",
                     content=(
                         f"Congratulations! You completed {course.title} by submitting "
-                        f"your final assignment. Your certificate is ready for download."
+                        f"your final assignment. Your certificate is ready for download. (+200 XP)"
                     ),
                     type="achievement"
                 )
@@ -858,32 +864,34 @@ def upload_assignment(lesson_id):
                 )
             else:
                 # Partial progress — award XP for submission
-                current_user.points = (current_user.points or 0) + 10
-                current_user.assignment_points = (current_user.assignment_points or 0) + 10
+                current_user.points = (current_user.points or 0) + 50
+                current_user.assignment_points = (current_user.assignment_points or 0) + 50
                 notif = Notification(
                     user_id=current_user.id,
                     title="Assignment Submitted",
                     content=(
                         f'Your assignment "{lesson.title}" was submitted. '
-                        f'Course progress advanced to {new_progress}%. +10 XP earned!'
+                        f'Course progress advanced to {new_progress}%. +50 XP earned!'
                     ),
                     type="info"
                 )
                 db.session.add(notif)
                 flash(
                     f'✅ Assignment "{lesson.title}" submitted! Progress: {new_progress}% '
-                    f'(+10 XP)',
+                    f'(+50 XP)',
                     'success'
                 )
         else:
             # Progress already at or beyond this point — just confirm receipt
-            current_user.points = (current_user.points or 0) + 10
-            current_user.assignment_points = (current_user.assignment_points or 0) + 10
+            current_user.points = (current_user.points or 0) + 25
+            current_user.assignment_points = (current_user.assignment_points or 0) + 25
             flash(
                 f'✅ Assignment "{lesson.title}" submitted successfully! '
-                f'Your instructor will review it. (+10 XP)',
+                f'Your instructor will review it. (+25 XP)',
                 'success'
             )
+
+        db.session.commit()
 
     return redirect(url_for('student.my_assignments'))
 

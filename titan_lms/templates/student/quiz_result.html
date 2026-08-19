@@ -68,7 +68,7 @@
                     <span class="text-label-sm opacity-80">Score</span>
                 </div>
                 <div class="bg-white/15 rounded-xl px-md py-sm text-white text-center min-w-[80px]">
-                    <span class="block text-headline-sm font-bold">{% if attempt.passed %}+50{% else %}0{% endif %}</span>
+                    <span class="block text-headline-sm font-bold">+{{ earned_xp|default(50 if attempt.passed else 10) }}</span>
                     <span class="text-label-sm opacity-80">XP Earned</span>
                 </div>
             </div>
