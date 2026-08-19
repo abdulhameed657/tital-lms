@@ -201,6 +201,14 @@
       <div id="modalVideoBox" class="hidden rounded-2xl overflow-hidden border border-slate-200 bg-black aspect-video relative shadow-inner flex items-center justify-center">
       </div>
 
+      <!-- External Video Fallback Link -->
+      <div id="videoExternalLinkBox" class="hidden text-center">
+        <a id="videoExternalLink" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 text-xs font-bold text-[#0054cb] hover:bg-[#0054cb]/10 bg-slate-50 border border-[#0054cb]/20 px-4 py-2.5 rounded-xl w-full transition-all">
+          <span class="material-symbols-outlined text-sm">open_in_new</span>
+          <span id="videoExternalLinkText">Watch Full Video on External Platform</span>
+        </a>
+      </div>
+
       <button id="modalPlayBtn" onclick="startModalVideo()" class="w-full py-3.5 bg-[#0054cb] hover:bg-[#0040a0] text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
         <span>Play Virtual Tour Video</span>
         <span class="material-symbols-outlined text-lg">play_circle</span>
@@ -215,12 +223,20 @@
   function renderSmartVideo(containerEl, rawUrl) {
     if (!rawUrl) return;
     const url = rawUrl.trim();
+    const extBox = document.getElementById('videoExternalLinkBox');
+    const extLink = document.getElementById('videoExternalLink');
+    const extText = document.getElementById('videoExternalLinkText');
     
     // 1. YouTube Player
     const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
     if (ytMatch) {
       const videoId = ytMatch[1];
       containerEl.innerHTML = `<iframe class="w-full h-full border-0" src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      if (extBox && extLink && extText) {
+        extLink.href = `https://www.youtube.com/watch?v=${videoId}`;
+        extText.innerText = "Watch directly on YouTube";
+        extBox.classList.remove('hidden');
+      }
       return;
     }
     
@@ -228,6 +244,11 @@
     if (url.includes('facebook.com') || url.includes('fb.watch')) {
       const encodedUrl = encodeURIComponent(url);
       containerEl.innerHTML = `<iframe class="w-full h-full border-0" src="https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&autoplay=true&t=0" style="border:none;overflow:hidden;width:100%;height:100%;" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>`;
+      if (extBox && extLink && extText) {
+        extLink.href = url;
+        extText.innerText = "Open / Watch directly on Facebook";
+        extBox.classList.remove('hidden');
+      }
       return;
     }
     
@@ -236,10 +257,16 @@
     if (vimeoMatch) {
       const vimeoId = vimeoMatch[1];
       containerEl.innerHTML = `<iframe class="w-full h-full border-0" src="https://player.vimeo.com/video/${vimeoId}?autoplay=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+      if (extBox && extLink && extText) {
+        extLink.href = url;
+        extText.innerText = "Watch directly on Vimeo";
+        extBox.classList.remove('hidden');
+      }
       return;
     }
     
     // 4. Direct MP4 / WebM / Video file
+    if (extBox) extBox.classList.add('hidden');
     containerEl.innerHTML = `
       <video class="w-full h-full object-cover" controls autoplay loop playsinline>
         <source src="${url}" type="video/mp4">
@@ -265,6 +292,9 @@
     videoBox.classList.add('hidden');
     videoBox.innerHTML = "";
     
+    const extBox = document.getElementById('videoExternalLinkBox');
+    if (extBox) extBox.classList.add('hidden');
+
     const playBtn = document.getElementById('modalPlayBtn');
     playBtn.style.display = "flex";
 
@@ -275,6 +305,8 @@
     document.getElementById('cityCampusModal').classList.add('hidden');
     const videoBox = document.getElementById('modalVideoBox');
     videoBox.innerHTML = "";
+    const extBox = document.getElementById('videoExternalLinkBox');
+    if (extBox) extBox.classList.add('hidden');
   }
 
   function startModalVideo() {
