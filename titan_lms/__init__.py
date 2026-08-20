@@ -34,22 +34,17 @@ def create_app():
     # Configure App
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'titan-lms-super-secret-key-987654')
     
-    # DB Configuration: Default to local SQLite db, or /tmp/titan_lms.db on Vercel
-    is_vercel = os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV')
-    raw_db_url = (
-        os.environ.get('SUPABASE_DB_URL') or 
-        os.environ.get('DATABASE_URL') or 
-        os.environ.get('POSTGRES_URL') or 
-        os.environ.get('POSTGRES_URL_NON_POOLING') or 
-        os.environ.get('STORAGE_URL')
-    )
+    # DB Configuration: Single clean DATABASE_URL (Cloud PostgreSQL) with automatic local SQLite fallback
+    is_vercel = bool(os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'))
+    raw_db_url = os.environ.get('DATABASE_URL') or os.environ.get('SUPABASE_DB_URL') or os.environ.get('POSTGRES_URL')
+    
     if not raw_db_url or not str(raw_db_url).strip():
         db_url = 'sqlite:////tmp/titan_lms.db' if is_vercel else 'sqlite:///titan_lms.db'
     else:
         db_url = str(raw_db_url).strip()
         if db_url.startswith("postgres://"):
             db_url = db_url.replace("postgres://", "postgresql://", 1)
-        if ("supabase.com" in db_url or "neon.tech" in db_url) and "sslmode" not in db_url:
+        if "sslmode" not in db_url and ("neon.tech" in db_url or "supabase.co" in db_url or "supabase.com" in db_url):
             db_url += ("&" if "?" in db_url else "?") + "sslmode=require"
             
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
@@ -62,7 +57,6 @@ def create_app():
             'max_overflow': 2,
             'pool_recycle': 300,
             'pool_pre_ping': True,
-            'connect_args': {'sslmode': 'require'}
         }
     
     # File upload config
