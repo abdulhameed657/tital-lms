@@ -66,5 +66,42 @@ def debug_paths():
     
     return json.dumps(result, indent=2), 200, {'Content-Type': 'application/json'}
 
+@app.route('/api/debug-db')
+def debug_db():
+    """Diagnostic: test DB connection and show masked URI/status."""
+    import traceback
+    from sqlalchemy import text
+    from titan_lms.models import db, User, Course
+    
+    db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    masked_uri = db_uri
+    if '@' in db_uri:
+        parts = db_uri.split('@')
+        prefix = parts[0].split(':')[0]
+        masked_uri = f"{prefix}:****@{parts[1]}"
+        
+    info = {
+        'database_uri': masked_uri,
+        'has_supabase_env': bool(os.environ.get('SUPABASE_DB_URL')),
+        'has_postgres_env': bool(os.environ.get('POSTGRES_URL')),
+        'has_database_env': bool(os.environ.get('DATABASE_URL')),
+    }
+    
+    try:
+        with app.app_context():
+            res = db.session.execute(text("SELECT 1")).scalar()
+            courses_count = Course.query.count()
+            users_count = User.query.count()
+            info['connection_status'] = 'SUCCESS'
+            info['select_1_test'] = res
+            info['courses_count'] = courses_count
+            info['users_count'] = users_count
+            return json.dumps(info, indent=2), 200, {'Content-Type': 'application/json'}
+    except Exception as e:
+        info['connection_status'] = 'FAILED'
+        info['error'] = str(e)
+        info['traceback'] = traceback.format_exc()
+        return json.dumps(info, indent=2), 500, {'Content-Type': 'application/json'}
+
 if __name__ == "__main__":
     app.run()

@@ -49,6 +49,8 @@ def create_app():
         db_url = str(raw_db_url).strip()
         if db_url.startswith("postgres://"):
             db_url = db_url.replace("postgres://", "postgresql://", 1)
+        if ("supabase.com" in db_url or "neon.tech" in db_url) and "sslmode" not in db_url:
+            db_url += ("&" if "?" in db_url else "?") + "sslmode=require"
             
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -60,6 +62,7 @@ def create_app():
             'max_overflow': 2,
             'pool_recycle': 300,
             'pool_pre_ping': True,
+            'connect_args': {'sslmode': 'require'}
         }
     
     # File upload config
